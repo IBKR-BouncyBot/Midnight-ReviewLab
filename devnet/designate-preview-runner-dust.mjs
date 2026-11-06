@@ -13,7 +13,7 @@ import {mkdir,readFile,writeFile,rename,unlink} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {setTimeout as pause} from 'node:timers/promises';
-import {MidnightBech32m,DustAddress} from '@midnight-ntwrk/wallet-sdk-address-format';
+import {MidnightBech32m,DustAddress,UnshieldedAddress} from '@midnight-ntwrk/wallet-sdk-address-format';
 import {toTxStatus} from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import {startPreviewWallet,PREVIEW_ENVIRONMENT} from './preview-acceptance.mjs';
 import {writePreviewSecret} from './preview-wallet.mjs';
@@ -52,10 +52,22 @@ async function requireLiveWorkflow(request){
 }
 
 function coinKey(coin){return `${coin.intentHash}:${coin.outputNo}`;}
+function coinOwnedBy(value,owner){
+  // Live SyncSchema preserves the indexer's Bech32m UnshieldedAddress, whereas
+  // simulator/ledger UTXOs contain raw address hex. Accept only the same public
+  // owner in either representation, with Preview checksum/network validation.
+  if(value===owner)return true;
+  if(typeof value!=='string'||!value.startsWith('mn_addr_preview1'))return false;
+  try{
+    const encoded=MidnightBech32m.parse(value);
+    return encoded.network==='preview'&&encoded.asString()===value
+      &&Buffer.from(encoded.decode(UnshieldedAddress,'preview').data).toString('hex')===owner;
+  }catch{return false;}
+}
 function selectCoins(state,ledger,owner){
   requireValue(state?.isSynced===true&&Array.isArray(state.unshielded?.availableCoins),'SYNCED_WALLET_REQUIRED');
   const native=ledger.unshieldedToken().raw;
-  const eligible=state.unshielded.availableCoins.filter(coin=>coin.utxo?.owner===owner&&coin.utxo.type===native
+  const eligible=state.unshielded.availableCoins.filter(coin=>coinOwnedBy(coin.utxo?.owner,owner)&&coin.utxo.type===native
     &&typeof coin.meta?.registeredForDustGeneration==='boolean'&&typeof coin.utxo.value==='bigint'
     &&coin.utxo.value>0n&&coin.utxo.value<=MAX_NIGHT_STAR&&coin.meta.ctime instanceof Date&&Number.isFinite(coin.meta.ctime.getTime()));
   // Older outputs have had more time to generate the registration fee. Whole
@@ -77,7 +89,7 @@ function requireCoinsStillAvailable(state,selected,owner,native){
   const available=new Map(state.unshielded.availableCoins.map(coin=>[coinKey(coin.utxo),coin]));
   for(const coin of selected){
     const current=available.get(coinKey(coin.utxo));
-    requireValue(current?.meta?.registeredForDustGeneration===coin.meta.registeredForDustGeneration&&current.utxo.owner===owner
+    requireValue(current?.meta?.registeredForDustGeneration===coin.meta.registeredForDustGeneration&&coinOwnedBy(current.utxo.owner,owner)
       &&current.utxo.type===native&&current.utxo.value===coin.utxo.value,'SELECTED_NIGHT_NO_LONGER_AVAILABLE');
   }
 }
