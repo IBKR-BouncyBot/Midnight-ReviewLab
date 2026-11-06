@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
-import { MidnightBech32m, DustAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
+import { MidnightBech32m, DustAddress, UnshieldedAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { createLaceApprover } from './lace-ci-approver.mjs';
 import { readPreviewReceivingAddress, readPreviewDustReceivingAddress, showMidnightAccountCard } from './lace-ci-receive.mjs';
 
@@ -18,6 +18,9 @@ const password = () => `Ci!${randomBytes(30).toString('base64url')}7aQ`;
 const usableDustMinimum = 1_000_000_000_000_000n;
 class LaceWalletUiError extends Error {
   constructor(code) { super(code); this.name = 'LaceWalletUiError'; this.code = code; }
+}
+class LaceConnectorReadError extends Error {
+  constructor(code) { super(code); this.name = 'LaceConnectorReadError'; this.code = code; }
 }
 
 async function findControl(context, id, timeout = 45_000) {
@@ -159,28 +162,74 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
     () => { connectionSettled = true; return {apiHandle:null}; });
   await approveWallet({kind:'connect', timeoutMs:600_000, until:async () => connectionSettled});
   const {apiHandle} = await pendingConnection;
-  assert.ok(apiHandle, 'PUBLIC_WALLET_READ_CONNECTION_FAILED');
-  evidence.stage = 'read-public-preview-wallet-account'; await save();
-  const account = await apiHandle.evaluate(async api => {
+  if (!apiHandle) throw new LaceConnectorReadError('LACE_CONNECTOR_PUBLIC_CONNECTION_FAILED');
+  evidence.connectorReadChecks = {};
+  const readStep = async (step, readFailureCode, read) => {
+    evidence.stage = `read-public-preview-wallet-${step}`; await save();
+    let result;
+    try { result = await read(); }
+    catch { throw new LaceConnectorReadError(readFailureCode); }
+    evidence.connectorReadChecks[step] = result.diagnostics; await save();
+    if (!result.ok) throw new LaceConnectorReadError(result.code);
+    return result;
+  };
+  await readStep('configuration', 'LACE_CONNECTOR_CONFIGURATION_READ_FAILED', () => apiHandle.evaluate(async api => {
     const configuration = await api.getConfiguration();
+    if (!configuration || typeof configuration !== 'object' || Array.isArray(configuration)) {
+      return {ok:false, code:'LACE_CONNECTOR_CONFIGURATION_INVALID', diagnostics:{validObject:false}};
+    }
+    const diagnostics = {
+      networkId:['preview','preprod','mainnet','undeployed'].includes(configuration.networkId) ? configuration.networkId :
+        configuration.networkId === undefined ? 'absent' : 'other',
+      reportedProverServerUriAbsent:configuration.proverServerUri === undefined,
+      indexer:{reported:configuration.indexerUri !== undefined},
+    };
+    if (configuration.networkId !== 'preview') return {ok:false, code:'LACE_CONNECTOR_CONFIGURATION_NETWORK_MISMATCH', diagnostics};
+    if (configuration.proverServerUri !== undefined) return {ok:false, code:'LACE_CONNECTOR_REPORTED_PROVER_URI', diagnostics};
+    // Match the app's optional runtime service metadata contract. Released
+    // Lace refreshes its services dynamically; this harness never sends a
+    // request to the reported URI or uses it to configure the public dApp.
+    if (configuration.indexerUri !== undefined) {
+      if (typeof configuration.indexerUri !== 'string' || configuration.indexerUri.length > 8192) {
+        return {ok:false, code:'LACE_CONNECTOR_INDEXER_INVALID', diagnostics};
+      }
+      let indexer;
+      try { indexer = new URL(configuration.indexerUri); }
+      catch { return {ok:false, code:'LACE_CONNECTOR_INDEXER_INVALID', diagnostics}; }
+      if (indexer.protocol !== 'https:') return {ok:false, code:'LACE_CONNECTOR_INDEXER_NON_HTTPS', diagnostics};
+      if (indexer.username || indexer.password) return {ok:false, code:'LACE_CONNECTOR_INDEXER_USERINFO', diagnostics};
+      const knownPaths = ['/', '/api/v4/graphql', '/api/v3/graphql', '/graphql', '/midnight-preview', '/midnight-preview/'];
+      diagnostics.indexer = {reported:true, origin:indexer.origin,
+        path:knownPaths.includes(indexer.pathname) ? indexer.pathname : 'redacted',
+        queryPresent:Boolean(indexer.search), fragmentPresent:Boolean(indexer.hash)};
+    }
+    return {ok:true, diagnostics};
+  }));
+  await readStep('connection-status', 'LACE_CONNECTOR_STATUS_READ_FAILED', () => apiHandle.evaluate(async api => {
     const connection = await api.getConnectionStatus();
-    const address = await api.getUnshieldedAddress();
-    if (configuration.proverServerUri !== undefined || configuration.networkId !== 'preview' || connection.networkId !== 'preview') throw new Error('PREVIEW_INTERNAL_MODE_REQUIRED');
-    // Lace can refresh its official network services through feature flags.
-    // The released default and observed refreshed Preview host are network
-    // services, not provers. This validation never redirects wallet traffic.
-    const indexer = new URL(configuration.indexerUri);
-    const previewIndexer = (indexer.origin === 'https://indexer.preview.midnight.network' && indexer.pathname === '/api/v4/graphql') ||
-      (indexer.origin === 'https://blockfrost.lw.iog.io' && /^\/midnight-preview\/?$/.test(indexer.pathname)) ||
-      (indexer.origin === 'https://midnight-preview.blockfrost.io' && indexer.pathname.length <= 100 &&
-        /^\/(?:[A-Za-z][A-Za-z0-9_-]*\/?)*$/.test(indexer.pathname));
-    if (!previewIndexer || indexer.search || indexer.hash || indexer.username || indexer.password) throw new Error('EXPECTED_PREVIEW_INDEXER_REQUIRED');
-    return { unshieldedAddress: address.unshieldedAddress, networkId: configuration.networkId,
-      indexerEndpoint: `${indexer.origin}${indexer.pathname}`,
-      reportedProverServerUri: null };
-  });
-  assert.match(account.unshieldedAddress, /^mn_addr_preview1[ac-hj-np-z02-9]+$/);
-  evidence.connector = {...account, ...metadata}; await save();
+    const diagnostics = {
+      status:['connected','disconnected'].includes(connection?.status) ? connection.status : 'other',
+      networkId:['preview','preprod','mainnet','undeployed'].includes(connection?.networkId) ? connection.networkId :
+        connection?.networkId === undefined ? 'absent' : 'other',
+    };
+    if (connection?.status !== 'connected') return {ok:false, code:'LACE_CONNECTOR_STATUS_NOT_CONNECTED', diagnostics};
+    if (connection.networkId !== 'preview') return {ok:false, code:'LACE_CONNECTOR_STATUS_NETWORK_MISMATCH', diagnostics};
+    return {ok:true, diagnostics};
+  }));
+  const address = await readStep('unshielded-address', 'LACE_CONNECTOR_ADDRESS_READ_FAILED', () => apiHandle.evaluate(async api => {
+    const result = await api.getUnshieldedAddress();
+    const valid = typeof result?.unshieldedAddress === 'string' && /^mn_addr_preview1[ac-hj-np-z02-9]+$/.test(result.unshieldedAddress);
+    return {ok:valid, code:'LACE_CONNECTOR_ADDRESS_INVALID', diagnostics:{previewAddressFormat:valid},
+      ...(valid ? {unshieldedAddress:result.unshieldedAddress} : {})};
+  }));
+  try {
+    const encoded = MidnightBech32m.parse(address.unshieldedAddress);
+    assert.equal(encoded.network, 'preview'); assert.equal(encoded.asString(), address.unshieldedAddress);
+    encoded.decode(UnshieldedAddress, 'preview');
+  } catch { throw new LaceConnectorReadError('LACE_CONNECTOR_ADDRESS_CHECKSUM_INVALID'); }
+  evidence.connectorReadChecks['unshielded-address'].checksumVerified = true;
+  evidence.connector = {unshieldedAddress:address.unshieldedAddress, networkId:'preview',
+    reportedProverServerUri:null, ...metadata}; await save();
   // Context closure owns disposal of this handle. The object is not exported
   // or persisted, and the public dApp keeps its own separate real connection.
   return {appPage:page, apiHandle};

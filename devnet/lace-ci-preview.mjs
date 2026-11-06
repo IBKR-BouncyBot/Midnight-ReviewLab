@@ -279,6 +279,16 @@ try {
   if (error?.name === 'LacePackageError' && /^[a-z-]{1,80}$/.test(error.code ?? '')) evidence.packageCheck = error.code;
   const walletUiCodes = new Set(['LACE_WALLET_DESIGNATE_NOT_READY', 'LACE_WALLET_DUST_REVIEW_NOT_OBSERVED']);
   if (error?.name === 'LaceWalletUiError' && walletUiCodes.has(error.code)) evidence.errorCode = error.code;
+  const connectorReadCodes = new Set([
+    'LACE_CONNECTOR_PUBLIC_CONNECTION_FAILED', 'LACE_CONNECTOR_CONFIGURATION_READ_FAILED',
+    'LACE_CONNECTOR_CONFIGURATION_INVALID', 'LACE_CONNECTOR_CONFIGURATION_NETWORK_MISMATCH',
+    'LACE_CONNECTOR_REPORTED_PROVER_URI', 'LACE_CONNECTOR_INDEXER_INVALID',
+    'LACE_CONNECTOR_INDEXER_NON_HTTPS', 'LACE_CONNECTOR_INDEXER_USERINFO',
+    'LACE_CONNECTOR_STATUS_READ_FAILED', 'LACE_CONNECTOR_STATUS_NOT_CONNECTED',
+    'LACE_CONNECTOR_STATUS_NETWORK_MISMATCH', 'LACE_CONNECTOR_ADDRESS_READ_FAILED',
+    'LACE_CONNECTOR_ADDRESS_INVALID', 'LACE_CONNECTOR_ADDRESS_CHECKSUM_INVALID',
+  ]);
+  if (error?.name === 'LaceConnectorReadError' && connectorReadCodes.has(error.code)) evidence.errorCode = error.code;
   if (context && mode !== 'probe') {
     try {
       const {safeUiIdentifiers, safeRadioStates} = await import('./lace-ci-wallet.mjs');
