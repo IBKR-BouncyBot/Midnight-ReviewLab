@@ -35,13 +35,15 @@ The generated-runtime tests should exercise valid reviews and rejection cases: w
 
 ## Working with private material
 
-Use synthetic demonstration credentials and test funds. Keep keys, wallet seeds, private state, prover input and secrets out of source control, browser storage, CI artifacts and screenshots. Do not copy the contents of private downloads into bug reports.
+Use synthetic demonstration credentials and test funds. Keep wallet seeds, private inputs and unencrypted keys out of source control, browser storage, CI artifacts and screenshots. The SDK's existing signing-key store is encrypted; role keys, credentials and feedback openings remain session-private unless explicitly downloaded. Do not copy private downloads into bug reports.
 
 ## Network integration
 
-The implemented testnet client uses real Midnight.js providers and API-4 wallet authorization. Network execution needs an identified Midnight network and contract, an appropriate wallet, generated DUST and a real proving provider. The current wallet pays its own fees. A static host supplies none of these automatically. Test network submission independently of the frontend deployment and retain only public, non-sensitive evidence. Follow [TESTNET.md](TESTNET.md) for Preview and isolated-network setup.
+The public testnet client uses Midnight.js and Lace API 4 with **Run in this app (WASM)** selected. Both contract proving and wallet/DUST proving stay in Lace's internal worker path when that setting is active. ReviewLab does not implement an external prover fallback. The current wallet pays its own fees. Follow [TESTNET.md](TESTNET.md) for the user setup and [LACE-WASM.md](LACE-WASM.md) for the precise source, version and mode-check limitations.
 
-Actual circuit proof checks are separate from local generated-contract tests. Start proof-server 8.1.3 on loopback port 6301, set `MIDNIGHT_LOCAL_PROOF_SERVER=http://127.0.0.1:6301`, and run `npm run test:proofs`. The optional GitHub proof workflow demonstrates the pinned Docker invocation. Do not enable request-body logging: private witnesses are sent to the prover. A local proof result is not a network transaction confirmation.
+Public connections require a session-only confirmation and reject a reported prover URL before proving, balancing and submission. Do not interpret an omitted URL as proof of internal mode: Lace also omits it for its remote TEE provider. Preserve encrypted SDK storage, private witness cleanup and confirmation recovery when changing providers. Test actual Lace/Preview acceptance separately from frontend deployment; the historical testkit adapter is not a replacement for this check.
+
+Developer-only circuit proof checks remain separate from the public client and local generated-contract tests. Start proof-server 8.1.3 on loopback port 6301, set `MIDNIGHT_LOCAL_PROOF_SERVER=http://127.0.0.1:6301`, and run `npm run test:proofs`. The optional GitHub proof workflow demonstrates the pinned Docker invocation. Do not enable request-body logging: private witnesses are sent to that prover. A local proof result is not a network transaction confirmation or a Lace WASM test.
 
 For actual transaction acceptance, install the isolated wallet dependency graph and run the local chain check from the repository root in a Linux shell with Docker available:
 
@@ -61,26 +63,11 @@ The separate `test:devnet:browser` harness drives the built network page in Chro
 
 The SDK harness writes sanitized reports under `artifacts/local-devnet/`; the funded browser harness uses `artifacts/local-devnet-browser/`. Do not retain raw wallet databases or prover request bodies. See the manually dispatched [devnet workflow](../.github/workflows/devnet.yml) for the complete repeatable sequence and scoped service cleanup. On Windows, keep the WSL distribution running while its Docker services are needed.
 
-## Dedicated public Preview test wallet on Windows
+## Historical public Preview operator run
 
-The public Preview operator helpers use a separate randomly generated test seed. They do not import a personal wallet, use the local genesis fixture or target mainnet. `preview-wallet.mjs` encrypts the seed with Windows CurrentUser DPAPI before writing it under ignored `.local/`; it prints only the public Preview address. Run these helpers under the same Windows account. The encrypted local files are not a portable wallet backup and are excluded from source and CI artifacts.
+The retained `devnet/preview-*.mjs` helpers document the earlier Node-wallet/HTTP-prover acceptance run. They are not the current public browser setup and do not establish Lace internal-WASM behavior. The [recorded results](VERIFICATION.md#public-preview-status) contain eight accepted public transactions and the subsequent read-only browser check.
 
-After compiling and installing the `devnet/` dependency graph:
-
-```sh
-node devnet/preview-wallet.mjs create
-node devnet/preview-wallet.mjs address
-```
-
-Use the printed address at the public Preview faucet and complete its CAPTCHA yourself. The helpers do not automate the faucet. For this operator workflow, keep proof-server 8.1.3 running at `http://127.0.0.1:26300`; this is the dedicated test-runner port, distinct from the usual Lace port 6300. Reuse the isolated test prover if it is already running, or start a separate loopback instance:
-
-```sh
-docker run --detach --rm --name reviewlab-preview-prover --publish 127.0.0.1:26300:6300 --log-driver none midnightntwrk/proof-server@sha256:0f4ab0716985eaebbe55a970348f52ff05ffd8a96631ed7232bd0c4ba02c115c
-node devnet/preview-acceptance.mjs --wait-for-funding
-node devnet/preview-acceptance.mjs --run
-```
-
-The runner checks the public Preview node identity and uses its fixed public endpoints. It waits for wallet synchronization, registers received test NIGHT for DUST generation and waits for usable test DUST before deploying and calling ReviewLab. Initial synchronization can take several minutes. Keep the process and its local prover running. The private test plan, issuer and owner keys, expert credential, feedback opening and SDK store password are protected locally; public reports contain no such material.
+That run used a separate randomly generated test seed and loopback proof-server 8.1.3 on port 26300. `preview-wallet.mjs` protected the seed with Windows CurrentUser DPAPI under ignored `.local/`, printing only the public Preview address. The protected files are tied to the same Windows account, excluded from source and CI, and are not portable wallet backups. The private test plan, role keys, credential, feedback opening and SDK password are protected locally too. None is needed to connect a separate Lace wallet to the published contract.
 
 The dedicated wallet uses the SDK's supported `additionalFeeOverhead: 1000n` SPECK option. This prevents the pinned wallet's zero-fee path from producing an empty fee section, as described in [upstream issue 700](https://github.com/midnightntwrk/midnight-wallet/issues/700). The public run diagnosed that malformed transaction through strict local ledger replay, then accepted the corrected same-task transaction. The remaining calls also passed local preflight before submission. No contract or dependency patch was needed.
 
@@ -88,4 +75,4 @@ The wallet saves DPAPI-encrypted snapshots every 90 seconds and at shutdown, usi
 
 The report is written to `artifacts/public-preview/network-evidence.json`. A completed run also produces `marketplace.json` with public join details and task text, plus `public-record.json`. These are separate from the local-network reports. Inspect the recorded status and any pending submission before restarting; an interrupted response is not evidence that a transaction failed. Recovery checks confirmation first and retains earlier attempts. The recorded task recovery preserved the same task ID and protected plan; the contract rejects duplicate task IDs. One unknown attempt and a separately diagnosed malformed replacement remain in the evidence alongside the accepted correction.
 
-After a completed run, `node devnet/preview-browser-read.mjs --read-only-public-preview` uses the official API-4 testkit adapter to connect the published page, join the public contract and check its receipt and export. It does not submit transactions. Its report is written under `artifacts/public-preview-browser/`. Both this check and the Node transaction workflow use the dedicated test wallet; neither tests the Lace extension itself. See the [retained public results](VERIFICATION.md#public-preview-status).
+The historical `preview-browser-read.mjs` check used the official API-4 testkit adapter to join the public contract and inspect its receipt/export without submission. Its report remains under `artifacts/public-preview-browser/`. The public client's new Lace identity and internal-mode gates intentionally do not treat that adapter as Lace; do not bypass those gates to label a new run as a Lace test. Preserve the old evidence and record any actual extension run separately.

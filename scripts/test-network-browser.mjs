@@ -75,6 +75,7 @@ try {
   assert.equal(await page.locator('#indexer-ws').inputValue(), 'wss://indexer.preview.midnight.network/api/v4/graphql/ws');
   assert.equal(await page.locator('#indexer-url').evaluate(el => el.readOnly), true);
   assert.equal(await page.getByRole('button', { name: 'Connect wallet →', exact: true }).isEnabled(), false);
+  assert.equal(await page.locator('#internal-prover-confirmed').isChecked(), false);
   await transactionButtonsDisabled();
   assert.match(await page.locator('#service-status').innerText(), /No service check has run/);
   assert(wasmResponses.size >= 2, 'Actual ledger and on-chain WASM must load from the same-origin bundle');
@@ -98,6 +99,11 @@ try {
   const downloads = [];
   page.on('download', download => downloads.push(download.suggestedFilename()));
   await tab('marketplace');
+  await page.locator('#load-published-marketplace').click();
+  await statusMatches(/Public marketplace details loaded/);
+  const publishedMarketplace=JSON.parse(await readFile(resolve(root,'docs/public-preview-marketplace.json'),'utf8'));
+  assert.equal(await page.locator('#contract-address').inputValue(),publishedMarketplace.contractAddress);
+  assert.equal(await page.locator('#join').isEnabled(),false,'Loading public details never connects a wallet or joins a contract');
   await page.locator('#generate-issuer').click();
   await statusMatches(/issuer key generated locally/);
   const issuerSecret = await page.locator('#issuer-secret').inputValue();
@@ -137,7 +143,7 @@ try {
   await tab('marketplace');
   await upload('#join-file', '{bad JSON', true);
   await statusMatches(/not valid JSON/);
-  assert.equal(await page.locator('#contract-address').inputValue(), '');
+  assert.equal(await page.locator('#contract-address').inputValue(), publishedMarketplace.contractAddress);
   const task = { id: '4'.repeat(64), title: '<img src=x onerror="window.__reviewlabXss=true">', prompt: 'Evaluate this synthetic answer.', answer: '<script>window.__reviewlabXss=true</script>' };
   task.contentDigest = createHash('sha256').update(JSON.stringify({title:task.title,prompt:task.prompt,answer:task.answer})).digest('hex');
   const marketplace = { version:1, kind:'reviewlab-network-marketplace', networkId:'preview', contractAddress:'1'.repeat(64), marketplaceId:'2'.repeat(64), issuerIdentity:'3'.repeat(64), tasks:[task] };
@@ -179,13 +185,19 @@ try {
   await rejectingContext.addInitScript(marker => {
     window.__reviewlabConnectCalls = [];
     window.midnight = { rejectingBoundaryFixture: {
-      name:'Rejecting API4 boundary fixture',rdns:'invalid.reviewlab.negativefixture',apiVersion:'4.0.1',
+      // Metadata is deliberately claimed by a rejecting fixture. It does not
+      // impersonate a successful Lace connection or authenticate the extension.
+      name:'Rejecting API4 boundary fixture',rdns:'io.lace.wallet',apiVersion:'4.0.1',
       connect:async networkId=>{window.__reviewlabConnectCalls.push(networkId);throw {type:'DAppConnectorAPIError',code:'PermissionRejected',message:marker,reason:marker};},
     }};
   }, unsafeMarker);
   const rejectedPage = await rejectingContext.newPage();rejectedPage.setDefaultTimeout(15000);await attachSafetyChecks(rejectedPage);
   await rejectedPage.goto(url);await ready(rejectedPage);
   assert.match(await rejectedPage.locator('#wallet-select').innerText(), /Rejecting API4 boundary fixture/);
+  await rejectedPage.locator('#storage-password').fill('J7!qL9@vT2#rN6$x');
+  assert.equal(await rejectedPage.getByRole('button', {name:'Connect wallet →',exact:true}).isEnabled(),false);
+  assert.equal(await rejectedPage.evaluate(()=>window.__reviewlabConnectCalls.length),0,'Unconfirmed internal mode cannot request wallet access');
+  await rejectedPage.locator('#internal-prover-confirmed').check();
   await rejectedPage.locator('#storage-password').fill('weakpasswordonly');
   await rejectedPage.getByRole('button', {name:'Connect wallet →',exact:true}).click();
   await statusMatches(/Choose a stronger password/,rejectedPage);
@@ -198,7 +210,34 @@ try {
   assert(!await rejectedPage.locator('body').innerText().then(text=>text.includes(unsafeMarker)));
   assert(!consoleMessages.some(text=>text.includes(unsafeMarker)));
   await transactionButtonsDisabled(rejectedPage);
-  cases.push('Rejecting-only API4 fixture: weak passwords stop before connection; wallet denial stays disconnected and raw error payloads are hidden');
+  cases.push('Rejecting-only API4 fixture: internal-mode confirmation and strong storage password required before wallet access; denial stays disconnected without raw errors');
+
+  const serverContext = await browser.newContext();contexts.push(serverContext);
+  await serverContext.addInitScript(marker => {
+    window.__reviewlabForbiddenCalls = 0;
+    const forbidden = async()=>{window.__reviewlabForbiddenCalls++;throw new Error(marker);};
+    window.midnight = { negativeServerFixture: {
+      name:'Negative proof-server boundary fixture',rdns:'io.lace.wallet',apiVersion:'4.0.1',
+      connect:async()=>({
+        getConnectionStatus:async()=>({status:'connected',networkId:'preview'}),
+        getConfiguration:async()=>({networkId:'preview',proverServerUri:'http://localhost:6300'}),
+        getShieldedAddresses:async()=>({shieldedCoinPublicKey:'1'.repeat(64),shieldedEncryptionPublicKey:'2'.repeat(64)}),
+        getUnshieldedAddress:async()=>({unshieldedAddress:'synthetic-negative-boundary-only'}),
+        getProvingProvider:forbidden,balanceUnsealedTransaction:forbidden,submitTransaction:forbidden,
+      }),
+    }};
+  },unsafeMarker);
+  const serverPage=await serverContext.newPage();await attachSafetyChecks(serverPage);
+  await serverPage.goto(url);await ready(serverPage);
+  await serverPage.locator('#storage-password').fill('J7!qL9@vT2#rN6$x');
+  await serverPage.locator('#internal-prover-confirmed').check();
+  await serverPage.getByRole('button',{name:'Connect wallet →',exact:true}).click();
+  await statusMatches(/Any reported proof-server URL is refused/,serverPage);
+  assert.equal(await serverPage.evaluate(()=>window.__reviewlabForbiddenCalls),0,'Reject local HTTP prover before proof provider, balance or submit');
+  await transactionButtonsDisabled(serverPage);
+  await serverPage.reload();await ready(serverPage);
+  assert.equal(await serverPage.locator('#internal-prover-confirmed').isChecked(),false,'Prover selection confirmation must not persist');
+  cases.push('Negative-only server fixture: even loopback HTTP proving is rejected before provider creation or transactions; internal selection does not persist');
 
   await page.setViewportSize({width:390,height:844});
   for(const name of ['connect','marketplace','review','receipts']){

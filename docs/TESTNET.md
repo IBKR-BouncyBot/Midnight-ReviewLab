@@ -8,14 +8,14 @@ The default network is public **Preview**. Mainnet is disabled. Test NIGHT and t
 
 | Requirement | ReviewLab integration |
 | --- | --- |
-| Wallet | A Midnight wallet implementing DApp Connector API 4.x, such as Lace. A Cardano-only wallet connection is insufficient. |
+| Wallet | Lace with its Midnight account and DApp Connector API 4.x. A Cardano-only connection is insufficient. |
 | Network | The same explicit test network in the page and the wallet. Preview is the default. |
 | Funds | Test NIGHT registered for DUST generation, with enough usable DUST for the intended transactions. |
-| Prover | Local proof-server 8.1.3. The wallet must report a loopback prover address through its API. |
+| Prover | Lace's **Run in this app (WASM)** setting for the selected network. Contract and wallet/DUST proofs run inside the extension. |
 | Runtime | Compact 0.31.1, compact-runtime 0.16.0 and Midnight.js 4.1.1, included in the built application. |
 | Browser storage | Site storage enabled for the encrypted SDK signing-key store; retain separate private role-key downloads when the application offers them. |
 
-These versions follow the project's pinned ledger-8 integration. The [official browser guide](https://docs.midnight.network/guides/browser-dapp) explains the wallet/provider relationship.
+These versions follow the project's pinned ledger-8 integration. See [Lace WASM support](LACE-WASM.md) for the reviewed release source, exact setting and limits of the connector's mode check. No external proof server is required for the public client.
 
 ## 1. Set up Preview in your wallet
 
@@ -25,29 +25,17 @@ Copy the wallet's unshielded Preview address, open the [Preview faucet](https://
 
 Keep your wallet recovery phrase out of this application. ReviewLab connects through the extension; it does not need the phrase.
 
-## 2. Run the local prover
+## 2. Select Lace's internal prover
 
-Install Docker and start the official proof-server 8.1.3 image. This one-line command pins the reviewed image, binds it to loopback and disables container logging:
+In Lace, open **Settings → Midnight**. Under **On this device**, select **Run in this app (WASM)** and choose **Save configuration**. Check that this applies to Preview. This is an explicit choice; updating Lace alone does not select it. If the option is absent, check your installed version against the [Lace support notes](LACE-WASM.md).
 
-```sh
-docker run --detach --rm --name reviewlab-proof-server --publish 127.0.0.1:6300:6300 --log-driver none midnightntwrk/proof-server@sha256:0f4ab0716985eaebbe55a970348f52ff05ffd8a96631ed7232bd0c4ba02c115c
-```
-
-The image's default startup command is sufficient; do not append a network argument. If port 6300 is already occupied by the correct prover version, reuse that service instead of starting another container. The server may fetch public proving parameters during startup. Confirm readiness at `http://127.0.0.1:6300/ready`; the response should report `status: ok`. Its `/version` endpoint should report `8.1.3`.
-
-In the wallet's Midnight proof-server settings, choose `http://localhost:6300`, save and confirm the change. Keep the prover running while creating proofs. Private witness data reaches this service, so use the local service you control. The [official proof-server guide](https://docs.midnight.network/guides/run-proof-server) explains the privacy boundary.
-
-To stop only the container started by the command above:
-
-```sh
-docker stop reviewlab-proof-server
-```
+Lace runs the official WASM prover in its own Web Worker and downloads public proving material when needed. Keep the browser open while proving. The wallet handles DUST proofs as well as contract proofs; the page does not obtain your wallet keys or run a separate fee prover.
 
 ## 3. Connect deliberately
 
-Open the testnet client, leave **Preview** selected and refresh the wallet list if necessary. Select a compatible wallet and enter a password for this application's encrypted local key storage. This is separate from your wallet password and recovery phrase. The installed SDK requires at least 16 characters drawn from three of uppercase, lowercase, numbers and symbols, and rejects simple sequences and repeated characters.
+Open the testnet client, leave **Preview** selected and refresh the wallet list if necessary. Select Lace, confirm that you selected its internal WASM setting, and enter a password for this application's encrypted local key storage. The confirmation is for this session only. This password is separate from your wallet password and recovery phrase. The installed SDK requires at least 16 characters drawn from three of uppercase, lowercase, numbers and symbols, and rejects simple sequences and repeated characters.
 
-Connect and approve the wallet's connection request. The application checks that the account, network and local prover configuration agree. A successful connection is not a submitted transaction. A service check, when offered, is also not proof generation.
+Connect and approve Lace's request. The application checks the account and network and rejects any reported prover URL, including localhost, before proving, balancing or submitting. It has no external prover fallback. **API 4 does not attest the selected mode:** Lace also omits the URL for a remote TEE provider, so an absent URL and the session confirmation cannot independently establish internal proving. Verify the setting in Lace itself. A connection or service check does not submit a transaction.
 
 The Preview public-state endpoints are:
 
@@ -73,11 +61,11 @@ The recorded deployment has one demonstration credential, one completed review, 
 5. **Approve and claim.** The task owner can approve a submitted review. Only its author can then record the claim entitlement, once. No reward token or money transfer occurs.
 6. **Inspect the result.** Keep the receipt and public record. Check the actual transaction status before retrying an uncertain submission. A locally constructed receipt alone does not establish network acceptance.
 
-Wallet approval is required for each transaction. The wallet's proving provider generates call proofs using the local prover, then the wallet balances, signs and submits. Contract deployment installs verifier material and is a separate operation from proving a contract call. The application reads confirmations through the configured indexer; this is not independent consensus verification.
+Wallet approval is required for each transaction. With internal WASM selected, Lace's proving provider generates call proofs and its wallet generates the DUST proofs needed to balance the transaction, then signs and submits. Contract deployment installs verifier material and is a separate operation from proving a contract call. The application reads confirmations through the configured indexer; this is not independent consensus verification. The [verification report](VERIFICATION.md#lace-internal-wasm-status) identifies whether this exact Lace workflow has been completed.
 
 ## Isolated development network
 
-The source also supports an isolated `undeployed` network for repeatable integration tests. Its service ports are deliberately separate from normal desktop defaults:
+The source also supports a developer-only isolated `undeployed` network for repeatable integration tests. This separate harness retains a local HTTP prover; it is not the public Preview/Lace setup. Its service ports are deliberately separate from normal desktop defaults:
 
 | Service | Local address |
 | --- | --- |
@@ -94,11 +82,11 @@ After installing the root dependencies and compiling the contract, run `npm ci -
 
 ## If a step fails
 
-- **No wallet appears:** unlock the wallet, confirm its Midnight account is enabled in this browser, reload the page and refresh discovery. API 4 is required.
+- **No wallet appears:** unlock Lace, confirm its Midnight account is enabled in this browser, reload the page and refresh discovery. API 4 is required.
 - **Network mismatch:** select the same network in both the wallet and page, then reconnect. ReviewLab rejects mainnet.
-- **Local prover not reported:** save and confirm the wallet's custom prover setting. A wallet that omits the prover address cannot satisfy the application's destination check.
+- **Prover URL reported or internal mode not confirmed:** select **Run in this app (WASM)** in Lace, save, then reconnect and confirm the setting in ReviewLab. A localhost URL is also rejected for public networks.
 - **Insufficient DUST:** register the test NIGHT and allow generation to accrue. Fee capacity and generation are separate from having a NIGHT balance.
-- **Proving fails:** check the prover version and readiness, leave it running, and confirm that the deployed contract matches the application's compiled version.
+- **Proving fails:** check Lace's internal mode and available browser memory, keep the browser open, and confirm that the deployed contract matches the application's compiled version. Do not switch to an external prover to bypass the internal-mode requirement.
 - **Submission outcome is uncertain:** inspect network state and the transaction identifier before resubmitting. Do not infer success from a completed proof or wallet dialog.
 - **A private role key is missing:** a public receipt or join file cannot restore that authority. Use the matching private file or the original protected application state; never substitute a different key.
 

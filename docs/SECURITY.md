@@ -32,7 +32,9 @@ A sponsor service must authenticate and limit requests before paying fees, and a
 
 ## Testnet operations
 
-Mainnet is blocked. The wallet and page must agree on an explicit test network, and the wallet must report a local prover endpoint. The prover receives private witness data. Wallet approval is required for each transaction; a rejected or uncertain operation must not be reported as accepted. Confirmation from the configured indexer is not independent consensus verification.
+Mainnet is blocked. The wallet and page must agree on an explicit test network. Public use requires Lace's internal WASM setting and a session confirmation; the app rejects reported prover URLs, including localhost, before proof, balance and submission requests. This covers the intended contract and wallet/DUST proving path, but API 4 cannot attest the selected mode: Lace also omits the URL for its remote TEE mode. Verify the setting inside Lace; the page cannot control the extension's network traffic. See [Lace proving boundaries](LACE-WASM.md). The isolated developer harness retains its separate local prover.
+
+Wallet approval is required for each transaction; a rejected or uncertain operation must not be reported as accepted. Confirmation from the configured indexer is not independent consensus verification.
 
 Test-network credential enrollment is still demonstration issuance unless a trusted organization has actually vetted the expert. A real transaction does not establish real-world qualifications, review quality or payment settlement.
 

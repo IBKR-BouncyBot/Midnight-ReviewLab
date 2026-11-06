@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {NETWORK_DEFAULTS,resolveNativeBrowserConfig,requireDevelopmentNetwork,requireConnectedNetwork,requireLocalWalletProver,findNativeWallets,checkPublicServices,nativeNetworkErrorMessage} from '../lib/network/config.mjs';
+import {NETWORK_DEFAULTS,resolveNativeBrowserConfig,requireDevelopmentNetwork,requireConnectedNetwork,requireLocalWalletProver,requireLaceInternalProving,findNativeWallets,checkPublicServices,nativeNetworkErrorMessage} from '../lib/network/config.mjs';
 import {createCredential,credentialCommitment,issuerIdentityFor,randomHex32,createNetworkClient} from '../lib/network/sdk-client.mjs';
 import {setNetworkId} from '@midnight-ntwrk/midnight-js-network-id';
 
@@ -22,6 +22,19 @@ test('mainnet, cross-network services and foreign compiled keys are rejected',()
 test('local prover requirement refuses remote, credentialed and unreported destinations',()=>{
   assert.equal(requireLocalWalletProver({proverServerUri:'http://localhost:6300'}),'http://localhost:6300/');
   for(const proverServerUri of [undefined,'https://prover.example/','http://user:pass@localhost:6300','http://localhost:6300/?token=x'])assert.throws(()=>requireLocalWalletProver({proverServerUri}));
+});
+test('Lace internal mode requires an explicit session confirmation and matching API identity',()=>{
+  const lace={rdns:'io.lace.wallet',apiVersion:'4.0.1'};
+  assert.equal(requireLaceInternalProving(lace,true,{}),'lace-internal-wasm-user-confirmed');
+  for(const confirmation of [undefined,false,0,1,'true'])assert.throws(()=>requireLaceInternalProving(lace,confirmation,{}),/Confirm/);
+  for(const wallet of [null,{...lace,rdns:'org.other'},{...lace,apiVersion:'3.0.0'}])assert.throws(()=>requireLaceInternalProving(wallet,true,{}),/Lace API 4/);
+});
+test('internal mode rejects every reported server including loopback; absence is not mode attestation',()=>{
+  const lace={rdns:'io.lace.wallet',apiVersion:'4.0.1'};
+  for(const proverServerUri of ['http://localhost:6300','http://127.0.0.1:6300','https://prover.example',null,'',false,42])assert.throws(()=>requireLaceInternalProving(lace,true,{proverServerUri}),/proof-server/);
+  // Lace API 4 exposes the SAME shape for internal WASM and remote TEE.
+  // This return value describes the user's confirmation, never verified mode.
+  assert.match(requireLaceInternalProving(lace,true,{networkId:'preview'}),/user-confirmed$/);
 });
 test('wallet discovery accepts actual API 4 connectors without deduplicating identities',()=>{
   const wallet={apiVersion:'4.0.1',name:'Example',rdns:'org.example',connect(){}};

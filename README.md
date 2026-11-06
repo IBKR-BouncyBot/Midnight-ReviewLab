@@ -15,13 +15,13 @@ The [landing page](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/) offers 
 | Demo | What happens | What you need |
 | --- | --- | --- |
 | [Browser lab](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/browser.html) | Explore tasks, credentials, feedback, receipts and approvals using actual generated Compact code and Midnight WebAssembly locally. No blockchain submission or DUST spending. | A modern browser. |
-| [Testnet client](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html) | Connect a Midnight wallet, deploy or join a contract, prove calls and submit transactions to the selected test network. | API-4 Midnight wallet, matching network, usable test DUST and a local prover. |
+| [Testnet client](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html) | Connect Lace, deploy or join a contract, and let Lace prove, balance and submit transactions. | Browser with Lace, Preview test DUST, and Lace's **Run in this app (WASM)** setting. |
 
-The testnet client defaults to public **Preview**. The selected wallet pays its own transaction fees; fee sponsorship is not yet implemented. Mainnet is disabled. Follow the [testnet setup guide](docs/TESTNET.md) before connecting.
+The testnet client defaults to public **Preview** and uses Lace's internal WASM prover for both contract and wallet/DUST proofs. No Docker or external proof server is part of this public-client setup. Lace pays its own transaction fees; sponsorship is not implemented and mainnet is disabled. Follow the [testnet setup guide](docs/TESTNET.md) and [Lace proving guide](docs/LACE-WASM.md). API 4 does not expose a verifiable proving-mode flag: the app requires your session confirmation and rejects reported prover URLs, but an omitted URL alone cannot distinguish internal proving from Lace's remote TEE mode.
 
 Both the SDK workflow and the actual browser client have completed seven accepted transactions each on an isolated Midnight development chain using temporary, pre-funded test wallets. The browser test uses the official API-4 testkit adapter, not Lace.
 
-A separate public Preview test wallet received [5,000 test NIGHT from the faucet](docs/public-preview-funding.json) and completed **eight accepted transactions**: DUST registration plus the seven-step marketplace lifecycle. The final review is claimed and its task is closed. The published testnet page also connected and checked that receipt through the official API-4 testkit adapter; Lace itself has not been tested. See the [public evidence](docs/VERIFICATION.md#public-preview-status), download the [verified join file](docs/public-preview-marketplace.json), and follow the [join instructions](docs/TESTNET.md#inspect-the-recorded-public-deployment).
+A separate public Preview test wallet received [5,000 test NIGHT from the faucet](docs/public-preview-funding.json) and completed **eight accepted transactions**: DUST registration plus the seven-step marketplace lifecycle. That historical run used the Node wallet SDK and a local HTTP prover; the published page's receipt check used the official API-4 testkit adapter. **An end-to-end Preview transaction run using Lace's internal WASM mode has not yet been recorded.** The earlier review remains claimed and its task closed. See the [public evidence](docs/VERIFICATION.md#public-preview-status), download the [verified join file](docs/public-preview-marketplace.json), and follow the [join instructions](docs/TESTNET.md#inspect-the-recorded-public-deployment).
 
 ## Explore the browser lab
 
@@ -56,7 +56,7 @@ npm test
 npm run build
 ```
 
-Run `npm run dev` to serve `dist/` locally, then choose the browser or testnet demo. Both bundles use real generated contract code and native WebAssembly. Missing generated output must fail the build. A frontend build does not start the local prover or fund a wallet.
+Run `npm run dev` to serve `dist/` locally, then choose the browser or testnet demo. Both bundles use real generated contract code and native WebAssembly. Missing generated output must fail the build. A frontend build does not configure Lace or fund a wallet. Local HTTP provers remain available only for the separate developer proof and isolated-network harnesses.
 
 The GitHub Actions workflow repeats compilation, tests and the production build, then publishes `dist/` with GitHub Pages. It never uploads wallet secrets or private credential files. See [deployment](docs/DEPLOYMENT.md).
 

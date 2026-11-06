@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "testedAt": "2026-11-06T15:31:02.997Z",
+  "testedAt": "2026-11-06T18:02:12.515Z",
   "browser": "156.0.8078.4",
   "cases": [
     "Real SDK/contract bundle, two native WASM assets, 18 generated proof assets, no automatic remote calls or enabled transactions",
@@ -8,7 +8,8 @@
     "Tabs preserve private inputs and forms; issuer key stays masked/in memory and downloads only on explicit request",
     "Marketplace JSON parsing, content commitments, duplicate/foreign-network/extra-field rejection and inert HTML payloads",
     "Expired, malformed and zero-secret credentials rejected before any wallet or network interaction",
-    "Rejecting-only API4 fixture: weak passwords stop before connection; wallet denial stays disconnected and raw error payloads are hidden",
+    "Rejecting-only API4 fixture: internal-mode confirmation and strong storage password required before wallet access; denial stays disconnected without raw errors",
+    "Negative-only server fixture: even loopback HTTP proving is rejected before provider creation or transactions; internal selection does not persist",
     "All four testnet screens fit 390px and preserve navigation without starting a transaction"
   ],
   "errors": 0,

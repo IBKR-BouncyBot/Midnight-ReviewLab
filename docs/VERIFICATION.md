@@ -2,6 +2,14 @@
 
 ReviewLab reports four different milestones separately: generated-contract execution, real circuit proof generation, blockchain acceptance and website deployment. Passing one does not imply the others.
 
+## Lace internal WASM status
+
+The public-client setup now targets Lace's **Run in this app (WASM)** mode for both contract and wallet/DUST proofs. The [source review](LACE-WASM.md) confirms this path in Lace's released 2.5.0 source; the Chrome Web Store lists 2.5.1 as of 6 November. **No end-to-end public Preview transaction run through the actual Lace extension in this mode has yet been recorded.**
+
+The app's session confirmation and rejection of reported prover URLs are guardrails, not a mode attestation: API 4 also omits the URL for Lace's remote TEE mode. A completed internal-only run needs the actual extension setting, accepted transaction identifiers and evidence covering extension proving traffic. Earlier reports below retain their original source hashes and prover mechanisms. They do not verify subsequent client changes or establish Lace WASM success.
+
+The new client policy passed 26 unit tests (15 contract and 11 network-boundary tests), full compilation regenerated all six circuit key sets, and the production build passed. Both updated Chromium suites passed eight cases each, as detailed below. These checks do not establish an accepted Lace transaction.
+
 ## Recorded native results — 6 November 2026
 
 Full compilation with Compact 0.31.1 generated all six circuit key sets. The 15 generated-runtime tests passed. A fresh proof-server 8.1.3 run then generated actual proofs for all six circuits after the task-content commitment was added to the receipt. Both documented negative checks passed. The run completed at 15:57:47 CET (14:57:47 UTC).
@@ -17,9 +25,9 @@ Each generated proof was 4,508 bytes. The report contains proof hashes and timin
 
 ## Browser checks — 6 November 2026
 
-The [browser-lab evidence](browser-evidence.json) records eight passing acceptance scenarios in Chromium 156.0.8078.4: the two-choice landing page, Midnight palette and local fonts; native WASM loading and filtering; credential/review/approval/claim flow; duplicate rejection and private-data exclusion; receipt/report imports and tampering checks; campaign creation and closure; DUST calculation validation; and all six lab screens at 390px width. The landing page also passed 320px and 390px layout checks. The run recorded zero browser errors and zero automatic third-party requests, using the production bundle beneath the GitHub Pages project path on a local HTTP server.
+The [browser-lab evidence](browser-evidence.json) records eight passing acceptance scenarios in Chromium 156.0.8078.4: the two-choice landing page, Midnight palette and local fonts; native WASM loading and filtering; credential/review/approval/claim flow; duplicate rejection and private-data exclusion; receipt/report imports and tampering checks; campaign creation and closure; DUST calculation validation; and all six lab screens at 390px width. The landing page also passed 320px and 390px layout checks. The run completed at 18:02:15 UTC with zero browser errors and zero automatic third-party requests, using the production bundle beneath the GitHub Pages project path on a local HTTP server.
 
-The separate [network-browser boundary evidence](network-browser-evidence.json) records seven passing cases against the real SDK bundle. It loaded both native WASM assets and checked all 18 compiled proving assets, Preview/local configuration, private key handling, strict imports, credential expiry, wallet-denial handling and all four network screens at 390px. There were no runtime errors or remote requests. Its API-4 fixture always rejects: this suite establishes neither a successful wallet connection nor a proof or transaction. It also guards the page's hash-navigation connection regression.
+The separate [network-browser boundary evidence](network-browser-evidence.json) records eight passing cases against the real SDK bundle, completed at 18:02:12 UTC. It loaded both native WASM assets and checked all 18 compiled proving assets, Preview/local configuration, private key handling, strict imports, credential expiry, wallet-denial handling and all four network screens at 390px. New checks require a session-only internal-mode confirmation and reject even a localhost prover URL before provider creation. There were no runtime errors or remote requests. Both API-4 fixtures are negative-only: one denies wallet access and the other fails the external-prover gate. Neither fixture fabricates successful connection, proof generation or submission, and this suite establishes no network acceptance. It also guards the page's hash-navigation connection regression.
 
 The [support-section checks](support-evidence.json) confirm that the Cardano mainnet support address matches BallotLab, the displayed QR decodes to that exact address, copying works, denied clipboard access offers selected text, and the section fits 320px and 390px widths. No browser errors or automatic third-party requests were recorded. These optional tips are separate from the testnet wallet and marketplace reward accounting.
 
@@ -31,7 +39,7 @@ Five checks rejected calls before submission: an intentionally unavailable prove
 
 The wallet was a temporary synthetic genesis fixture funded on this isolated chain. Its generated test DUST paid the fees. This was not the user's wallet, a faucet request or public Preview funding. The test used node 1.0.400, indexer 4.3.5 and proof-server 8.1.3; the report records the separately locked wallet dependency graph. No payment or sponsor service ran.
 
-The report retains exact source, generated-binding, runner and lockfile hashes. Its SDK source hash matches the tested client. A later configuration-only fix permits the page's navigation fragment while continuing to reject fragments in service URLs; the configuration hash in this earlier SDK report therefore does not identify that later browser fix. The browser boundary checks and funded browser run cover the fix. Indexer confirmation is not independent consensus or chain-inclusion verification.
+The report retains exact source, generated-binding, runner and lockfile hashes for that tested revision. A later configuration-only fix permits the page's navigation fragment while continuing to reject fragments in service URLs; the configuration hash in this earlier SDK report therefore does not identify that later browser fix. The historical browser boundary checks and funded browser run cover that fix, but not the subsequent Lace-mode policy change. Indexer confirmation is not independent consensus or chain-inclusion verification.
 
 ## Funded browser workflow — 6 November 2026
 
@@ -43,7 +51,7 @@ The report hashes the exact built HTML, JavaScript and CSS, contract and SDK/pro
 
 ## Public Preview status
 
-**The complete public Preview lifecycle passed on 6 November 2026.** The [sanitized public evidence](public-preview-evidence.json) records eight accepted transactions: DUST registration plus seven marketplace operations, including six proved contract calls. The run completed at 17:46:37 UTC. The final task is closed and the exact review receipt is `claimed`.
+**The complete public Preview lifecycle passed on 6 November 2026 using the Node wallet SDK and a local HTTP prover.** The [sanitized public evidence](public-preview-evidence.json) records eight accepted transactions: DUST registration plus seven marketplace operations, including six proved contract calls. The run completed at 17:46:37 UTC. The final task is closed and the exact review receipt is `claimed`. This historical result is separate from the new browser/Lace internal-WASM workflow.
 
 A dedicated Preview test wallet received 5,000 test NIGHT (5,000,000,000 STAR) from the public faucet. The [funding evidence](public-preview-funding.json) records `SUCCESS` at block 1,626,924, the transaction identifiers and the output to this wallet. It omits unrelated faucet change outputs. This is a randomly generated test wallet, separate from the isolated genesis wallets and the optional Cardano mainnet support address. Its private seed and wallet snapshots are protected locally with Windows DPAPI.
 
@@ -68,7 +76,7 @@ The runner now uses the supported wallet setting `additionalFeeOverhead: 1000n` 
 
 The [published-browser check](public-preview-browser-evidence.json) connected to the production `network.html` page, joined this public Preview contract, read the claimed receipt and closed task, and checked the public export. It completed at 17:46:54 UTC with zero page errors and zero proof, balancing or submission requests. It used the official testkit `DAppConnectorWalletAdapter` with the dedicated wallet, not the Lace extension. The earlier isolated-network browser run separately verifies the browser's full proving/submission flow.
 
-The [export privacy check](public-preview-privacy-check.json) found none of the exact private seed, role secrets, password, credential, feedback or opening values in the five public SDK/browser artifacts. Published evidence excludes private-store pointers and serialized transactions. Configured-indexer confirmation and local ledger replay are not independent chain-inclusion verification. No reward payment or sponsor service ran. Public use requires the wallet and local prover setup in [TESTNET.md](TESTNET.md).
+The [export privacy check](public-preview-privacy-check.json) found none of the exact private seed, role secrets, password, credential, feedback or opening values in the five public SDK/browser artifacts. Published evidence excludes private-store pointers and serialized transactions. Configured-indexer confirmation and local ledger replay are not independent chain-inclusion verification. No reward payment or sponsor service ran. The current public-client setup uses [Lace internal WASM](TESTNET.md), rather than the HTTP prover used for this historical run.
 
 ## Repeat the checks
 
@@ -83,7 +91,7 @@ The [export privacy check](public-preview-privacy-check.json) found none of the 
 | `npm run test:devnet` | Actual proved transactions, configured-indexer acceptance and uncertain-submission recovery on the isolated local chain. |
 | `npm run test:devnet:browser` | Built network page through the official API-4 testkit adapter, real proving and transactions on the isolated chain. |
 
-The current unit suite passes all 24 tests: 15 generated-contract tests and nine network-boundary tests. The contract tests cover issuer authorization, membership and credential attributes, marketplace isolation, duplicate review prevention, capacity, deadline and closure rules, campaign ownership, author-only reward claims, receipt commitments, public exports and unsafe input rejection. Network checks cover configuration, prover destination, wallet discovery, credential commitments, session/network identity and safe errors.
+The recorded pre-WASM-policy unit run passed all 24 tests: 15 generated-contract tests and nine network-boundary tests. The contract tests cover issuer authorization, membership and credential attributes, marketplace isolation, duplicate review prevention, capacity, deadline and closure rules, campaign ownership, author-only reward claims, receipt commitments, public exports and unsafe input rejection. Network checks cover configuration, prover destination, wallet discovery, credential commitments, session/network identity and safe errors. Consult the workflow for the exact revision and counts after later client changes.
 
 ## Local proof evidence
 

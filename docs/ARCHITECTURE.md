@@ -17,7 +17,7 @@ The browser lab puts the issuer, task owner and expert in one browser. That make
 
 `index.html` is a two-choice landing page. `browser.html` opens the local lab; `network.html` opens the testnet client. Navigation between them does not turn local records into network state.
 
-The network client uses Midnight.js 4.1.1 providers and DApp Connector API 4. It defaults to Preview and blocks mainnet. The connected wallet pays its own DUST fees. Its account, selected network and reported loopback prover configuration are checked again before proving, balancing and submitting.
+The network client uses Midnight.js 4.1.1 providers and DApp Connector API 4. It defaults to Preview and blocks mainnet. Public use selects Lace's internal WASM mode: Lace's extension worker proves both contract calls and wallet/DUST actions, and its wallet pays the fees. The app checks account/network identity and rejects reported prover URLs again before proving, balancing and submitting. A session confirmation records the user's mode selection; API 4 cannot distinguish internal WASM from a remote TEE mode that also omits its URL. See [the exact proving path and limits](LACE-WASM.md). The loopback-only `undeployed` developer harness keeps its separate local-prover integration.
 
 ## Native execution
 

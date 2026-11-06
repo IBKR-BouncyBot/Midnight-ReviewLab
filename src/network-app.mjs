@@ -25,8 +25,11 @@ function syncControls() {
   document.querySelectorAll('[data-connected]').forEach(el=>{el.disabled=!session.connection||session.busy;});
   document.querySelectorAll('[data-contract]').forEach(el=>{el.disabled=!session.record||session.busy;});
   $('disconnect').disabled=!session.connection||session.busy;
+  const local=$('network-select').value==='undeployed';
+  $('internal-prover-confirmed').disabled=local||!session.ready||session.busy||Boolean(session.connection);
+  $('load-published-marketplace').disabled=!session.ready||session.busy||local;
   ['network-select','wallet-select','storage-password','indexer-url','indexer-ws','refresh-wallets'].forEach(id=>{if(session.connection)$(id).disabled=true;});
-  $('connect-form').querySelector('button[type=submit],button:not([type])').disabled=!session.ready||session.busy||Boolean(session.connection)||session.wallets.length===0;
+  $('connect-form').querySelector('button[type=submit],button:not([type])').disabled=!session.ready||session.busy||Boolean(session.connection)||session.wallets.length===0||(!local&&!$('internal-prover-confirmed').checked);
   $('download-credential').disabled=!session.credential||session.busy;
   $('download-opening').disabled=!session.opening||session.busy;
   $('recover-review').disabled=!session.client?.pendingReview||session.busy;
@@ -61,7 +64,7 @@ function refreshWallets() {
   session.wallets=findNativeWallets();$('wallet-select').replaceChildren();
   for(const entry of session.wallets){const option=document.createElement('option');option.value=entry.id;option.textContent=`${entry.name} · API ${entry.apiVersion}`;$('wallet-select').append(option);}
   if(!session.wallets.length){const option=document.createElement('option');option.value='';option.textContent='No compatible Midnight wallet found';$('wallet-select').append(option);}
-  text('wallet-note',session.wallets.length?'Select the wallet you want to use. Connecting does not submit a transaction.':'Install Midnight-enabled Lace in this browser, select Preview, then reload this page. Requires DApp Connector API 4.');syncControls();
+  text('wallet-note',session.wallets.length?'For Preview, select Lace 2.5 or later with Run in this app (WASM) enabled. Connecting does not submit a transaction.':'Install Lace 2.5 or later in this browser, select Midnight Preview, then reload this page. Requires DApp Connector API 4.');syncControls();
 }
 function configuration() {return {networkId:$('network-select').value,indexerUri:$('indexer-url').value,indexerWsUri:$('indexer-ws').value,compiledAssetsUrl:'./network-contract'};}
 function networkChanged() {
@@ -71,14 +74,19 @@ function networkChanged() {
   $('indexer-ws').value=defaults?.indexerWsUri??(local?'ws://127.0.0.1:8089/api/v4/graphql/ws':'wss://indexer.preview.midnight.network/api/v4/graphql/ws');
   $('indexer-url').readOnly=!local;$('indexer-ws').readOnly=!local;
   $('endpoint-settings').open=local;
+  $('internal-prover-confirmation').hidden=local;
+  $('internal-prover-confirmed').required=!local;
+  $('internal-prover-confirmed').checked=false;
+  $('local-development-note').hidden=!local;
+  syncControls();
 }
 const STAGES={
-  'connection-settings':'Checking the selected network settings…','connection-permission':'Approve the connection in your wallet…','connection-account':'Reading the wallet’s public account…','connection-network':'Checking the wallet network…','connection-local-prover':'Checking the wallet’s local proving service…','connection-providers':'Preparing Midnight providers…','connection-proving-provider':'Preparing the local proof provider…','connection-storage':'Opening the encrypted app key store…','wallet-connected':'Wallet connected. No transaction sent.','proving-provider-started':'Preparing proofs with the wallet’s local prover…','proving-provider-completed':'Proof provider completed. Waiting for wallet approval…','wallet-approval-requested':'Approve this testnet transaction in your wallet…','wallet-balanced':'Wallet balanced the transaction with test DUST…','submission-returned':'Transaction submitted. Waiting for indexer acceptance…',
+  'connection-settings':'Checking the selected network settings…','connection-permission':'Approve the connection in your wallet…','connection-account':'Reading the wallet’s public account…','connection-network':'Checking the wallet network…','connection-internal-prover':'Checking the Lace connector for the selected proving mode…','connection-local-prover':'Checking the isolated development wallet’s local prover…','connection-providers':'Preparing Midnight providers…','connection-proving-provider':'Preparing the wallet’s proof provider…','connection-storage':'Opening the encrypted app key store…','wallet-connected':'Wallet connected. No transaction sent.','proving-provider-started':'Preparing proofs in your wallet…','proving-provider-completed':'Proof provider completed. Waiting for wallet approval…','wallet-approval-requested':'Approve this testnet transaction in your wallet…','wallet-balanced':'Wallet balanced the transaction with test DUST…','submission-returned':'Transaction submitted. Waiting for indexer acceptance…',
 };
 async function connect() {
   const entry=session.wallets.find(value=>value.id===$('wallet-select').value);if(!entry)invalid('Select an installed Midnight wallet first.');
   const password=$('storage-password').value;
-  const connection=await connectNativeBrowserProviders({wallet:entry.wallet,configuration:configuration(),passwordProvider:async()=>password,onStage:stage=>{if(STAGES[stage])status(STAGES[stage]);}});
+  const connection=await connectNativeBrowserProviders({wallet:entry.wallet,configuration:configuration(),internalProverConfirmed:$('internal-prover-confirmed').checked,passwordProvider:async()=>password,onStage:stage=>{if(STAGES[stage])status(STAGES[stage]);}});
   try {session.client=await createNetworkClient(connection.providers,{networkId:connection.networkId,compiledAssetsPath:connection.compiledAssetsPath,assertSession:connection.assertSession});}
   catch(error){connection.close();throw error;}
   session.connection=connection;$('storage-password').value='';text('connection-badge',`Wallet connected · ${connection.networkId}`);status('Wallet connected. Choose Set up marketplace to deploy or join a contract.');
@@ -112,8 +120,7 @@ async function refreshState(){
 function currentReceipt(){const receipt=session.record?.reviews.find(value=>value.receiptId===$('receipt-id').value);if(!receipt)invalid('Select a receipt present in the refreshed contract state.');return receipt;}
 async function readFile(input){const file=input.files?.[0];if(!file)invalid('Choose a JSON file first.');if(file.size>2_000_000)invalid('This file is too large; the maximum is 2 MB.');try{return JSON.parse(await file.text());}catch{invalid('The file is not valid JSON.');}}
 async function contentDigest(value){return sha256Text(JSON.stringify({title:value.title,prompt:value.prompt,answer:value.answer}));}
-async function importMarketplace(){
-  const value=await readFile($('join-file'));
+async function loadMarketplace(value){
   if(!exact(value,['version','kind','networkId','contractAddress','marketplaceId','issuerIdentity','tasks'])||value.version!==1||value.kind!=='reviewlab-network-marketplace'||!['preview','undeployed'].includes(value.networkId)||!Array.isArray(value.tasks)||value.tasks.length>1024)invalid('This is not a supported ReviewLab network marketplace file.');
   ['contractAddress','marketplaceId','issuerIdentity'].forEach(key=>hex(value[key],key));
   if(value.networkId!==$('network-select').value)invalid('This file belongs to a different network. Disconnect, choose its network in step 1 and reconnect.');
@@ -126,6 +133,23 @@ async function importMarketplace(){
   $('contract-address').value=value.contractAddress;$('marketplace-id').value=value.marketplaceId;$('issuer-identity').value=value.issuerIdentity;session.metadata=metadata;
   if(session.record)await refreshState();status('Public marketplace details loaded. Join to check them against the configured indexer.');
 }
+async function importMarketplace(){await loadMarketplace(await readFile($('join-file')));}
+async function loadPublishedMarketplace(){
+  if($('network-select').value!=='preview')invalid('The published marketplace is on Preview. Choose Preview in step 1 first.');
+  const url=new URL('./docs/public-preview-marketplace.json',location.href);
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),20000);
+  try{
+    const response=await fetch(url,{credentials:'omit',redirect:'error',cache:'no-cache',signal:controller.signal});
+    if(!response.ok||response.redirected||response.url!==url.href||!response.body)invalid('The published marketplace file is unavailable. You can load a trusted marketplace file instead.');
+    const maximum=2_000_000;const declared=Number(response.headers.get('content-length'));
+    if(Number.isFinite(declared)&&declared>maximum)invalid('The published marketplace file exceeds the 2 MB limit.');
+    const reader=response.body.getReader();const chunks=[];let size=0;
+    try{for(;;){const chunk=await reader.read();if(chunk.done)break;size+=chunk.value.byteLength;if(size>maximum){await reader.cancel();invalid('The published marketplace file exceeds the 2 MB limit.');}chunks.push(chunk.value);}}finally{reader.releaseLock();}
+    const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
+    let value;try{value=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{invalid('The published marketplace file is not valid JSON.');}
+    await loadMarketplace(value);
+  }finally{clearTimeout(timer);controller.abort();}
+}
 function validateCredential(value){
   if(!exact(value,['version','marketplaceId','secret','profession','expiresAt'])||value.version!==1||!skills.includes(value.profession)||!Number.isSafeInteger(value.expiresAt)||value.expiresAt<=Date.now()/1000)invalid('The private credential is malformed or expired.');hex(value.marketplaceId,'Marketplace ID');hex(value.secret,'Expert secret');
   if(session.record&&value.marketplaceId!==session.record.marketplaceId)invalid('This credential belongs to a different marketplace.');return {...value};
@@ -133,8 +157,10 @@ function validateCredential(value){
 
 on('refresh-wallets',()=>{refreshWallets();status('Wallet discovery refreshed.');});
 $('network-select').addEventListener('change',networkChanged);
+$('internal-prover-confirmed').addEventListener('change',syncControls);
+window.addEventListener('pageshow',()=>{if(!session.connection){$('internal-prover-confirmed').checked=false;syncControls();}});
 on('connect-form',connect,'submit');
-on('disconnect',()=>{session.connection?.close();session.connection=null;session.client=null;resetContract();['issuer-secret','owner-secret','feedback','contract-address','marketplace-id','issuer-identity','receipt-id','close-task-id','credential-file','join-file'].forEach(id=>$(id).value='');text('connection-badge','Wallet disconnected');status('App session disconnected and in-memory private inputs cleared. Wallet permissions and encrypted browser storage are unchanged.');});
+on('disconnect',()=>{session.connection?.close();session.connection=null;session.client=null;$('internal-prover-confirmed').checked=false;resetContract();['issuer-secret','owner-secret','feedback','contract-address','marketplace-id','issuer-identity','receipt-id','close-task-id','credential-file','join-file'].forEach(id=>$(id).value='');text('connection-badge','Wallet disconnected');status('App session disconnected and in-memory private inputs cleared. Confirm the Lace proving mode again before reconnecting. Wallet permissions and encrypted browser storage are unchanged.');});
 on('check-services',async()=>{
   text('service-status','Checking the public Preview node and indexer…');
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);
@@ -151,6 +177,7 @@ on('generate-owner',()=>{$('owner-secret').value=randomHex32();status('Private t
 on('download-owner',()=>{download('reviewlab-owner.private.json',{version:1,kind:'reviewlab-owner-key',secret:hex($('owner-secret').value,'Owner key')});status('Private owner key downloaded. Keep this file private.');});
 on('deploy',async()=>{const issuerSecret=hex($('issuer-secret').value,'Issuer key');const marketplaceId=randomHex32();const issuerIdentity=issuerIdentityFor(issuerSecret);const result=await session.client.deploy({marketplaceId,issuerIdentity});resetContract();noteTransaction('Marketplace deployment',result);await refreshState();});
 on('join-file',importMarketplace,'change');
+on('load-published-marketplace',loadPublishedMarketplace);
 on('join',async()=>{await session.client.join({contractAddress:hex($('contract-address').value,'Contract address'),marketplaceId:hex($('marketplace-id').value,'Marketplace ID'),issuerIdentity:hex($('issuer-identity').value,'Issuer identity')});await refreshState();status('Marketplace identity and verifier keys matched the configured indexer. No transaction sent.');});
 on('download-marketplace',()=>{const r=session.record;download('reviewlab-marketplace.json',{version:1,kind:'reviewlab-network-marketplace',networkId:r.networkId,contractAddress:r.contractAddress,marketplaceId:r.marketplaceId,issuerIdentity:r.issuerIdentity,tasks:[...session.metadata.values()]});status('Public marketplace details saved. No private credentials, keys or feedback included.');});
 on('task-form',async()=>{const metadata={id:randomHex32(),title:$('task-title').value.trim(),prompt:$('task-prompt').value.trim(),answer:$('task-answer').value.trim()};if(!metadata.title||!metadata.prompt||!metadata.answer)invalid('Add a title, prompt and AI answer.');metadata.contentDigest=await contentDigest(metadata);const result=await session.client.createTask({id:metadata.id,profession:$('task-profession').value,deadline:seconds('task-deadline'),capacity:Number($('task-capacity').value),reward:Number($('task-reward').value),contentDigest:metadata.contentDigest,ownerSecret:hex($('owner-secret').value,'Task owner key')});session.metadata.set(metadata.id,metadata);noteTransaction('AI evaluation created',result);await refreshState();$('review-task').value=metadata.id;renderTaskContent();},'submit');
