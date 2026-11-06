@@ -49,6 +49,33 @@ async function closeSheet(page) {
   const close = page.getByTestId('side-sheet-close-button');
   if (await visible(close)) await close.click();
 }
+async function requireSelectedRadio(page, control) {
+  await control.waitFor({state:'visible', timeout:30_000});
+  const id = await control.getAttribute('data-testid');
+  assert.match(id, /^(?:radio-button-|proof-server-)[a-z0-9-]+$/);
+  // Released Lace's RadioButton shows a checkmark on selected OR hover/focus.
+  // Its bundled web adapter may omit legacy accessibilityState attributes.
+  // Clear only ordinary UI focus/hover before using the rendered checkmark.
+  await control.evaluate(el => el.blur());
+  await page.mouse.move(0, 0);
+  await page.waitForFunction(testId => {
+    const rendered = node => {
+      if (!node || ![...node.getClientRects()].some(rect => rect.width > 0 && rect.height > 0)) return false;
+      for (let current = node; current; current = current.parentElement) {
+        const style = getComputedStyle(current);
+        if (style.display === 'none' || style.visibility !== 'visible' || Number(style.opacity) === 0) return false;
+      }
+      return true;
+    };
+    const el = document.querySelector(`[data-testid="${testId}"]`);
+    if (!rendered(el) || el.matches(':hover,:focus-within')) return false;
+    const checked = el.getAttribute('aria-checked'), selected = el.getAttribute('aria-selected');
+    if (checked === 'false' || selected === 'false') return false;
+    if (checked === 'true' || selected === 'true') return true;
+    const mark = el.querySelector(`[data-testid="${testId}-checkmark"]`);
+    return rendered(mark);
+  }, id, {timeout:15_000, polling:'raf'});
+}
 async function selectPreview(context, evidence, save) {
   const stage = async name => { evidence.stage = name; await save(); };
   await stage('open-real-lace-network-settings');
@@ -59,15 +86,15 @@ async function selectPreview(context, evidence, save) {
   const group = page.getByTestId(/network-selection-sheet-radio-group-midnight/i);
   await stage('select-midnight-preview-radio');
   await group.getByTestId('radio-button-midnight-preview').click({ timeout: 30_000 });
-  assert.equal(await group.getByTestId('radio-button-midnight-preview').getAttribute('aria-selected'), 'true');
+  await requireSelectedRadio(page, group.getByTestId('radio-button-midnight-preview'));
   await stage('confirm-midnight-preview-network');
   await page.getByTestId('network-selection-sheet-confirm-button').click();
   await group.waitFor({ state: 'hidden', timeout: 30_000 });
   await stage('recheck-persisted-preview-network');
   await page.getByTestId('option-list-item-network').click();
   await group.waitFor({ state: 'visible', timeout: 30_000 });
-  assert.equal(await page.getByTestId('radio-button-testnet').getAttribute('aria-selected'), 'true');
-  assert.equal(await group.getByTestId('radio-button-midnight-preview').getAttribute('aria-selected'), 'true');
+  await requireSelectedRadio(page, page.getByTestId('radio-button-testnet'));
+  await requireSelectedRadio(page, group.getByTestId('radio-button-midnight-preview'));
   await page.getByTestId('network-selection-sheet-cancel-button').click();
   await group.waitFor({ state: 'hidden', timeout: 30_000 });
   evidence.previewSelectedInExtensionUi = true; await save();
@@ -79,14 +106,14 @@ async function wasmSettings(context, evidence, save, select) {
   await radio.waitFor({ state: 'visible', timeout: 30_000 });
   if (select) {
     await radio.click();
-    assert.equal(await radio.getAttribute('aria-selected'), 'true');
+    await requireSelectedRadio(page, radio);
     await page.getByTestId('save-configuration-button').click();
     await radio.waitFor({ state: 'hidden', timeout: 60_000 });
     // Read the selected persisted option again through UI, not extension state.
     await page.getByTestId('option-list-item-midnight').click();
     await radio.waitFor({ state: 'visible', timeout: 30_000 });
   }
-  assert.equal(await radio.getAttribute('aria-selected'), 'true');
+  await requireSelectedRadio(page, radio);
   evidence.internalWasmModeSelected = true;
   evidence.internalWasmSettingChecks = (evidence.internalWasmSettingChecks ?? 0) + 1;
   await closeSheet(page); await save();
@@ -143,6 +170,37 @@ async function balances(page) {
   });
 }
 
+async function openOwnDustForm(context) {
+  const deadline = Date.now() + 300_000;
+  while (Date.now() < deadline) {
+    for (const page of extensionPages(context)) {
+      const input = page.getByTestId('dust-address-input-value');
+      if (await visible(input)) {
+        // The official form fills its own public DUST address in an effect.
+        // Wait for that update without editing or exporting the address.
+        await page.waitForFunction(() => {
+          const field = document.querySelector('[data-testid="dust-address-input-value"]');
+          return field && /^mn_dust_preview1[ac-hj-np-z02-9]+$/.test(field.value);
+        }, null, {timeout:Math.max(1, deadline - Date.now()), polling:'raf'});
+        return;
+      }
+      assert.equal(await visible(page.getByTestId('confirm-designation-button')), false);
+      const action = page.getByTestId('account-card-generate-dust-button');
+      if (await visible(action)) {
+        // ActionButton places its test ID on a wrapper; the nested Pressable
+        // owns disabled state. Opening this view is the only retry permitted.
+        const disabled = action.locator('[aria-disabled="true"], [disabled]');
+        if (await disabled.count() === 0) {
+          try { await action.click({timeout:5_000}); }
+          catch (error) { if (error?.name !== 'TimeoutError') throw error; }
+        }
+      }
+    }
+    await delay(1_000);
+  }
+  throw new Error('OWN_DUST_FORM_NOT_READY');
+}
+
 export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   const secrets = { walletPassword: password(), appPassword: password() };
   await writeFile(path.join(privateRoot, 'temporary-passwords.json'), JSON.stringify(secrets), { flag: 'wx', mode: 0o600 });
@@ -165,7 +223,7 @@ export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   await confirmation.fill(secrets.walletPassword);
   await stage('confirm-fresh-ci-wallet-password');
   await clickControl(context, 'next-btn');
-  await stage('select-midnight-account-only');
+  await stage('enable-midnight-account');
   const midnight = await findControl(context, 'onboarding-create-wallet-toggle-midnight');
   if (await midnight.control.getAttribute('aria-checked') !== 'true') await midnight.control.click();
   const cardano = midnight.page.getByTestId('onboarding-create-wallet-toggle-cardano');
@@ -228,9 +286,7 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     let portfolio = walletPage.getByTestId('portfolio-tab-btn');
     if (!await visible(portfolio)) { await walletPage.getByTestId('main-menu-tab-btn').click(); portfolio = walletPage.getByTestId('portfolio-tab-btn'); }
     await portfolio.click({ timeout: 20_000 });
-    await clickControl(context, 'account-card-generate-dust-button', 300_000);
-    const address = await findControl(context, 'dust-address-input-value');
-    assert.match(await address.control.inputValue(), /^mn_dust_preview1[ac-hj-np-z02-9]+$/);
+    await openOwnDustForm(context);
     await clickControl(context, 'designate-button');
     await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
       balance = await balances(appPage); return BigInt(balance.dustCap) > 0n;
@@ -262,6 +318,28 @@ export async function safeUiIdentifiers(context) {
       .filter(el => el.getClientRects().length > 0)
       .map(el => el.getAttribute('data-testid'))
       .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,100)));
+  }
+  return result;
+}
+
+export async function safeRadioStates(context) {
+  const result = [];
+  for (const page of extensionPages(context)) {
+    result.push(await page.evaluate(() => [...document.querySelectorAll('[data-testid]')]
+      .filter(el => /^(?:radio-button-[a-z0-9-]+|proof-server-[a-z0-9-]+-radio)$/.test(el.getAttribute('data-testid')) &&
+        !el.getAttribute('data-testid').endsWith('-checkmark') && el.getClientRects().length)
+      .slice(0,64).map(el => {
+        const id = el.getAttribute('data-testid');
+        const mark = el.querySelector(`[data-testid="${id}-checkmark"]`);
+        let checkmarkVisible = Boolean(mark && [...mark.getClientRects()].some(rect => rect.width > 0 && rect.height > 0));
+        for (let current = mark; current; current = current.parentElement) {
+          const style = getComputedStyle(current);
+          if (style.display === 'none' || style.visibility !== 'visible' || Number(style.opacity) === 0) checkmarkVisible = false;
+        }
+        return {testId:id, role:el.getAttribute('role'), ariaChecked:el.getAttribute('aria-checked'),
+          ariaSelected:el.getAttribute('aria-selected'), focused:el.matches(':focus-within'), hovered:el.matches(':hover'),
+          checkmarkVisible};
+      })));
   }
   return result;
 }

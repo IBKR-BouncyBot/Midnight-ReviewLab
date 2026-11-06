@@ -182,7 +182,11 @@ try {
   evidence.errorType = ['Error', 'TimeoutError', 'TypeError'].includes(error?.name) ? error.name : 'Error';
   if (error?.name === 'LacePackageError' && /^[a-z-]{1,80}$/.test(error.code ?? '')) evidence.packageCheck = error.code;
   if (context && mode !== 'probe') {
-    try { const {safeUiIdentifiers} = await import('./lace-ci-wallet.mjs'); evidence.visibleUiIdentifiers = await safeUiIdentifiers(context); } catch { /* no raw diagnostics */ }
+    try {
+      const {safeUiIdentifiers, safeRadioStates} = await import('./lace-ci-wallet.mjs');
+      evidence.visibleUiIdentifiers = await safeUiIdentifiers(context);
+      evidence.publicRadioStates = await safeRadioStates(context);
+    } catch { /* no raw diagnostics */ }
   }
 } finally {
   clearTimeout(timer);
