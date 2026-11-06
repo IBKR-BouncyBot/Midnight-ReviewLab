@@ -326,13 +326,23 @@ export async function setupFreshWallet({context, privateRoot, evidence, save}) {
 export async function resumeFundedWallet({context, privateRoot, evidence, save}) {
   const secrets = JSON.parse(await readFile(path.join(privateRoot, 'temporary-passwords.json'), 'utf8'));
   const approveWallet = createLaceApprover({context, walletPassword: secrets.walletPassword, evidence, save});
+  evidence.stage = 'wait-for-restarted-lace-password-prompt'; await save();
+  // Home can render before the restart lock overlay mounts. The fresh browser
+  // process must show its real password prompt before unlock can be observed.
+  await findControl(context, 'authentication-prompt-body', 180_000);
+  const unlockApprovalStart = evidence.walletApprovals.length;
   evidence.stage = 'unlock-same-ephemeral-lace-profile'; await save();
   await approveWallet({ kind: 'unlock', timeoutMs: 180_000, until: async () => {
+    const passwordSubmitted = evidence.walletApprovals.slice(unlockApprovalStart).some(entry =>
+      entry.kind === 'unlock' && entry.action === 'password-unlock' && entry.observation === 'click-dispatched');
+    if (!passwordSubmitted) return false;
     const pages = extensionPages(context);
     for (const page of pages) if (await visible(page.getByTestId('authentication-prompt-body'))) return false;
     for (const page of pages) if (await visible(page.getByTestId('main-menu-tab-btn'))) return true;
     return false;
   }});
+  evidence.walletRestartUnlockUiObserved = true;
+  evidence.stage = 'recheck-saved-internal-wasm-after-unlock'; await save();
   await wasmSettings(context, evidence, save, false);
   const request = JSON.parse(await readFile(path.join(privateRoot, 'funding-request.json'), 'utf8'));
   const receiveAddress = await readPreviewReceivingAddress({context, evidence, save});
