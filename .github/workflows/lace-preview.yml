@@ -8,6 +8,11 @@ on:
         type: choice
         options: [probe, setup-and-accept]
         default: probe
+      funding:
+        description: Lace self-registration, or SDK designation to Lace's public DUST address
+        type: choice
+        options: [self-registration, sdk-dust-designation]
+        default: self-registration
 
 permissions:
   contents: read
@@ -22,6 +27,8 @@ jobs:
     name: Run unmodified official Lace 2.5.1
     runs-on: ubuntu-24.04
     timeout-minutes: 110
+    env:
+      REVIEWLAB_CI_FUNDING_MODE: ${{ inputs.funding }}
     defaults:
       run:
         shell: bash
@@ -62,7 +69,9 @@ jobs:
       - name: Resume encrypted wallet, await test funding and prove through real Lace
         if: inputs.phase == 'setup-and-accept'
         # The previous artifact is available while this bounded wait runs.
-        # The operator sends only test NIGHT to its public Preview address.
+        # The operator either sends test NIGHT for Lace registration or uses
+        # an external SDK wallet to designate generation to its public DUST
+        # address. The funding request explicitly distinguishes those modes.
         # No existing wallet seed or GitHub secret is passed to this job.
         run: xvfb-run --auto-servernum node devnet/lace-ci-preview.mjs acceptance
       - name: Remove the private ephemeral browser profile

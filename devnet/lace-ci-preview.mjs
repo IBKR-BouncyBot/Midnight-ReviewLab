@@ -28,6 +28,8 @@ if (mode === 'cleanup') {
   process.exit(0);
 }
 if (!['probe', 'setup', 'acceptance'].includes(mode)) throw new Error('UNSUPPORTED_LACE_CI_PHASE');
+const fundingMode = process.env.REVIEWLAB_CI_FUNDING_MODE ?? 'self-registration';
+if (!['self-registration', 'sdk-dust-designation'].includes(fundingMode)) throw new Error('UNSUPPORTED_LACE_CI_FUNDING_MODE');
 
 const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const evidenceDirectory = path.join(root, 'artifacts', 'lace-ci');
@@ -42,6 +44,7 @@ const evidence = mode === 'acceptance'
   sourceCommit: process.env.GITHUB_SHA,
   startedAt: new Date().toISOString(),
   networkId: 'preview',
+  fundingMode,
   requestedLaceVersion: '2.5.1',
   scope: mode === 'probe' ? 'Unmodified official extension package and initial production UI boot only' : 'Real released Lace, fresh ephemeral wallet, actual Preview network and internal WASM UI setting',
   walletCreated: false,
@@ -83,6 +86,7 @@ try {
     evidence.package = result.evidence;
   } else {
     if (evidence.workflowRunId !== runId || evidence.workflowRunAttempt !== runAttempt || evidence.sourceCommit !== process.env.GITHUB_SHA) throw new Error('PROFILE_PROVENANCE_MISMATCH');
+    if (evidence.fundingMode !== fundingMode) throw new Error('FUNDING_MODE_PROVENANCE_MISMATCH');
     if (createHash('sha256').update(await readFile(path.join(extensionDirectory, 'manifest.json'))).digest('hex') !== evidence.package.manifestSha256) throw new Error('MANIFEST_CHANGED');
   }
   evidence.harnessSha256 = createHash('sha256').update(await readFile(fileURLToPath(import.meta.url))).digest('hex');
@@ -91,6 +95,7 @@ try {
     for (const name of ['lace-ci-preview.mjs', 'lace-ci-wallet.mjs', 'lace-ci-package.mjs', 'lace-ci-approver.mjs', 'lace-ci-marketplace.mjs', 'lace-ci-receive.mjs']) {
       evidence.sourceHashes[`devnet/${name}`] = createHash('sha256').update(await readFile(path.join(root, 'devnet', name))).digest('hex');
     }
+    evidence.sourceHashes['.github/workflows/lace-preview.yml'] = createHash('sha256').update(await readFile(path.join(root, '.github', 'workflows', 'lace-preview.yml'))).digest('hex');
   }
   evidence.stage = 'launch-unmodified-extension';
   await save();

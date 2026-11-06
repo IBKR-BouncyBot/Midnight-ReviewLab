@@ -1,7 +1,7 @@
 {
   "schema": "reviewlab-lace-ci-public-registration-verification-v1",
   "status": "no-accepted-registration-observed",
-  "checkedAt": "2026-11-06T20:59:42.256Z",
+  "checkedAt": "2026-11-06T21:06:44.597Z",
   "networkId": "preview",
   "endpoint": "https://indexer.preview.midnight.network/api/v4/graphql",
   "websocketEndpoint": "wss://indexer.preview.midnight.network/api/v4/graphql/ws",
@@ -56,9 +56,9 @@
     }
   ],
   "indexerHead": {
-    "height": 1629345,
-    "hash": "bd361895a17f72aef98a19738cb301804c997b3195b71967e0d470834573a618",
-    "timestamp": 1793998770000
+    "height": 1629415,
+    "hash": "c5bd676095136f510629692a17fe4e542966a1674bb657e52825857aff391889",
+    "timestamp": 1793999190000
   },
   "acceptedRegistrationObserved": false,
   "limitations": [
@@ -66,6 +66,6 @@
     "This check cannot establish whether Lace synchronized the registration or displayed usable DUST capacity.",
     "Only the requested recipient history and matching registration delegation/proof fields are retained; raw transactions and unrelated outputs are omitted."
   ],
-  "completedAt": "2026-11-06T20:59:44.547Z",
-  "helperSha256": "92f33b6458f648dbd0e31745427f2f9a0321b59338adae1efef4311800a47f17"
+  "completedAt": "2026-11-06T21:06:46.976Z",
+  "helperSha256": "a6f381b33709d995b71bf8aa1e712f215c3f6a9a0b07085a8f1d76a14fa5dd98"
 }

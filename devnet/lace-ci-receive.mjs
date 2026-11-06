@@ -1,9 +1,9 @@
-/** Read ONLY the public Preview NIGHT address from the genuine Receive UI.
+/** Read ONLY public Preview addresses from the genuine Receive UI.
  * No dApp API, clipboard, private exports, seed derivation or extension storage.
  */
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
-import {MidnightBech32m,UnshieldedAddress} from '@midnight-ntwrk/wallet-sdk-address-format';
+import {MidnightBech32m,UnshieldedAddress,DustAddress} from '@midnight-ntwrk/wallet-sdk-address-format';
 
 const origin='chrome-extension://gafhhkghbfjjkeiendhlofajokpaflmk/';
 const visible=async locator=>{
@@ -79,6 +79,16 @@ export async function showMidnightAccountCard({context,onStep=async()=>{}}){
 }
 
 export async function readPreviewReceivingAddress({context,evidence,save}){
+  return readPublicReceivingAddress({context,evidence,save,kind:'unshielded'});
+}
+
+export async function readPreviewDustReceivingAddress({context,evidence,save}){
+  return readPublicReceivingAddress({context,evidence,save,kind:'dust'});
+}
+
+async function readPublicReceivingAddress({context,evidence,save,kind}){
+  const dust=kind==='dust';
+  const tabId=dust?'Dust':'Unshielded';
   let step='receive-check-preview-settings';
   const stage=async name=>{step=name;evidence.stage=name;await save();};
   delete evidence.receiveFailure;
@@ -112,26 +122,36 @@ export async function readPreviewReceivingAddress({context,evidence,save}){
     }
     requireUi(found,'MIDNIGHT_RECEIVING_ACCOUNT_UNAVAILABLE');
   }
-  await stage('receive-select-public-unshielded-tab');
-  await unshielded.click({timeout:15000});
-  await stage('receive-wait-for-preview-address');
-  await walletPage.waitForFunction(()=>{
+  await stage(dust?'receive-select-public-dust-tab':'receive-select-public-unshielded-tab');
+  await walletPage.getByTestId(tabId).click({timeout:15000});
+  await stage(dust?'receive-wait-for-preview-dust-address':'receive-wait-for-preview-address');
+  await walletPage.waitForFunction(isDust=>{
     const el=document.querySelector('[data-testid="receive-sheet-address"]');
-    return Boolean(el&&el.getClientRects().length&&/^mn_addr_preview1[ac-hj-np-z02-9]+$/.test(el.textContent.trim()));
-  },null,{timeout:180000});
+    const pattern=isDust?/^mn_dust_preview1[ac-hj-np-z02-9]+$/:/^mn_addr_preview1[ac-hj-np-z02-9]+$/;
+    return Boolean(el&&el.getClientRects().length&&pattern.test(el.textContent.trim()));
+  },dust,{timeout:180000});
   const address=(await walletPage.getByTestId('receive-sheet-address').innerText()).trim();
   await stage('receive-validate-public-address-checksum');
-  try{const encoded=MidnightBech32m.parse(address);requireUi(encoded.network==='preview','RECEIVE_ADDRESS_NETWORK_INVALID');encoded.decode(UnshieldedAddress,'preview');}
+  try{
+    const encoded=MidnightBech32m.parse(address);
+    requireUi(encoded.network==='preview'&&encoded.asString()===address,'RECEIVE_ADDRESS_NETWORK_INVALID');
+    encoded.decode(dust?DustAddress:UnshieldedAddress,'preview');
+  }
   catch{throw new ReceiveUiError('RECEIVE_ADDRESS_CHECKSUM_OR_NETWORK_INVALID');}
-  evidence.receivingAddressSource='released-Lace-Receive-Unshielded-UI';
-  evidence.receivingAddressChecksumVerified=true;evidence.receivingAddressNetworkVerified='preview';
+  if(dust){
+    evidence.dustReceivingAddressSource='released-Lace-Receive-Dust-UI';
+    evidence.dustReceivingAddressChecksumVerified=true;evidence.dustReceivingAddressNetworkVerified='preview';
+  }else{
+    evidence.receivingAddressSource='released-Lace-Receive-Unshielded-UI';
+    evidence.receivingAddressChecksumVerified=true;evidence.receivingAddressNetworkVerified='preview';
+  }
   await save();
   await stage('receive-close-public-address-sheet');
   const close=walletPage.getByTestId('side-sheet-close-button').filter({visible:true});
   requireUi(await close.count()===1,'RECEIVE_SHEET_CLOSE_AMBIGUOUS');await close.click();
   requireUi(await waitClosed(menu)&&await waitClosed(close),'RECEIVE_SHEET_NOT_CLOSED');
   await showMidnightAccountCard({context,onStep:stage});
-  await stage('receive-public-preview-address-confirmed');
+  await stage(dust?'receive-public-preview-dust-address-confirmed':'receive-public-preview-address-confirmed');
   return address;
   }catch(error){
     const code=error instanceof ReceiveUiError?error.code:error?.name==='TimeoutError'?'RECEIVE_UI_TIMEOUT':'RECEIVE_UI_FAILED';
@@ -142,7 +162,7 @@ export async function readPreviewReceivingAddress({context,evidence,save}){
       for(const id of ['side-sheet-close-button','proof-server-in-process-radio','portfolio-tab-btn',
         'account-card-generate-dust-button','account-card-receive-button','pagination-previous-button',
         'pagination-next-button','receive-sheet-header','receive-sheet-account-dropdown-menu-button',
-        'dropdown-menu-item-0','Unshielded','receive-sheet-address','receive-sheet-empty-state']){
+        'dropdown-menu-item-0','Unshielded','Dust','receive-sheet-address','receive-sheet-empty-state']){
         try{const target=page.getByTestId(id);controls.push({id,count:await target.count(),visible:await visible(target),hitTarget:await hitTarget(target)});}
         catch{controls.push({id,unavailable:true});}
       }

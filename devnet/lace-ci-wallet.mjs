@@ -5,8 +5,9 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
+import { MidnightBech32m, DustAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { createLaceApprover } from './lace-ci-approver.mjs';
-import { readPreviewReceivingAddress, showMidnightAccountCard } from './lace-ci-receive.mjs';
+import { readPreviewReceivingAddress, readPreviewDustReceivingAddress, showMidnightAccountCard } from './lace-ci-receive.mjs';
 
 const EXTENSION = 'chrome-extension://gafhhkghbfjjkeiendhlofajokpaflmk/';
 const APP = 'https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html';
@@ -14,6 +15,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const visible = locator => locator.isVisible().catch(() => false);
 const extensionPages = context => context.pages().filter(page => page.url().startsWith(EXTENSION) && !page.isClosed());
 const password = () => `Ci!${randomBytes(30).toString('base64url')}7aQ`;
+const usableDustMinimum = 1_000_000_000_000_000n;
 class LaceWalletUiError extends Error {
   constructor(code) { super(code); this.name = 'LaceWalletUiError'; this.code = code; }
 }
@@ -273,6 +275,8 @@ async function openDustReviewOnce(context, evidence, save) {
 }
 
 export async function setupFreshWallet({context, privateRoot, evidence, save}) {
+  assert.ok(['self-registration', 'sdk-dust-designation'].includes(evidence.fundingMode));
+  const sdkDesignation = evidence.fundingMode === 'sdk-dust-designation';
   const secrets = { walletPassword: password(), appPassword: password() };
   await writeFile(path.join(privateRoot, 'temporary-passwords.json'), JSON.stringify(secrets), { flag: 'wx', mode: 0o600 });
   const stage = async name => { evidence.stage = name; await save(); };
@@ -312,15 +316,19 @@ export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   evidence.stage = 'read-own-preview-unshielded-receive-address'; await save();
   const unshieldedAddress = await readPreviewReceivingAddress({context, evidence, save});
   assert.match(unshieldedAddress, /^mn_addr_preview1[ac-hj-np-z02-9]+$/);
+  const dustAddress = sdkDesignation ? await readPreviewDustReceivingAddress({context, evidence, save}) : undefined;
   evidence.fundingAddress = {unshieldedAddress, source:'Released Lace Unshielded Receive UI', networkId:'preview'};
+  if (sdkDesignation) evidence.dustFundingAddress = {dustAddress, source:'Released Lace Dust Receive UI', networkId:'preview'};
+  evidence.fundingMechanism = sdkDesignation ? 'External SDK designation of NIGHT generation to Lace public DUST address' : 'Test NIGHT funding followed by Lace own DUST registration';
   evidence.fundsRequested = true;
   evidence.stage = 'public-funding-address-ready';
   evidence.status = 'awaiting-funding';
   await save();
   return {
     networkId: 'preview', laceVersion: '2.5.1', unshieldedAddress,
+    fundingMode: evidence.fundingMode, ...(sdkDesignation ? {dustAddress} : {}),
     workflowRunId: process.env.GITHUB_RUN_ID, workflowRunAttempt: process.env.GITHUB_RUN_ATTEMPT,
-    sourceCommit: process.env.GITHUB_SHA, requestedTestNight: '1000',
+    sourceCommit: process.env.GITHUB_SHA, requestedTestNight: sdkDesignation ? '0' : '1000',
     internalWasmSelectedAndSavedInUi: true, packageSha256: evidence.package.crxSha256,
     createdAt: new Date().toISOString(),
   };
@@ -348,36 +356,76 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
   evidence.stage = 'recheck-saved-internal-wasm-after-unlock'; await save();
   await wasmSettings(context, evidence, save, false);
   const request = JSON.parse(await readFile(path.join(privateRoot, 'funding-request.json'), 'utf8'));
+  assert.ok(['self-registration', 'sdk-dust-designation'].includes(request.fundingMode));
+  assert.equal(request.fundingMode, evidence.fundingMode);
+  assert.equal(request.fundingMode, process.env.REVIEWLAB_CI_FUNDING_MODE ?? 'self-registration');
+  assert.equal(request.networkId, 'preview');
+  assert.equal(request.workflowRunId, process.env.GITHUB_RUN_ID);
+  assert.equal(request.workflowRunAttempt, process.env.GITHUB_RUN_ATTEMPT);
+  assert.equal(request.sourceCommit, process.env.GITHUB_SHA);
+  const sdkDesignation = request.fundingMode === 'sdk-dust-designation';
+  assert.equal(request.requestedTestNight, sdkDesignation ? '0' : '1000');
   const receiveAddress = await readPreviewReceivingAddress({context, evidence, save});
   assert.equal(receiveAddress, request.unshieldedAddress);
-  await showMidnightAccountCard({context});
-  if (!await positiveDustCapUi(context)) {
-    evidence.stage = 'wait-for-funded-own-dust-form-in-lace-ui'; await save();
-    // The Portfolio route exposes the official account action. No wallet SDK
-    // or raw registration transaction is substituted for Lace here.
-    await openOwnDustForm(context, 40 * 60_000);
-    evidence.fundedDesignationFormUiObserved = true;
-    evidence.stage = 'register-night-for-dust-through-lace-ui'; await save();
-    await openDustReviewOnce(context, evidence, save);
-    await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
-      return positiveDustCapUi(context);
-    }});
+  if (sdkDesignation) {
+    // This mode funds generation from an external SDK wallet. It never opens
+    // or retries Lace's own registration flow and cannot prove that flow works.
+    evidence.laceOwnRegistration = {attempted:false, reason:'Explicit SDK-assisted DUST funding mode'};
+  } else {
+    await showMidnightAccountCard({context});
+    if (!await positiveDustCapUi(context)) {
+      evidence.stage = 'wait-for-funded-own-dust-form-in-lace-ui'; await save();
+      // The Portfolio route exposes the official account action. No wallet SDK
+      // or raw registration transaction is substituted for Lace in this mode.
+      await openOwnDustForm(context, 40 * 60_000);
+      evidence.fundedDesignationFormUiObserved = true;
+      evidence.stage = 'register-night-for-dust-through-lace-ui'; await save();
+      await openDustReviewOnce(context, evidence, save);
+      await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
+        return positiveDustCapUi(context);
+      }});
+    }
+    evidence.dustRegistrationUiObservation = {positiveDisplayedDustCap:true, observedAt:new Date().toISOString(), independentlyConfirmedTransaction:false};
   }
-  evidence.dustRegistrationUiObservation = {positiveDisplayedDustCap:true, observedAt:new Date().toISOString(), independentlyConfirmedTransaction:false};
   await save();
   const {appPage, apiHandle} = await connectApp(context, secrets, approveWallet, evidence, save);
   assert.equal(evidence.connector.unshieldedAddress, request.unshieldedAddress);
+  if (sdkDesignation) {
+    evidence.stage = 'verify-real-lace-api-dust-address'; await save();
+    const {dustAddress} = await apiHandle.evaluate(async api => {
+      const configuration = await api.getConfiguration();
+      if (configuration.networkId !== 'preview' || configuration.proverServerUri !== undefined) throw new Error('PREVIEW_INTERNAL_MODE_REQUIRED');
+      return api.getDustAddress();
+    });
+    assert.match(dustAddress, /^mn_dust_preview1[ac-hj-np-z02-9]+$/);
+    const encoded = MidnightBech32m.parse(dustAddress);
+    assert.equal(encoded.network, 'preview'); assert.equal(encoded.asString(), dustAddress);
+    encoded.decode(DustAddress, 'preview');
+    assert.equal(dustAddress, request.dustAddress);
+    evidence.connector.dustAddress = dustAddress;
+    evidence.dustFundingAddressMatchesRealApi = true;
+  }
   let balance = await balances(apiHandle);
-  assert.ok(BigInt(balance.night) > 0n && BigInt(balance.dustCap) > 0n, 'FUNDED_REGISTERED_PREVIEW_WALLET_REQUIRED');
-  evidence.fundingObserved = {unshieldedNightBaseUnits:balance.night, observedAt:new Date().toISOString(), source:'Real Lace API'};
-  evidence.stage = 'wait-for-usable-dust'; await save();
-  const dustDeadline = Date.now() + 20 * 60_000;
+  if (!sdkDesignation) {
+    assert.ok(BigInt(balance.night) > 0n && BigInt(balance.dustCap) > 0n, 'FUNDED_REGISTERED_PREVIEW_WALLET_REQUIRED');
+    evidence.fundingObserved = {unshieldedNightBaseUnits:balance.night, observedAt:new Date().toISOString(), source:'Real Lace API'};
+  }
+  evidence.stage = sdkDesignation ? 'wait-for-sdk-designated-usable-dust' : 'wait-for-usable-dust';
+  evidence.dustFundingWaitLimitMinutes = sdkDesignation ? 45 : 20; await save();
+  const dustDeadline = Date.now() + evidence.dustFundingWaitLimitMinutes * 60_000;
   while (Date.now() < dustDeadline) {
     balance = await balances(apiHandle);
-    if (BigInt(balance.dust) >= 1_000_000_000_000_000n) break;
+    evidence.dustFundingReadiness = {positiveCap:BigInt(balance.dustCap) > 0n, usableBalance:BigInt(balance.dust) >= usableDustMinimum, source:'Real Lace API', observedAt:new Date().toISOString()};
+    await save();
+    if (evidence.dustFundingReadiness.positiveCap && evidence.dustFundingReadiness.usableBalance) break;
     await delay(15_000);
   }
-  assert.ok(BigInt(balance.dust) >= 1_000_000_000_000_000n, 'DUST_GENERATION_TIMEOUT');
+  assert.ok(BigInt(balance.dustCap) > 0n && BigInt(balance.dust) >= usableDustMinimum, 'DUST_GENERATION_TIMEOUT');
+  if (sdkDesignation) evidence.dustFundingObservation = {
+    requestedMechanism:'External SDK NIGHT designation to this Lace DUST address',
+    source:'Real Lace API cap and balance', ownNightFundingRequired:false,
+    designationTransactionIndependentlyVerifiedByRunner:false, observedAt:new Date().toISOString(),
+  };
   evidence.dustObserved = { balanceBaseUnits: balance.dust, capBaseUnits: balance.dustCap, observedAt: new Date().toISOString() }; await save();
   const assertInternalWasm = async () => {
     assert.equal(evidence.outboundProofRequestObserved, false);
@@ -394,7 +442,7 @@ export async function safeUiIdentifiers(context) {
     result.push(await page.evaluate(() => [...new Set([...document.querySelectorAll('[data-testid]')]
       .filter(el => el.getClientRects().length > 0)
       .map(el => el.getAttribute('data-testid'))
-      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication|receive-|dropdown-|send-result-|Unshielded$|Shielded$)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,160)));
+      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication|receive-|dropdown-|send-result-|Unshielded$|Shielded$|Dust$)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,160)));
   }
   return result;
 }

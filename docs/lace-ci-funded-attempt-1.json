@@ -1,0 +1,65 @@
+{
+  "schema": "reviewlab-lace-funded-attempt-v1",
+  "status": "operator-cancelled-before-terminal-registration-result-observed",
+  "workflowRunId": "42290089655",
+  "workflowUrl": "https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42290089655",
+  "sourceCommit": "1936bf7dad11fc04d37b95963f714ff976e2007f",
+  "networkId": "preview",
+  "laceVersion": "2.5.1",
+  "packageSha256": "bff973f7c741ccdbf91c4a1125d4d6da8e9a0b2384b6b1f51c6898b24c87e055",
+  "crxSignaturesVerified": 3,
+  "extensionServiceWorkerObserved": true,
+  "walletCreated": true,
+  "walletOrigin": "Fresh cryptographic mnemonic generated in runner memory and imported through released Lace UI",
+  "previewSelectedInExtensionUi": true,
+  "internalWasmModeSelected": true,
+  "internalWasmSettingChecks": 2,
+  "walletRestartUnlockUiObserved": true,
+  "publicFundingAddress": "mn_addr_preview1h9uhqe9t8pkxmn9ykfk3gwetw8p4uf3vvkqcvsdd9atxhtgqwufshdnhp2",
+  "fundingEvidence": "lace-ci-funding-verification.json",
+  "canonicalRegistrationCheck": "lace-ci-registration-verification.json",
+  "ownDustFormObserved": true,
+  "ownDustReviewObserved": true,
+  "walletApprovals": [
+    {
+      "kind": "unlock",
+      "action": "password-unlock",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T20:49:04.408Z"
+    },
+    {
+      "kind": "unlock",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T20:49:05.188Z"
+    },
+    {
+      "kind": "dust-registration",
+      "action": "confirm-own-dust-registration",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T20:50:53.076Z"
+    },
+    {
+      "kind": "dust-registration",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T20:50:53.874Z"
+    }
+  ],
+  "lastCheckpointStage": "approve-own-dust-registration",
+  "originalCheckpointStatus": "running",
+  "terminalRegistrationResultObserved": false,
+  "acceptedMarketplaceTransactions": [],
+  "outboundProofRequestObserved": false,
+  "publicArtifactId": "13540107727",
+  "checkpointSha256": "0276a513cb663705e50684c6271f177ab1321c0df9eb7c942174401b72da8fef",
+  "privateProfileCleanupStep": "success",
+  "limitations": [
+    "The run was cancelled while awaiting the registration result; the checkpoint is not a completed or passed test.",
+    "The canonical indexer subsequently reported the funded output unspent and not registered at the recorded check time.",
+    "Static Preview service probes returned HTTP 410, but Lace recognized the funding. Those probes do not establish its active runtime configuration or explain the registration outcome.",
+    "UI proving-mode observations and request metadata are not cryptographic proving-location attestation.",
+    "Private profile, passwords and mnemonic were not uploaded and the ephemeral profile was removed.",
+    "No Lace-generated contract or DUST proof, accepted Lace transaction, reward payment or sponsor operation is claimed by this attempt."
+  ]
+}

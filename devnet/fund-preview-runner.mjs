@@ -19,6 +19,8 @@ try{
   assert.equal(process.argv.length,4);assert.equal(process.argv[2],'--request');
   const bytes=await readFile(resolve(process.argv[3]));assert.ok(bytes.length<32768);
   const request=JSON.parse(bytes);assert.equal(request.networkId,'preview');assert.equal(request.laceVersion,'2.5.1');assert.match(request.workflowRunId,/^[0-9]{1,24}$/);
+  assert.ok(request.fundingMode===undefined||request.fundingMode==='self-registration');
+  assert.equal(request.requestedTestNight,'1000');
   const address=MidnightBech32m.parse(request.unshieldedAddress);assert.equal(address.network,'preview');
   const receiverAddress=address.decode(UnshieldedAddress,'preview');
   const recipient=address.asString();
