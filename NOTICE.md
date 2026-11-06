@@ -10,6 +10,8 @@ The deployment pattern and pinned Compact installer were adapted from [Midnight 
 
 The browser wallet provider, network configuration boundaries and SDK witness-scoping approach are adapted from BallotLab under the same license. The locally hosted Outfit typeface is licensed under the SIL Open Font License 1.1, retained in `src/fonts/OFL-Outfit.txt` and the published `fonts/` directory. The visual palette follows Midnight; this independent research app does not imply endorsement.
 
+The Cardano support-address QR graphic is reused from BallotLab under the same license and encodes the same IBKR-BouncyBot receiving address.
+
 ## Runtime license texts
 
 The Midnight runtime's Apache License text is preserved in `docs/licenses/Apache-2.0.txt`. The production build includes `THIRD_PARTY_NOTICES.txt` with the names, versions and available installed-package license texts of bundled dependencies. Third-party licenses remain in force independently of this project's license.

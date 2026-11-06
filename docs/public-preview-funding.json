@@ -1,0 +1,23 @@
+{
+  "schema": "reviewlab-public-preview-funding-summary/v1",
+  "networkId": "preview",
+  "checkedAt": "2026-11-06T17:15:41.011Z",
+  "confirmationSource": "configured-public-preview-indexer",
+  "independentChainInclusionVerified": false,
+  "faucetUiTransactionId": "002354465d620c9328c88b3cf3db6e1db70a1bc9751e1e9578765b2c947adfdeee",
+  "transactionHash": "2e64fd9cc295d22c6c9aa794b85b42177cc4d2c75858a05c4535cb5309aa83ee",
+  "transactionIdentifiers": [
+    "00b74458c967e1222fc57e339b1bc0f41b4afbef0769f779b38a292fddfc1b008f",
+    "002354465d620c9328c88b3cf3db6e1db70a1bc9751e1e9578765b2c947adfdeee"
+  ],
+  "status": "SUCCESS",
+  "blockHeight": 1626924,
+  "blockHash": "49113e59605867e0078a81eb90ea70b1b977623af16d23621e9d2d4aab68b1be",
+  "receivedOutput": {
+    "owner": "mn_addr_preview1p35fx287danunuhw7ezctf5n0hkr5cc4ctxv00nhsf7wmvyjxx8sqc3n0f",
+    "value": "5000000000",
+    "tokenType": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "receivedTestNight": "5000",
+  "otherTransactionOutputsOmitted": true
+}

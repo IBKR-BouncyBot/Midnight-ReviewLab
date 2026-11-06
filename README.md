@@ -19,7 +19,7 @@ The [landing page](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/) offers 
 
 The testnet client defaults to public **Preview**. The selected wallet pays its own transaction fees; fee sponsorship is not yet implemented. Mainnet is disabled. Follow the [testnet setup guide](docs/TESTNET.md) before connecting.
 
-Both the SDK workflow and the actual browser client have completed seven accepted transactions each on an isolated Midnight development chain using temporary, pre-funded test wallets. The browser test uses the official API-4 testkit adapter, not Lace. Public Preview connectivity was checked separately; no public Preview transaction has been recorded in the retained evidence. See the [exact evidence and limits](docs/VERIFICATION.md).
+Both the SDK workflow and the actual browser client have completed seven accepted transactions each on an isolated Midnight development chain using temporary, pre-funded test wallets. The browser test uses the official API-4 testkit adapter, not Lace. A separate public Preview test wallet has received 5,000 test NIGHT from the faucet, confirmed by the public indexer at block 1,626,924. DUST registration, marketplace deployment and expert enrollment have been accepted on public Preview; full lifecycle testing is still in progress. See the [exact evidence and limits](docs/VERIFICATION.md).
 
 ## Explore the browser lab
 
@@ -61,6 +61,20 @@ The GitHub Actions workflow repeats compilation, tests and the production build,
 ## From prototype to shared service
 
 A production marketplace needs independent credential issuers, shared encrypted feedback storage, a reviewed production deployment, a sponsor service with usage limits, actual reward settlement, and an operational privacy review. The [architecture guide](docs/ARCHITECTURE.md) describes these boundaries. Zero-knowledge privacy is not exclusive to Midnight; this project deliberately uses Midnight's Compact contract model and NIGHT-generated DUST fee resource.
+
+## Buy me a coffee
+
+If ReviewLab has been useful, you can support IBKR-BouncyBot with a little NIGHT or ADA. It's completely optional.
+
+**NIGHT or ADA · Cardano mainnet**
+
+Scan the QR code or copy the address below. The [support section](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/#support) also has a copy button. This support address is separate from the application's testnet wallets.
+
+<img src="docs/assets/support-cardano-qr.svg" width="220" height="220" alt="QR code for the Cardano mainnet NIGHT or ADA support address">
+
+```text
+addr1q85w2v474ywzx868s69pghygek3vrhxm69e7c6ysuf28qhv8kmj5wd059grxl82f8h5mtyzl87cvqj8ldv2e0las7tnsdej9ax
+```
 
 ## License
 

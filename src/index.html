@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0A0A0A">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="description" content="Explore private expert feedback for AI with Midnight ReviewLab. Try the browser demo or connect Lace to the public Preview testnet.">
   <title>Midnight ReviewLab · Private expertise. Better AI.</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./midnight.css">
   <link rel="stylesheet" href="./landing.css">
+  <script type="module" src="./landing.mjs"></script>
 </head>
 <body class="landing-page">
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -68,7 +69,20 @@
       <div><p class="eyebrow">KNOW WHAT YOU ARE TESTING</p><h2 id="limits-heading">A research prototype.</h2></div>
       <div><p>Demo credentials do not establish real professional qualifications. A production marketplace needs trusted issuers, independent review-quality checks and a payment service. A valid review transaction does not prove that the feedback is correct.</p><p>Local contract execution, proof generation and accepted network transactions are separate milestones. A saved receipt can be internally consistent without establishing authentic credentials, a complete history or blockchain acceptance.</p><div class="landing-resources"><a href="./browser.html#privacy">Privacy & limitations →</a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">Source & setup guides ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div>
     </section>
-    <footer class="landing-footer"><p>Midnight ReviewLab <span>·</span> Private expert feedback for AI</p><div><a href="./browser.html">Browser demo</a><a href="./network.html">Public testnet</a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">View source ↗<span class="sr-only"> (opens in a new tab)</span></a></div><p class="footer-note">Independent Midnight research. For learning and testing. No real payments.</p></footer>
+    <section id="support" class="landing-support" aria-labelledby="support-heading">
+      <div class="landing-support-content">
+        <p class="eyebrow">SUPPORT DEVELOPMENT</p>
+        <h2 id="support-heading">Buy me a coffee.</h2>
+        <p>Enjoying Midnight ReviewLab? Support its development with a NIGHT or ADA tip on Cardano. Scan the QR code or copy the address below. Thank you for helping me keep building.</p>
+        <p class="support-address-label">NIGHT or ADA receiving address · Cardano mainnet</p>
+        <code id="support-address" tabindex="0">addr1q85w2v474ywzx868s69pghygek3vrhxm69e7c6ysuf28qhv8kmj5wd059grxl82f8h5mtyzl87cvqj8ldv2e0las7tnsdej9ax</code>
+        <button id="copy-support-address" class="support-copy" type="button" hidden>Copy Cardano address</button>
+        <p id="support-copy-status" class="support-copy-status" role="status" aria-live="polite"></p>
+        <p class="support-note">Tips are optional. Both demos are free to use. This support address is separate from the Preview testnet wallet.</p>
+      </div>
+      <figure class="support-qr"><img src="./docs/assets/support-cardano-qr.svg" width="240" height="240" loading="lazy" alt="Scan this QR code for the Cardano mainnet support address"><figcaption>NIGHT or ADA on Cardano mainnet</figcaption></figure>
+    </section>
+    <footer class="landing-footer"><p>Midnight ReviewLab <span>·</span> Private expert feedback for AI</p><div><a href="./browser.html">Browser demo</a><a href="./network.html">Public testnet</a><a href="#support">Buy me a coffee</a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">View source ↗<span class="sr-only"> (opens in a new tab)</span></a></div><p class="footer-note">Independent Midnight research. For learning and testing. Demo reward claims do not send payments.</p></footer>
   </main>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "testedAt": "2026-11-06T17:20:11.218Z",
+  "checks": [
+    "Verified address matches BallotLab",
+    "Displayed QR decoded to exact receiving address",
+    "Clipboard copies exact address",
+    "Clipboard denial offers selected-text fallback",
+    "Support section fits 390px and 320px"
+  ],
+  "errors": 0,
+  "remoteRequests": 0
+}

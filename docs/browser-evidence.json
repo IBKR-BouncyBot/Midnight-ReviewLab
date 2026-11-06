@@ -1,9 +1,9 @@
 {
   "status": "passed",
-  "testedAt": "2026-11-06T15:25:14.607Z",
+  "testedAt": "2026-11-06T17:18:51.097Z",
   "browser": "156.0.8078.4",
   "cases": [
-    "Static landing, separate browser/testnet links, Midnight palette, local Outfit and 320px/390px layouts",
+    "Landing, separate browser/testnet links, Midnight palette, local Outfit and 320px/390px layouts",
     "Native WASM startup, six campaigns, search and expertise filters",
     "Credential issuance, private review, complete receipt, owner approval and author claim",
     "Duplicate blocked and private credential/feedback excluded from exports and storage",

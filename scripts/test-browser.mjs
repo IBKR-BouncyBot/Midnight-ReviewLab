@@ -37,7 +37,6 @@ try {
   assert.equal(await page.locator('.landing-demo-card').count(), 2);
   assert.equal(await page.locator('[data-demo="browser"]').getAttribute('href'), './browser.html');
   assert.equal(await page.locator('[data-demo="testnet"]').getAttribute('href'), './network.html');
-  assert.equal(await page.locator('script').count(), 0, 'Landing remains a static choice screen');
   await page.evaluate(() => document.fonts.ready);
   const palette = await page.evaluate(() => ({
     blue: getComputedStyle(document.documentElement).getPropertyValue('--blue').trim(),
@@ -56,7 +55,7 @@ try {
   await page.setViewportSize({ width: 1440, height: 1050 });
   await page.locator('[data-demo="browser"]').click();
   assert.equal(page.url(), browserBase);
-  cases.push('Static landing, separate browser/testnet links, Midnight palette, local Outfit and 320px/390px layouts');
+  cases.push('Landing, separate browser/testnet links, Midnight palette, local Outfit and 320px/390px layouts');
 
   await page.getByText('6 open tasks', { exact: true }).waitFor();
   assert.equal(await page.locator('.task-card').count(), 6);
