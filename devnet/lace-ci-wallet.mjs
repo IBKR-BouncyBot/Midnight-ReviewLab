@@ -135,10 +135,27 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
   assert.match(await page.locator('#connection-badge').innerText(), /Wallet connected.*preview/);
   // Use only the real, already authorized DApp Connector. No injected API or
   // provider replacement is created by this harness.
-  const account = await page.evaluate(async () => {
+  evidence.stage = 'authorize-one-public-wallet-read-connection'; await save();
+  const metadata = await page.evaluate(() => {
     const initial = Object.values(window.midnight ?? {}).find(wallet => wallet.rdns === 'io.lace.wallet' && /^4\./.test(wallet.apiVersion));
     if (!initial) throw new Error('REAL_LACE_CONNECTOR_MISSING');
-    const api = await initial.connect('preview');
+    return {apiVersion:initial.apiVersion, rdns:initial.rdns};
+  });
+  // Lace intentionally re-authorizes each connect(). Retain one genuine API
+  // object as a Playwright handle for public reads instead of reconnecting on
+  // every balance poll. Both promise branches are attached immediately.
+  let connectionSettled = false;
+  const pendingConnection = page.evaluateHandle(async () => {
+    const initial = Object.values(window.midnight ?? {}).find(wallet => wallet.rdns === 'io.lace.wallet' && /^4\./.test(wallet.apiVersion));
+    if (!initial) throw new Error('REAL_LACE_CONNECTOR_MISSING');
+    return initial.connect('preview');
+  }).then(apiHandle => { connectionSettled = true; return {apiHandle}; },
+    () => { connectionSettled = true; return {apiHandle:null}; });
+  await approveWallet({kind:'connect', timeoutMs:600_000, until:async () => connectionSettled});
+  const {apiHandle} = await pendingConnection;
+  assert.ok(apiHandle, 'PUBLIC_WALLET_READ_CONNECTION_FAILED');
+  evidence.stage = 'read-public-preview-wallet-account'; await save();
+  const account = await apiHandle.evaluate(async api => {
     const configuration = await api.getConfiguration();
     const connection = await api.getConnectionStatus();
     const address = await api.getUnshieldedAddress();
@@ -150,19 +167,18 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
       (indexer.origin === 'https://blockfrost.lw.iog.io' && /^\/midnight-preview\/?$/.test(indexer.pathname));
     if (!previewIndexer || indexer.search || indexer.hash || indexer.username || indexer.password) throw new Error('EXPECTED_PREVIEW_INDEXER_REQUIRED');
     return { unshieldedAddress: address.unshieldedAddress, networkId: configuration.networkId,
-      apiVersion: initial.apiVersion, rdns: initial.rdns,
       indexerEndpoint: `${indexer.origin}${indexer.pathname}`,
       reportedProverServerUri: null };
   });
   assert.match(account.unshieldedAddress, /^mn_addr_preview1[ac-hj-np-z02-9]+$/);
-  evidence.connector = account; await save();
-  return page;
+  evidence.connector = {...account, ...metadata}; await save();
+  // Context closure owns disposal of this handle. The object is not exported
+  // or persisted, and the public dApp keeps its own separate real connection.
+  return {appPage:page, apiHandle};
 }
 
-async function balances(page) {
-  return page.evaluate(async () => {
-    const initial = Object.values(window.midnight ?? {}).find(wallet => wallet.rdns === 'io.lace.wallet' && /^4\./.test(wallet.apiVersion));
-    const api = await initial.connect('preview');
+async function balances(apiHandle) {
+  return apiHandle.evaluate(async api => {
     const configuration = await api.getConfiguration();
     if (configuration.networkId !== 'preview' || configuration.proverServerUri !== undefined) throw new Error('PREVIEW_INTERNAL_MODE_REQUIRED');
     const [unshielded, dust] = await Promise.all([api.getUnshieldedBalances(), api.getDustBalance()]);
@@ -264,14 +280,14 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     return false;
   }});
   await wasmSettings(context, evidence, save, false);
-  const appPage = await connectApp(context, secrets, approveWallet, evidence, save);
+  const {appPage, apiHandle} = await connectApp(context, secrets, approveWallet, evidence, save);
   const request = JSON.parse(await readFile(path.join(privateRoot, 'funding-request.json'), 'utf8'));
   assert.equal(evidence.connector.unshieldedAddress, request.unshieldedAddress);
   evidence.stage = 'wait-for-authorized-preview-funding'; await save();
   let balance;
   const deadline = Date.now() + 40 * 60_000;
   while (Date.now() < deadline) {
-    balance = await balances(appPage);
+    balance = await balances(apiHandle);
     if (BigInt(balance.night) > 0n) break;
     await delay(15_000);
   }
@@ -289,14 +305,14 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     await openOwnDustForm(context);
     await clickControl(context, 'designate-button');
     await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
-      balance = await balances(appPage); return BigInt(balance.dustCap) > 0n;
+      balance = await balances(apiHandle); return BigInt(balance.dustCap) > 0n;
     }});
     evidence.dustRegistrationObserved = true; await save();
   }
   evidence.stage = 'wait-for-usable-dust'; await save();
   const dustDeadline = Date.now() + 20 * 60_000;
   while (Date.now() < dustDeadline) {
-    balance = await balances(appPage);
+    balance = await balances(apiHandle);
     if (BigInt(balance.dust) >= 1_000_000_000_000_000n) break;
     await delay(15_000);
   }

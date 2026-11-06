@@ -157,7 +157,7 @@ try {
   }), knownControls);
   evidence.stage = 'initial-ui-observed';
   const onboardingVisible = evidence.initialUi.knownVisibleControls.some(id => id.startsWith('onboarding-start-'));
-  evidence.status = onboardingVisible ? 'passed' : 'blocked';
+  evidence.status = onboardingVisible ? (mode === 'probe' ? 'passed' : 'running') : 'blocked';
   if (!onboardingVisible) evidence.blocker = 'EXPECTED_ONBOARDING_CONTROL_NOT_OBSERVED';
   if (!onboardingVisible) throw new Error('EXPECTED_ONBOARDING_CONTROL_NOT_OBSERVED');
   }
