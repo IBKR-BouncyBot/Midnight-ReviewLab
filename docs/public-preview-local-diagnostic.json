@@ -1,0 +1,32 @@
+{
+  "networkId": "preview",
+  "checkedAt": "2026-11-06T17:39:35.252Z",
+  "method": "local-strict-ledger-replay",
+  "networkSubmission": false,
+  "independentChainVerification": false,
+  "steps": [
+    {
+      "operation": "deploy-marketplace",
+      "referenceBlock": 1627092,
+      "dustSpendCount": 1,
+      "status": "success",
+      "wellFormed": true
+    },
+    {
+      "operation": "enroll-expert",
+      "referenceBlock": 1627096,
+      "dustSpendCount": 1,
+      "status": "success",
+      "wellFormed": true
+    },
+    {
+      "operation": "pending-create-task",
+      "referenceBlock": 1627352,
+      "dustSpendCount": 0,
+      "status": "checking"
+    }
+  ],
+  "transactionId": "00ed3fbbb185ae28f9f315b97c9331ecd26302ea447db43bf493a8154666681227",
+  "status": "local-validation-stopped",
+  "reason": "transaction is not in normal form"
+}

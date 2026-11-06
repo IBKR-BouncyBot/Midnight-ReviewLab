@@ -19,7 +19,9 @@ The [landing page](https://ibkr-bouncybot.github.io/Midnight-ReviewLab/) offers 
 
 The testnet client defaults to public **Preview**. The selected wallet pays its own transaction fees; fee sponsorship is not yet implemented. Mainnet is disabled. Follow the [testnet setup guide](docs/TESTNET.md) before connecting.
 
-Both the SDK workflow and the actual browser client have completed seven accepted transactions each on an isolated Midnight development chain using temporary, pre-funded test wallets. The browser test uses the official API-4 testkit adapter, not Lace. A separate public Preview test wallet has received 5,000 test NIGHT from the faucet, confirmed by the public indexer at block 1,626,924. DUST registration, marketplace deployment and expert enrollment have been accepted on public Preview; full lifecycle testing is still in progress. See the [exact evidence and limits](docs/VERIFICATION.md).
+Both the SDK workflow and the actual browser client have completed seven accepted transactions each on an isolated Midnight development chain using temporary, pre-funded test wallets. The browser test uses the official API-4 testkit adapter, not Lace.
+
+A separate public Preview test wallet received [5,000 test NIGHT from the faucet](docs/public-preview-funding.json) and completed **eight accepted transactions**: DUST registration plus the seven-step marketplace lifecycle. The final review is claimed and its task is closed. The published testnet page also connected and checked that receipt through the official API-4 testkit adapter; Lace itself has not been tested. See the [public evidence](docs/VERIFICATION.md#public-preview-status), download the [verified join file](docs/public-preview-marketplace.json), and follow the [join instructions](docs/TESTNET.md#inspect-the-recorded-public-deployment).
 
 ## Explore the browser lab
 

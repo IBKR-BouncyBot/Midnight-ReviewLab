@@ -1,0 +1,31 @@
+{
+  "schema": "reviewlab-public-preview-browser-read/v1",
+  "startedAt": "2026-11-06T17:46:49.656Z",
+  "status": "passed",
+  "networkId": "preview",
+  "url": "https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html",
+  "browser": "Chromium",
+  "wallet": "official-testkit-DAppConnectorWalletAdapter",
+  "realLaceWalletTested": false,
+  "networkSubmission": false,
+  "proofRequests": 0,
+  "balanceRequests": 0,
+  "submissionRequests": 0,
+  "pageErrors": 0,
+  "confirmationSource": "configured-public-preview-indexer",
+  "independentlyVerifiedChainInclusion": false,
+  "contractAddress": "0cc1dae038920b32336617dcff14eab4246471b9b41564e12df8cdaea8c8e1d7",
+  "receiptId": "91ce920f6e1b7af7bfd838449f73bcc503c2da4a2755ce320f730bdff5243eba",
+  "sourceHashes": {
+    "network.html": "9bde492862dfcc634d4f87ab156a14cbb450bf10aca53763c634747d20f996a8",
+    "network-bundle.mjs": "ddcde95a26fd378a90ffa27f7a699fe046522b72a33c6070f23afcf683e37725",
+    "network.css": "e1e9e5196499ede5052a9e51c54b8934f5538a1109ec5ccd454acea674d349b6",
+    "midnight.css": "a162f7538bbd29c99288b8439f661a4be754037ac7842d60ffbee2251e08abe5"
+  },
+  "runnerSourceSha256": "8eca01be2e330a7633df29fc9286eb10f122dede410e8e5b9df776b6c9beb5d0",
+  "restoredEncryptedCheckpoint": true,
+  "receiptStatus": "claimed",
+  "taskClosed": true,
+  "publicExportChecked": true,
+  "completedAt": "2026-11-06T17:46:54.934Z"
+}

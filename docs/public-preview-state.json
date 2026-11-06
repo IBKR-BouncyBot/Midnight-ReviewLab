@@ -1,0 +1,16 @@
+{
+  "schema": "reviewlab-public-preview-state-check/v1",
+  "networkId": "preview",
+  "checkedAt": "2026-11-06T17:47:53.883Z",
+  "confirmationSource": "configured-public-preview-indexer",
+  "independentChainInclusionVerified": false,
+  "contractAddress": "0cc1dae038920b32336617dcff14eab4246471b9b41564e12df8cdaea8c8e1d7",
+  "marketplaceId": "d3c026cdf99b149d901c9390a2373a2fcdf41e3bd0c771278868fce4dca2a2b5",
+  "issuerIdentity": "e8da90b230cec50f915917c5a3c2a4bff25468cf8b5cc704279c55e3acfb1e43",
+  "expertsEnrolled": 1,
+  "tasks": 1,
+  "reviews": 1,
+  "claims": 1,
+  "browserCheckPerformed": false,
+  "networkSubmission": false
+}

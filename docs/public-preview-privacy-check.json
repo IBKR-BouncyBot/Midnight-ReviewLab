@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "checkedAt": "2026-11-06T17:47:20.408Z",
+  "publicFilesChecked": 5,
+  "check": "Exact private seed, role secrets, password, feedback and opening values absent from exported public artifacts"
+}

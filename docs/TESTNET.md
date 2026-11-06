@@ -58,6 +58,12 @@ The Preview public-state endpoints are:
 
 No bundled access token is needed for these Preview defaults. The page offers Preview and an advanced isolated-local option. The underlying configuration library also supports Preprod for developer integrations, but it is not a page option. Never publish service credentials in a repository, screenshot or exported public record.
 
+## Inspect the recorded public deployment
+
+Download the [public Preview marketplace file](public-preview-marketplace.json) using GitHub's **Download raw file** control. After connecting your wallet on Preview, open **Set up marketplace**, choose the file under **Load public marketplace details**, then select **Join marketplace**. Open **Check receipts** and **Refresh contract state** to read the current indexed record.
+
+The recorded deployment has one demonstration credential, one completed review, one claimed entitlement and a closed task. The file includes the public task text and identifiers, not issuer authority or an expert credential. Its task is closed after the acceptance test, so deploy your own marketplace to exercise every role and retain its private keys as described below. See the [public verification results](VERIFICATION.md#public-preview-status) for the accepted transactions, recovery history and published-browser check. This deployment uses test assets; the recorded claim did not transfer a reward.
+
 ## 4. Exercise the marketplace
 
 1. **Deploy or join.** Create a new marketplace or join its known contract address on the selected network. Check the displayed marketplace and contract identifiers. Save the public join information and any separately offered private issuer key.

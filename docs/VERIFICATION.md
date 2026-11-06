@@ -21,6 +21,8 @@ The [browser-lab evidence](browser-evidence.json) records eight passing acceptan
 
 The separate [network-browser boundary evidence](network-browser-evidence.json) records seven passing cases against the real SDK bundle. It loaded both native WASM assets and checked all 18 compiled proving assets, Preview/local configuration, private key handling, strict imports, credential expiry, wallet-denial handling and all four network screens at 390px. There were no runtime errors or remote requests. Its API-4 fixture always rejects: this suite establishes neither a successful wallet connection nor a proof or transaction. It also guards the page's hash-navigation connection regression.
 
+The [support-section checks](support-evidence.json) confirm that the Cardano mainnet support address matches BallotLab, the displayed QR decodes to that exact address, copying works, denied clipboard access offers selected text, and the section fits 320px and 390px widths. No browser errors or automatic third-party requests were recorded. These optional tips are separate from the testnet wallet and marketplace reward accounting.
+
 ## Accepted isolated-network transactions — 6 November 2026
 
 The [SDK network evidence](network-evidence.json) records seven transactions accepted with `SucceedEntirely` on a dedicated `undeployed` chain: deployment, expert enrollment, task creation, review submission, approval, entitlement claim and task closure. Six proved contract-call transactions completed. The configured local indexer reported a final state of one credential, one task, one review, one claim and a closed task. The run completed at 16:30:08 CET (15:30:08 UTC).
@@ -41,7 +43,32 @@ The report hashes the exact built HTML, JavaScript and CSS, contract and SDK/pro
 
 ## Public Preview status
 
-The testnet page defaults to public Preview and implements the real wallet/prover/transaction path. A manual read-only page check received the expected Preview node identity and indexer block 1,626,008. That connectivity observation is not a wallet, proof or transaction test. The reports above do not establish public faucet funding, a public Preview transaction or a Lace extension transaction. Public use requires the wallet, test NIGHT/DUST and local prover setup in [TESTNET.md](TESTNET.md).
+**The complete public Preview lifecycle passed on 6 November 2026.** The [sanitized public evidence](public-preview-evidence.json) records eight accepted transactions: DUST registration plus seven marketplace operations, including six proved contract calls. The run completed at 17:46:37 UTC. The final task is closed and the exact review receipt is `claimed`.
+
+A dedicated Preview test wallet received 5,000 test NIGHT (5,000,000,000 STAR) from the public faucet. The [funding evidence](public-preview-funding.json) records `SUCCESS` at block 1,626,924, the transaction identifiers and the output to this wallet. It omits unrelated faucet change outputs. This is a randomly generated test wallet, separate from the isolated genesis wallets and the optional Cardano mainnet support address. Its private seed and wallet snapshots are protected locally with Windows DPAPI.
+
+The public Preview indexer confirmed all eight transactions with `SucceedEntirely`:
+
+| Action | Block |
+| --- | --- |
+| Register test NIGHT for DUST generation | 1,627,059 |
+| Deploy the ReviewLab marketplace | 1,627,092 |
+| Enroll the demonstration expert | 1,627,096 |
+| Create the AI evaluation task | 1,627,407 |
+| Submit the private review | 1,627,411 |
+| Approve the review | 1,627,415 |
+| Claim the entitlement | 1,627,419 |
+| Close the task | 1,627,423 |
+
+A separate [read-only contract-state check](public-preview-state.json) at 17:47:53 UTC verified the marketplace and issuer commitments and found one enrolled credential, one task, one review and one claim. It used the public indexer and generated contract decoder without submitting a transaction. The [public record](public-preview-record.json) retains the claimed receipt and closed task. The [join file](public-preview-marketplace.json) includes the public task text and its committed digest; follow the [inspection instructions](TESTNET.md#inspect-the-recorded-public-deployment) to join the deployed marketplace.
+
+The original create-task attempt lost its submission response and was not found in repeated indexer checks. A same-ID replacement also lacked confirmation; retrying its exact saved bytes returned RPC code `1012` (a temporary transaction ban). [Strict local replay](public-preview-local-diagnostic.json) then identified the saved replacement as `NotNormalized` (117): its computed fee was zero and the wallet had added an empty fee section. This matches [upstream wallet issue 700](https://github.com/midnightntwrk/midnight-wallet/issues/700). The public RPC's remote dry-run was unavailable, so that diagnosis is a local validation result, distinct from the public retry's `1012` response.
+
+The runner now uses the supported wallet setting `additionalFeeOverhead: 1000n` SPECK, which produces a real DUST spend even when the calculated fee rounds to zero. It rebuilt the same planned task only after absence and validity checks; the contract rejects duplicate task IDs. The corrected task and all remaining operations passed strict local preflight and public acceptance. The evidence preserves both earlier attempts and the correction. Contract and SDK sources were unchanged; the recorded runner hashes identify the recovery revisions. The proof-provider completion counter includes deployment and unsuccessful attempts, so it is not a count of accepted circuit proofs. Actual proving used the local HTTP proof-server 8.1.3.
+
+The [published-browser check](public-preview-browser-evidence.json) connected to the production `network.html` page, joined this public Preview contract, read the claimed receipt and closed task, and checked the public export. It completed at 17:46:54 UTC with zero page errors and zero proof, balancing or submission requests. It used the official testkit `DAppConnectorWalletAdapter` with the dedicated wallet, not the Lace extension. The earlier isolated-network browser run separately verifies the browser's full proving/submission flow.
+
+The [export privacy check](public-preview-privacy-check.json) found none of the exact private seed, role secrets, password, credential, feedback or opening values in the five public SDK/browser artifacts. Published evidence excludes private-store pointers and serialized transactions. Configured-indexer confirmation and local ledger replay are not independent chain-inclusion verification. No reward payment or sponsor service ran. Public use requires the wallet and local prover setup in [TESTNET.md](TESTNET.md).
 
 ## Repeat the checks
 
@@ -69,5 +96,11 @@ Source changes invalidate a previous run as evidence for the changed source. Rer
 ## GitHub evidence
 
 [Pages workflow runs](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/workflows/pages.yml) identify the exact revision tested and deployed, including both browser suites. The separate [proof workflow](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/workflows/proofs.yml) and [isolated-network workflow](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/workflows/devnet.yml) run only when dispatched and establish only the checks their completed runs report. A workflow definition or pending run is not execution evidence.
+
+The two-demo release at revision `e801196918e1ad8306ebc3b01467a7d28689f05d` passed compilation, contract tests, both browser suites and GitHub Pages publication in [run 42257455932](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42257455932). This identifies the published frontend and its checks; it is separate from public Preview contract execution.
+
+The same revision also passed the separate [isolated-network CI run 42257495410](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42257495410), including both the SDK lifecycle and funded Chromium/API-4 workflow against actual node, indexer and prover services on the Linux runner. Its retained reports are scoped to that disposable `undeployed` chain.
+
+The optional-support release at revision `edcdd8d38f949f0535f98ec464341459225c4236` subsequently passed compilation, unit tests, both browser suites and Pages deployment in [run 42261190359](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42261190359).
 
 The browser lab executes the contract locally. The separate testnet client connects to a real wallet/provider transaction path and requires the setup in [TESTNET.md](TESTNET.md). Neither mode establishes independently vetted professional qualifications or transfers reviewer rewards. Sponsorship remains a proposed service; the testnet wallet pays its own DUST fees. Website deployment, installed SDK support and standalone proof checks do not imply accepted public-network transactions.
