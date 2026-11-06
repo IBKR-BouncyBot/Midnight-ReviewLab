@@ -52,6 +52,95 @@ async function requireLiveWorkflow(request){
 }
 
 function coinKey(coin){return `${coin.intentHash}:${coin.outputNo}`;}
+function signedNightSnapshot(transaction){
+  // Snapshot immutable bytes before DUST balancing. Native addSignatures also
+  // mutates the source offer, so retaining a reference would conceal changes.
+  const signed=[];
+  for(const [segment,intent] of transaction.intents??[]){
+    const registrations=intent.dustActions?.registrations??[];
+    if(!intent.guaranteedUnshieldedOffer&&!intent.fallibleUnshieldedOffer&&!registrations.length)continue;
+    signed.push({segment,data:Buffer.from(intent.signatureData(segment)).toString('hex'),
+      guaranteed:intent.guaranteedUnshieldedOffer?.signatures??[],fallible:intent.fallibleUnshieldedOffer?.signatures??[],
+      registrations:registrations.map(registration=>Buffer.from(registration.signature.serialize()).toString('hex'))});
+  }
+  return createHash('sha256').update(JSON.stringify(signed)).digest('hex');
+}
+
+function safeSubmissionFacts(error){
+  const tags=new Set(),codes=new Set(),signals=new Set(),seen=new Set();
+  const allowedTags=new Set(['SubmissionError','ConnectionError','TransactionProgressError','TransactionInvalidError',
+    'TransactionDroppedError','TransactionUsurpedError','RpcError','Error','TimeoutException','Fail','Sequential','Parallel']);
+  const patterns={invalid:/invalid transaction|transaction is invalid/i,proof:/bad.?proof|invalid proof|proof verification/i,
+    expired:/expired|expiration|time.?to.?dismiss|outside.*validity/i,connection:/disconnect|connection|socket|fetch/i,
+    rejected:/rejected|validation failed/i,signatureCount:/mismatch between number of inputs.*and signatures/i};
+  function visit(value,depth=0){
+    if(!value||typeof value!=='object'||seen.has(value)||depth>8)return;seen.add(value);
+    for(const tag of [value._tag,value.name,value.constructor?.name])if(allowedTags.has(tag))tags.add(tag);
+    if(Number.isSafeInteger(value.code)&&value.code>=-32768&&value.code<=32768)codes.add(value.code);
+    for(const text of [value.message,typeof value.data==='string'?value.data:''])if(typeof text==='string'){
+      for(const [name,pattern] of Object.entries(patterns))if(pattern.test(text))signals.add(name);
+      const match=text.match(/custom error:\s*([0-9]{1,4})\b/i);
+      if(match&&[117,170,171,196].includes(Number(match[1])))signals.add(`custom-code-${Number(match[1])}`);
+    }
+    for(const name of ['cause','error','left','right'])visit(value[name],depth+1);
+    visit(value[Symbol.for('effect/Runtime/FiberFailure/Cause')],depth+1);
+  }
+  visit(error);return {tags:[...tags],codes:[...codes],signals:[...signals]};
+}
+
+async function localDesignationPreflight(transaction,ledger){
+  const intents=[...transaction.intents.values()];
+  const dustTimes=intents.filter(intent=>intent.dustActions).map(intent=>intent.dustActions.ctime.getTime());
+  const latestDustTime=dustTimes.length?Math.max(...dustTimes):null;
+  const startedAt=Date.now(),deadline=startedAt+120000;let block,blockReads=0;
+  // Registration ctime uses the local clock, while an indexed block can lag by
+  // a few seconds. Wait for a real canonical block; never rewrite ctime or use
+  // an invented future block time. Fetch that block's parameters afresh too.
+  for(;;){
+    requireValue(Date.now()<deadline,'CANONICAL_BLOCK_TIME_WAIT_EXCEEDED');
+    const response=await fetch(PREVIEW_ENVIRONMENT.indexer,{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({query:'query { block { height hash timestamp ledgerParameters } }'}),
+      redirect:'error',credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(Math.max(1,Math.min(20000,deadline-Date.now())))});
+    const body=await boundedJson(response,PREVIEW_ENVIRONMENT.indexer);block=body.data?.block;blockReads++;
+    requireValue(!body.errors?.length&&block&&/^[1-9][0-9]*$/.test(String(block.height))&&HASH.test(block.hash)
+      &&Number.isFinite(new Date(block.timestamp).getTime())&&typeof block.ledgerParameters==='string'
+      &&/^(?:[0-9a-f]{2})+$/.test(block.ledgerParameters),'LOCAL_PREFLIGHT_BLOCK_UNAVAILABLE');
+    if(latestDustTime===null||new Date(block.timestamp).getTime()>=latestDustTime)break;
+    requireValue(Date.now()<deadline,'CANONICAL_BLOCK_TIME_WAIT_EXCEEDED');await pause(Math.min(1000,deadline-Date.now()));
+  }
+  const state=ledger.LedgerState.blank('preview');
+  state.parameters=ledger.LedgerParameters.deserialize(Buffer.from(block.ledgerParameters,'hex'));
+  const strict=new ledger.WellFormedStrictness();
+  for(const name of ['enforceBalancing','verifyNativeProofs','verifyContractProofs','enforceLimits','verifySignatures'])strict[name]=true;
+  const blockTime=new Date(block.timestamp).getTime();
+  const evidence={method:'local-strict-well-formed-check',referenceBlock:String(block.height),blockHash:block.hash,
+    blockTime:new Date(block.timestamp).toISOString(),allStrictnessFlagsEnabled:true,
+    canonicalBlockReads:blockReads,canonicalBlockWaitMs:Date.now()-startedAt,
+    latestDustCreationTime:latestDustTime===null?null:new Date(latestDustTime).toISOString(),
+    dustCreationAfterReferenceBlock:latestDustTime!==null&&latestDustTime>blockTime,
+    expiredAtReferenceBlock:intents.some(intent=>intent.ttl.getTime()<=blockTime),
+    referenceState:'blank Preview ledger with current public parameters only',consensusAcceptanceEstablished:false,
+    limitation:'Does not establish current UTXO membership or chain DUST-root membership.'};
+  try{
+    transaction.wellFormed(state,strict,new Date(block.timestamp));
+    return {...evidence,status:'passed'};
+  }catch(error){
+    const message=typeof error?.message==='string'?error.message:typeof error==='string'?error:'';
+    const lower=message.toLowerCase();let reason='unclassified-local-validation-failure';
+    if(/mismatch between number of inputs \([0-9]+\) and signatures \([0-9]+\)/.test(lower))reason='unshielded-signature-count-mismatch';
+    else if(lower.includes("couldn't get metadata of input utxo"))reason='missing-input-utxo-metadata';
+    else if(lower.includes('dust spend proof failed to verify'))reason='dust-proof-or-reference-state-mismatch';
+    else if(lower.includes('dust is outside of its validity window'))reason='dust-validity-window';
+    else if(lower.includes('failed to verify signature of dust registration')||lower.includes('signature verification of dust registration failed'))reason='dust-registration-signature-failure';
+    else if(lower==='transaction is not in normal form')reason='not-normalized';
+    else if(/invaliddustspendproof|invalid dust spend proof/.test(lower))reason='invalid-dust-spend-proof';
+    else if(/outofdustvaliditywindow|out of dust validity window/.test(lower))reason='dust-validity-window';
+    else if(/signature verification failed|invalid signature/.test(lower))reason='signature-validation-failure';
+    else if(/proof verification failed|invalid proof/.test(lower))reason='proof-validation-failure';
+    return {...evidence,status:'failed',reason};
+  }
+}
+
 function coinOwnedBy(value,owner){
   // Live SyncSchema preserves the indexer's Bech32m UnshieldedAddress, whereas
   // simulator/ledger UTXOs contain raw address hex. Accept only the same public
@@ -94,7 +183,7 @@ function requireCoinsStillAvailable(state,selected,owner,native){
   }
 }
 
-function inspectDesignation(transaction,{selected,total,owner,nightKey,receiver,native,registrationMode},
+function inspectDesignation(transaction,{selected,total,owner,nightKey,receiver,native,registrationMode,ledger},
   {sponsorFeeBalanced=false,requireProvenFees=false}={}){
   requireValue(transaction.rewards===undefined&&transaction.guaranteedOffer===undefined
     &&(transaction.fallibleOffer===undefined||transaction.fallibleOffer.size===0),'UNEXPECTED_SHIELDED_OR_REWARD_ACTION');
@@ -103,7 +192,7 @@ function inspectDesignation(transaction,{selected,total,owner,nightKey,receiver,
   const expected=new Map(selected.map(coin=>[coinKey(coin.utxo),coin.utxo]));
   let inputTotal=0n,outputTotal=0n,inputCount=0,outputCount=0,registrationCount=0,feeIntentCount=0,dustSpendCount=0,dustFeeSpeck=0n;
   const dustProofBytes=[];
-  for(const intent of transaction.intents.values()){
+  for(const [segment,intent] of transaction.intents){
     requireValue(intent.actions.length===0,'CONTRACT_ACTION_REFUSED');
     requireValue(intent.dustActions,'MISSING_DUST_ACTION');
     const registrations=intent.dustActions.registrations,spends=intent.dustActions.spends;
@@ -132,9 +221,12 @@ function inspectDesignation(transaction,{selected,total,owner,nightKey,receiver,
     }
     for(const offer of [intent.guaranteedUnshieldedOffer,intent.fallibleUnshieldedOffer]){
       if(!offer)continue;
-      for(const input of offer.inputs){
+      requireValue(offer.signatures.length===offer.inputs.length,'NIGHT_SIGNATURE_COUNT_MISMATCH');
+      const signatureData=intent.signatureData(segment);
+      for(const [index,input] of offer.inputs.entries()){
         const coin=expected.get(coinKey(input));
         requireValue(coin&&input.owner===nightKey&&input.type===native&&input.value===coin.value,'UNEXPECTED_NIGHT_INPUT');
+        requireValue(ledger.verifySignature(input.owner,signatureData,offer.signatures[index]),'NIGHT_SIGNATURE_VERIFICATION_FAILED');
         expected.delete(coinKey(input));inputTotal+=input.value;inputCount++;
       }
       for(const value of offer.outputs){
@@ -147,7 +239,8 @@ function inspectDesignation(transaction,{selected,total,owner,nightKey,receiver,
     &&total<=MAX_NIGHT_STAR&&outputCount>0&&feeIntentCount===(sponsorFeeBalanced?1:0),'DESIGNATION_SCOPE_MISMATCH');
   return {nightInputCount:inputCount,nightOutputCount:outputCount,registrationCount,
     selectedNightStar:String(total),maximumNightStar:String(MAX_NIGHT_STAR),allNightReturnedToSponsor:true,
-    contractCallCount:0,dustSpendCount,dustProofBytes,dustFeeSpeck:String(dustFeeSpeck),nightTransferredStar:'0'};
+    contractCallCount:0,dustSpendCount,dustProofBytes,dustFeeSpeck:String(dustFeeSpeck),nightTransferredStar:'0',
+    nightSignatureCountsMatch:true,nightSignaturesVerified:true};
 }
 
 async function waitForIndexedSuccess(identifier,transactionHash){
@@ -249,8 +342,9 @@ async function main(args){
     report.stage='build-registration';await save();
     let recipe=await wallet.registerNightUtxosForDustGeneration(selected,nightKey,payload=>keystore.signData(payload),receiver);
     requireValue(recipe.type==='UNPROVEN_TRANSACTION','UNEXPECTED_REGISTRATION_RECIPE');
-    const scope={selected,total,owner,nightKey,receiver,native,registrationMode};
+    const scope={selected,total,owner,nightKey,receiver,native,registrationMode,ledger};
     inspectDesignation(recipe.transaction,scope);
+    const originalSignedNight=signedNightSnapshot(recipe.transaction);
     const sponsorFeeBalanced=registrationMode==='redesignation';
     if(sponsorFeeBalanced){
       report.stage='balance-sponsor-dust-fee';await save();
@@ -267,11 +361,14 @@ async function main(args){
         {ttl,tokenKindsToBalance:['dust']});
       requireValue(recipe.type==='UNPROVEN_TRANSACTION','UNEXPECTED_REGISTRATION_RECIPE');
       inspectDesignation(recipe.transaction,scope,{sponsorFeeBalanced:true});
-      recipe=await wallet.signRecipe(recipe,payload=>keystore.signData(payload));
-      requireValue(recipe.type==='UNPROVEN_TRANSACTION','UNEXPECTED_REGISTRATION_RECIPE');
+      // Registration already signed the NIGHT offers and designation. DUST-only
+      // balancing adds no new NIGHT offers; signing again appends duplicates.
+      requireValue(signedNightSnapshot(recipe.transaction)===originalSignedNight,'SIGNED_NIGHT_CHANGED_DURING_DUST_BALANCING');
     }
     const transaction=await wallet.finalizeRecipe(recipe);
     report.transactionScope=inspectDesignation(transaction,scope,{sponsorFeeBalanced,requireProvenFees:sponsorFeeBalanced});
+    requireValue(signedNightSnapshot(transaction)===originalSignedNight,'SIGNED_NIGHT_CHANGED_DURING_FINALIZATION');
+    report.originalNightAndRegistrationSignaturesPreserved=true;
     if(sponsorFeeBalanced){
       const requiredFee=await bounded(wallet.calculateTransactionFee(transaction),120000,'FINAL_FEE_CHECK_TIMEOUT');
       requireValue(typeof requiredFee==='bigint'&&requiredFee>=0n
@@ -282,12 +379,19 @@ async function main(args){
     requireValue(Array.isArray(identifiers)&&identifiers.length>0&&identifiers.every(value=>ID.test(value)),'INVALID_TRANSACTION_IDENTIFIERS');
     const transactionHash=transaction.transactionHash();requireValue(HASH.test(transactionHash),'INVALID_TRANSACTION_HASH');
     report.txId=identifiers.at(-1);report.identifiers=identifiers;report.transactionHash=transactionHash;
+    report.stage='save-finalized-diagnostic-record';await save();
     const encryptedRecord=`dust-designation-${Date.now()}-${randomBytes(4).toString('hex')}`;
     await writePreviewSecret(encryptedRecord,{networkId:'preview',purpose:'SDK-assisted DUST designation',sponsorAddress:context.address,
       recipientDustAddress:recipient,workflowRunId:request.workflowRunId,identifiers,transactionHash,
       transaction:Buffer.from(transaction.serialize()).toString('hex')});
     report.encryptedRecord=encryptedRecord;
     report.walletCheckpoint=await context.checkpoint();
+    // Preserve a private finalized diagnostic record even when strict local
+    // validation stops this attempt. It is not permission to submit or retry.
+    // submitAttempts remains zero until all preflight/provenance gates pass.
+    report.stage='local-structural-and-proof-preflight';await save();
+    report.localPreflight=await localDesignationPreflight(transaction,ledger);await save();
+    requireValue(report.localPreflight.status==='passed','LOCAL_DESIGNATION_PREFLIGHT_FAILED');
     report.workflowBeforeSubmit=await requireLiveWorkflow(request);
     report.status='submission-outcome-pending';report.stage='submit-once';report.submitAttempts=1;report.submissionStartedAt=new Date().toISOString();
     await save(); // Durable intent + encrypted finalized bytes precede the only call.
@@ -295,7 +399,7 @@ async function main(args){
     try{
       const submittedId=await bounded(wallet.submitTransaction(transaction),300000,'SUBMISSION_RESPONSE_TIMEOUT');
       requireValue(identifiers.includes(submittedId),'SUBMISSION_IDENTIFIER_MISMATCH');report.submissionResponse='returned-known-identifier';
-    }catch{report.submissionResponse='unavailable-or-rejected';}
+    }catch(error){report.submissionResponse='unavailable-or-rejected';report.submissionError=safeSubmissionFacts(error);}
     // A submission exception is not a reason to try again. Read-only indexing
     // may still confirm the single saved transaction after a lost response.
     report.stage='confirm-indexed-transaction';await save();

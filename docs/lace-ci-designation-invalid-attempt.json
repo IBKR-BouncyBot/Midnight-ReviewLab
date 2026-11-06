@@ -1,0 +1,99 @@
+{
+  "schema": "reviewlab-invalid-designation-reconciliation-v1",
+  "checkedAt": "2026-11-06T21:52:38.149Z",
+  "networkId": "preview",
+  "workflowRunId": "42297109348",
+  "transactionId": "0014bb4f097a725699c7cf3a8135a111781d41c28a88ecf6b46eb3f24dfbd926ab",
+  "transactionHash": "2772784cdd61c66e86d671549e5b19f97ca7b4f5eec9829eeaf60863139cf186",
+  "submitAttempts": 1,
+  "originalAttemptSha256": "08ec053688ceb62d30025b84e2e40084fff6cc706f66e2d23f9c530b323b6f11",
+  "status": "structurally-invalid-and-not-indexed",
+  "originalSubmissionOutcome": "unavailable-or-rejected",
+  "originalPollingResult": "SUBMISSION_OUTCOME_UNKNOWN",
+  "structuralRejectionIndependentOfLedgerMembership": true,
+  "diagnostic": {
+    "checkedAt": "2026-11-06T21:49:14.501Z",
+    "networkId": "preview",
+    "transactionId": "0014bb4f097a725699c7cf3a8135a111781d41c28a88ecf6b46eb3f24dfbd926ab",
+    "purpose": "read-only-saved-finalized-transaction-diagnostic",
+    "status": "diagnostic-completed",
+    "stage": "completed",
+    "networkSubmission": false,
+    "transactionBytesSentRemotely": false,
+    "seedOrWalletCheckpointRead": false,
+    "transactionOrOriginalReportModified": false,
+    "consensusAcceptanceEstablished": false,
+    "localReferenceState": "blank Preview ledger with current public parameters only",
+    "limitation": "Local checks cannot establish current UTXO membership, chain DUST-root membership or consensus acceptance.",
+    "transactionHash": "2772784cdd61c66e86d671549e5b19f97ca7b4f5eec9829eeaf60863139cf186",
+    "finalizedBytes": 3894,
+    "identifierCount": 2,
+    "intents": [
+      {
+        "segment": 1,
+        "contractActionCount": 0,
+        "expiresAt": "2026-11-06T22:36:25.000Z",
+        "dustCreationTime": "2026-11-06T21:36:25.000Z",
+        "dustRegistrationCount": 1,
+        "dustSpendCount": 0,
+        "dustProofBytes": [],
+        "unshieldedOffers": [
+          {
+            "section": "guaranteed",
+            "inputCount": 1,
+            "outputCount": 1,
+            "signatureCount": 2,
+            "uniqueSignatureCount": 1,
+            "signatureCountMatchesInputCount": false
+          }
+        ]
+      },
+      {
+        "segment": 2,
+        "contractActionCount": 0,
+        "expiresAt": "2026-11-06T22:36:25.000Z",
+        "dustCreationTime": "2026-11-06T21:36:12.000Z",
+        "dustRegistrationCount": 0,
+        "dustSpendCount": 1,
+        "dustProofBytes": [
+          2940
+        ],
+        "unshieldedOffers": []
+      }
+    ],
+    "referenceBlock": {
+      "height": "1629840",
+      "hash": "0c6e942dcb115c367ed22ec3aa6b19e6e0e93551fc6009d82c3572745f9a2a98",
+      "timestamp": "2026-11-06T21:49:00.000Z"
+    },
+    "expiredAtReferenceBlock": false,
+    "allStrictnessFlagsEnabled": true,
+    "localWellFormed": {
+      "status": "rejected-with-incomplete-reference-state",
+      "category": "unshielded-signature-count-mismatch",
+      "numericCode": null,
+      "reportedInputCount": 1,
+      "reportedSignatureCount": 2,
+      "consensusAcceptanceEstablished": false
+    }
+  },
+  "publicIndexerCheck": {
+    "endpoint": "https://indexer.preview.midnight.network/api/v4/graphql",
+    "matchingTransactions": 0,
+    "block": {
+      "height": 1629873,
+      "hash": "b4dd166b99e8af04794747fa1a444d0a426f464d95c510ee0a825c36d259b497",
+      "timestamp": 1794001938000
+    }
+  },
+  "remoteDryRun": {
+    "method": "system_dryRun",
+    "endpoint": "https://rpc.preview.midnight.network",
+    "status": "unavailable",
+    "rpcErrorCode": -32601
+  },
+  "originalPrivateRecordPreserved": true,
+  "originalAttemptPreserved": true,
+  "transactionResubmitted": false,
+  "replacementPolicy": "A newly built transaction may be tested only after the duplicate-signing fix and strict local validation. The invalid transaction must never be resubmitted."
+}

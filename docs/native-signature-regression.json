@@ -1,0 +1,27 @@
+{
+  "test": "native-unshielded-signature-append-regression",
+  "checkedAt": "2026-11-06T21:53:30.233Z",
+  "syntheticInputOnly": true,
+  "walletAccess": false,
+  "networkAccess": false,
+  "proofGeneration": false,
+  "networkSubmission": false,
+  "status": "passed",
+  "stage": "completed",
+  "firstSigning": {
+    "inputCount": 1,
+    "signatureCount": 1,
+    "signatureVerifies": true
+  },
+  "repeatedSigning": {
+    "inputCount": 1,
+    "signatureCount": 2,
+    "uniqueSignatureCount": 1,
+    "rejectedByCardinalityInvariant": true
+  },
+  "originalSignatureCountAfterRepeat": 2,
+  "retainedOriginalSignature": {
+    "signatureCount": 1,
+    "signatureVerifies": true
+  }
+}

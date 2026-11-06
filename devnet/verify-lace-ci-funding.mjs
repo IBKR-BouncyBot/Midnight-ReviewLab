@@ -5,13 +5,23 @@ import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import {MidnightBech32m,UnshieldedAddress} from '@midnight-ntwrk/wallet-sdk-address-format';
 
 const endpoint='https://indexer.preview.midnight.network/api/v4/graphql';
-const txId='00cae2416d0dacbe8573c7a519f5ce933d7e36004f0ea2e18c6532d793f23c5e6b';
-const recipient='mn_addr_preview1h9uhqe9t8pkxmn9ykfk3gwetw8p4uf3vvkqcvsdd9atxhtgqwufshdnhp2';
-const expectedBlock=1629256,expectedAmount=1_000_000_000n;
+const args=process.argv.slice(2);
+if(args.length!==0&&(args.length!==2||args[0]!=='--attempt'||!['1','2'].includes(args[1])))throw new Error('EXPECTED_FIXED_FUNDING_ATTEMPT_1_OR_2');
+const attempt=args[1]??'1';
+const attempts=Object.freeze({
+  '1':{txId:'00cae2416d0dacbe8573c7a519f5ce933d7e36004f0ea2e18c6532d793f23c5e6b',
+    recipient:'mn_addr_preview1h9uhqe9t8pkxmn9ykfk3gwetw8p4uf3vvkqcvsdd9atxhtgqwufshdnhp2',
+    expectedBlock:1629256,workflowRunId:'42290089655'},
+  '2':{txId:'00144ac7d3b8431e5ad09e9ac4ae377c0e3442314a9c7f7ff668a6d50bf77a498c',
+    recipient:'mn_addr_preview1l535axegyq3ccstq0y6smdpqqztj9smdeezs98hxe8wkslzq297qsnaxv7',
+    expectedBlock:1629437,workflowRunId:'42293370522'},
+});
+const {txId,recipient,expectedBlock,workflowRunId}=attempts[attempt];
+const expectedAmount=1_000_000_000n;
 const root=path.resolve(import.meta.dirname,'..');
 const report={schema:'reviewlab-lace-ci-public-funding-verification-v1',status:'running',
   checkedAt:new Date().toISOString(),networkId:'preview',confirmationSource:'canonical-public-Preview-indexer',
-  endpoint,txId,recipient,scope:'Public funding-transfer output and accepted proof-presence verification only',
+  endpoint,txId,recipient,fundingAttempt:attempt,workflowRunId,scope:'Public funding-transfer output and accepted proof-presence verification only',
   walletAccessed:false,transactionSubmitted:false,laceFundingSynchronizationObserved:false,
   proofGenerationLocationObserved:false,independentConsensusOrCryptographicProofVerification:false};
 class VerificationFailure extends Error{constructor(code){super(code);this.code=code;}}
@@ -67,7 +77,7 @@ try{
 finally{
   report.completedAt=new Date().toISOString();
   const directory=path.join(root,'artifacts');await mkdir(directory,{recursive:true});
-  const output=path.join(directory,'lace-ci-funding-verification.json');
+  const output=path.join(directory,attempt==='1'?'lace-ci-funding-verification.json':'lace-ci-funding-verification-2.json');
   await writeFile(output+'.tmp',JSON.stringify(report,null,2)+'\n');await rename(output+'.tmp',output);
   for(const [name,fn] of original)console[name]=fn;
 }

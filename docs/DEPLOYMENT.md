@@ -23,7 +23,7 @@ The separate manually dispatched `.github/workflows/devnet.yml` starts a disposa
 
 ## Static-host constraints
 
-Use project-relative asset URLs so the application works beneath `/Midnight-ReviewLab/`, including both demo entry points and `network-contract/` proof assets. The host does not run a backend, sponsor wallet, AI model, proof server or Midnight node. Shared task storage, independent credential issuance and actual payouts require additional services. The [testnet guide](TESTNET.md) covers the user's wallet and local prover setup.
+Use project-relative asset URLs so the application works beneath `/Midnight-ReviewLab/`, including both demo entry points and `network-contract/` proof assets. The host does not run a backend, sponsor wallet, AI model, proof server or Midnight node. Shared task storage, independent credential issuance and actual payouts require additional services. The [testnet guide](TESTNET.md) covers Lace, test DUST and internal WASM proving.
 
 Static hosting also cannot safely hold private API keys. Do not place sponsor keys, wallet seeds, inference API keys or confidential task data in environment variables consumed by the browser build; those values become public when bundled.
 

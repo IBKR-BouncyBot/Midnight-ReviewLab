@@ -36,6 +36,14 @@ The public client rejects a reported `proverServerUri`, including a loopback URL
 
 **API 4 cannot independently attest internal mode.** Lace's [configuration response](https://github.com/input-output-hk/lace/blob/bec4d25a0ea75cc4fcd0dae36d63d4dfa8fb122d/packages/module/dapp-connector-midnight/src/store/dependencies/midnight-dapp-connector-api.ts#L414) omits `proverServerUri` for both internal WASM and its remote TEE mode. The API exposes neither the selected mode nor the installed extension version, and the dApp cannot inject a replacement prover into wallet balancing. Check the setting inside Lace; a page's CSP and network log do not control or cover all extension traffic. Verification of a no-external-prover run must include the extension's selected mode and its proving traffic, not merely an absent URL.
 
+## Independent extension tests
+
+The [isolated-runner probe](lace-ci-probe-evidence.json) verified the exact released Lace **2.5.1** Store package, including its hash and three CRX3 signatures, and opened the unchanged extension in Chromium. Later GitHub-hosted runs created fresh encrypted wallets through the real UI, saved and rechecked Preview/internal-WASM settings, and unlocked after restart. No rebuilt extension or mocked wallet backend was used.
+
+Two fresh wallets each received 1,000 test NIGHT: [first funding check](lace-ci-funding-verification.json), [second funding check](lace-ci-funding-verification-2.json). The [first attempt](lace-ci-funded-attempt-1.json) was cancelled before a terminal registration result. In [the second attempt](lace-ci-registration-failure.json), Lace's DUST-registration UI reported failure at 21:09:10 UTC on 6 November; its cause is unknown. Neither attempt recorded an accepted marketplace transaction. A complete independent Lace lifecycle is therefore still unverified. The [successful seven-transaction SDK/local-WASM run](VERIFICATION.md#expanded-automated-checks--6-november-2026) remains separate evidence.
+
+The observed saved mode and limited request metadata are not cryptographic attestation of proving location. Wallet profiles and temporary passwords were excluded from public artifacts; the reports contain public funding and sanitized UI observations.
+
 ## Recorded user-operated test
 
 On 6 November 2026, a user reporting **Edge and Lace 2.5.1** followed the published app's connection and task-creation steps and supplied a Preview transaction identifier. The [public transaction check](lace-preview-transaction.json) confirmed `SucceedEntirely` at block **1,627,842**, one `createTask` call for ReviewLab, a **4,508-byte contract proof** and a **2,940-byte DUST-spend proof**. See the [session record](lace-preview-session.json) and [verification details](VERIFICATION.md#lace-internal-wasm-status).

@@ -1,0 +1,64 @@
+{
+  "checkedAt": "2026-11-06T21:59:47.006Z",
+  "networkId": "preview",
+  "transactionId": "005e20f9d3184b30d9b8c25fc075f3f6431735c753420fd8e7ff742e07add2c517",
+  "purpose": "read-only-saved-finalized-transaction-diagnostic",
+  "status": "diagnostic-completed",
+  "stage": "completed",
+  "networkSubmission": false,
+  "transactionBytesSentRemotely": false,
+  "seedOrWalletCheckpointRead": false,
+  "savedTransactionOrOriginalReportModified": false,
+  "diagnosticCloneAdjusted": false,
+  "submissionCandidateSaved": false,
+  "consensusAcceptanceEstablished": false,
+  "localReferenceState": "blank Preview ledger with current public parameters only",
+  "limitation": "Local checks cannot establish current UTXO membership, chain DUST-root membership or consensus acceptance.",
+  "sourceTransactionHash": "faaf1a67252a7bb51172d729dd4e8c360dffc68d19fb75c63869fbcd494972f3",
+  "inspectedCloneBytes": 3880,
+  "identifierCount": 2,
+  "intents": [
+    {
+      "segment": 1,
+      "contractActionCount": 0,
+      "expiresAt": "2026-11-06T22:58:36.000Z",
+      "dustCreationTime": "2026-11-06T21:58:36.000Z",
+      "dustRegistrationCount": 1,
+      "dustSpendCount": 0,
+      "dustProofBytes": [],
+      "unshieldedOffers": [
+        {
+          "section": "guaranteed",
+          "inputCount": 1,
+          "outputCount": 1,
+          "signatureCount": 1,
+          "uniqueSignatureCount": 1,
+          "signatureCountMatchesInputCount": true
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "contractActionCount": 0,
+      "expiresAt": "2026-11-06T22:58:36.000Z",
+      "dustCreationTime": "2026-11-06T21:58:18.000Z",
+      "dustRegistrationCount": 0,
+      "dustSpendCount": 1,
+      "dustProofBytes": [
+        2940
+      ],
+      "unshieldedOffers": []
+    }
+  ],
+  "referenceBlock": {
+    "height": "1629945",
+    "hash": "8b12070bbde81756711ec81d74659b26943e91afaaae1a9f92616cbcaef82f0d",
+    "timestamp": "2026-11-06T21:59:30.000Z"
+  },
+  "expiredAtReferenceBlock": false,
+  "allStrictnessFlagsEnabled": true,
+  "localWellFormed": {
+    "status": "passed-with-incomplete-reference-state",
+    "consensusAcceptanceEstablished": false
+  }
+}
