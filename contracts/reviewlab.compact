@@ -1,0 +1,175 @@
+// ReviewLab research prototype. Private credential membership; public scores.
+// Executing generated code locally is not generating a proof or submitting a transaction.
+pragma language_version 0.23.0;
+import CompactStandardLibrary;
+
+export struct Task {
+  owner: Bytes<32>;
+  profession: Uint<8>;
+  deadline: Uint<64>;
+  capacity: Uint<32>;
+  reward: Uint<64>;
+  contentDigest: Bytes<32>;
+  accepted: Uint<32>;
+  closed: Boolean;
+}
+
+export struct Review {
+  taskId: Bytes<32>;
+  taskContentDigest: Bytes<32>;
+  nullifier: Bytes<32>;
+  feedbackCommitment: Bytes<32>;
+  scores: Vector<3, Uint<8>>;
+  status: Uint<8>;
+}
+
+export sealed ledger marketplaceId: Bytes<32>;
+export sealed ledger issuer: Bytes<32>;
+export ledger members: MerkleTree<10, Bytes<32>>;
+export ledger enrolled: Set<Bytes<32>>;
+export ledger tasks: Map<Bytes<32>, Task>;
+export ledger reviews: Map<Bytes<32>, Review>;
+export ledger spent: Set<Bytes<32>>;
+export ledger totalReviews: Uint<32>;
+export ledger totalClaims: Uint<32>;
+
+witness issuerSecret(): Bytes<32>;
+witness ownerSecret(): Bytes<32>;
+witness expertSecret(): Bytes<32>;
+witness profession(): Uint<8>;
+witness validUntil(): Uint<64>;
+witness eligibilityPath(): MerkleTreePath<10, Bytes<32>>;
+witness feedbackDigest(): Bytes<32>;
+witness feedbackSalt(): Bytes<32>;
+
+export pure circuit issuerIdentity(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "reviewlab:issuer:v1"), secret]);
+}
+
+export pure circuit ownerIdentity(id: Bytes<32>, secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "reviewlab:owner:v1"), id, secret]);
+}
+
+export pure circuit memberIdentity(id: Bytes<32>, secret: Bytes<32>, skill: Uint<8>, expiry: Uint<64>): Bytes<32> {
+  const attributes = persistentHash<Vector<2, Uint<64>>>([skill as Uint<64>, expiry]);
+  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "reviewlab:member:v1"), id, secret, attributes]);
+}
+
+export pure circuit expertNullifier(market: Bytes<32>, task: Bytes<32>, secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "reviewlab:nullifier:v1"), market, task, secret]);
+}
+
+export pure circuit feedbackCommitmentFor(digest: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Bytes<32>>(digest, salt);
+}
+
+export pure circuit receiptDigest(market: Bytes<32>, task: Bytes<32>, content: Bytes<32>, nul: Bytes<32>, feedback: Bytes<32>, scores: Vector<3, Uint<8>>): Bytes<32> {
+  const ratingDigest = persistentHash<Vector<3, Uint<8>>>(scores);
+  return persistentHash<Vector<7, Bytes<32>>>([pad(32, "reviewlab:receipt:v1"), market, task, content, nul, feedback, ratingDigest]);
+}
+
+constructor(id: Bytes<32>, issuerHash: Bytes<32>) {
+  assert(id != default<Bytes<32>>, "empty marketplace id");
+  assert(issuerHash != default<Bytes<32>>, "empty issuer identity");
+  marketplaceId = disclose(id);
+  issuer = disclose(issuerHash);
+  totalReviews = 0;
+  totalClaims = 0;
+}
+
+// An external credential issuer checks professional qualifications and inserts
+// only their commitment. The local demo acts as that issuer; it verifies no real license.
+export circuit enroll(member: Bytes<32>): [] {
+  assert(issuerIdentity(issuerSecret()) == issuer, "credential issuer required");
+  assert(member != default<Bytes<32>>, "empty credential commitment");
+  assert(enrolled.size() < 1024, "credential registry is full");
+  const leaf = disclose(member);
+  assert(!enrolled.member(leaf), "credential already enrolled");
+  enrolled.insert(leaf);
+  members.insert(leaf);
+}
+
+export circuit createTask(id: Bytes<32>, skill: Uint<8>, deadline: Uint<64>, capacity: Uint<32>, reward: Uint<64>, content: Bytes<32>): [] {
+  assert(id != default<Bytes<32>>, "empty task id");
+  assert(skill >= 1 && skill <= 5, "unsupported profession");
+  assert(capacity > 0 && capacity <= 1024, "task capacity must be one to 1024");
+  assert(reward > 0, "reward must be positive");
+  assert(content != default<Bytes<32>>, "empty task content digest");
+  assert(blockTimeLt(disclose(deadline)), "task deadline passed");
+  const taskId = disclose(id);
+  assert(!tasks.member(taskId), "task id already exists");
+  const owner = ownerIdentity(taskId, ownerSecret());
+  tasks.insert(taskId, disclose(Task {owner: owner, profession: skill, deadline: deadline,
+    capacity: capacity, reward: reward, contentDigest: content, accepted: 0, closed: false}));
+}
+
+export circuit submitReview(taskId: Bytes<32>, scores: Vector<3, Uint<8>>): Bytes<32> {
+  const id = disclose(taskId);
+  assert(tasks.member(id), "unknown task");
+  const task = tasks.lookup(id);
+  assert(!task.closed, "task is closed");
+  assert(blockTimeLt(task.deadline), "task deadline passed");
+  assert(task.accepted < task.capacity, "task is full");
+  const secret = expertSecret();
+  const skill = profession();
+  const expiry = validUntil();
+  assert(secret != default<Bytes<32>>, "empty expert secret");
+  assert(skill == task.profession, "credential profession does not match task");
+  // Requiring validity through the PUBLIC task deadline avoids publishing the
+  // credential's private expiry in a block-time predicate.
+  assert(expiry >= task.deadline, "credential expires before task deadline");
+  const path = eligibilityPath();
+  assert(path.leaf == memberIdentity(marketplaceId, secret, skill, expiry), "credential attributes or secret do not match membership");
+  assert(members.checkRoot(disclose(merkleTreePathRoot<10, Bytes<32>>(path))), "credential is not in the trusted registry");
+  const nul = disclose(expertNullifier(marketplaceId, id, secret));
+  assert(!spent.member(nul), "expert already reviewed this task");
+  assert(scores[0] >= 1 && scores[0] <= 5 && scores[1] >= 1 && scores[1] <= 5 && scores[2] >= 1 && scores[2] <= 5, "scores must be one to five");
+  const salt = feedbackSalt();
+  const digest = feedbackDigest();
+  assert(salt != default<Bytes<32>>, "empty feedback salt");
+  assert(digest != default<Bytes<32>>, "empty feedback digest");
+  const commitment = disclose(feedbackCommitmentFor(digest, salt));
+  const ratings = disclose(scores);
+  const receipt = disclose(receiptDigest(marketplaceId, id, task.contentDigest, nul, commitment, ratings));
+  assert(!reviews.member(receipt), "receipt already exists");
+  spent.insert(nul);
+  reviews.insert(receipt, Review {taskId: id, taskContentDigest: task.contentDigest, nullifier: nul, feedbackCommitment: commitment, scores: ratings, status: 0});
+  tasks.insert(id, Task {owner: task.owner, profession: task.profession, deadline: task.deadline, capacity: task.capacity,
+    reward: task.reward, contentDigest: task.contentDigest, accepted: (task.accepted + 1) as Uint<32>, closed: task.closed});
+  totalReviews = (totalReviews + 1) as Uint<32>;
+  return receipt;
+}
+
+export circuit approveReview(receiptId: Bytes<32>): [] {
+  const id = disclose(receiptId);
+  assert(reviews.member(id), "unknown review");
+  const review = reviews.lookup(id);
+  const task = tasks.lookup(review.taskId);
+  assert(ownerIdentity(review.taskId, ownerSecret()) == task.owner, "task owner required");
+  assert(review.status == 0, "review already approved or claimed");
+  reviews.insert(id, Review {taskId: review.taskId, taskContentDigest: review.taskContentDigest, nullifier: review.nullifier,
+    feedbackCommitment: review.feedbackCommitment, scores: review.scores, status: 1});
+}
+
+// This prototype records a claim entitlement only. It does NOT transfer tokens,
+// provide escrow, or assert that an off-chain payment took place.
+export circuit claimReward(receiptId: Bytes<32>): [] {
+  const id = disclose(receiptId);
+  assert(reviews.member(id), "unknown review");
+  const review = reviews.lookup(id);
+  assert(review.status == 1, "reward is not approved or already claimed");
+  assert(expertNullifier(marketplaceId, review.taskId, expertSecret()) == review.nullifier, "review author required");
+  reviews.insert(id, Review {taskId: review.taskId, taskContentDigest: review.taskContentDigest, nullifier: review.nullifier,
+    feedbackCommitment: review.feedbackCommitment, scores: review.scores, status: 2});
+  totalClaims = (totalClaims + 1) as Uint<32>;
+}
+
+export circuit closeTask(taskId: Bytes<32>): [] {
+  const id = disclose(taskId);
+  assert(tasks.member(id), "unknown task");
+  const task = tasks.lookup(id);
+  assert(ownerIdentity(id, ownerSecret()) == task.owner, "task owner required");
+  assert(!task.closed, "task already closed");
+  tasks.insert(id, Task {owner: task.owner, profession: task.profession, deadline: task.deadline, capacity: task.capacity,
+    reward: task.reward, contentDigest: task.contentDigest, accepted: task.accepted, closed: true});
+}

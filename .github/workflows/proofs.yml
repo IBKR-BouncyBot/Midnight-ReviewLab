@@ -1,0 +1,76 @@
+name: Generate local Midnight proofs
+
+# Separate evidence from Pages deployment and blockchain transaction acceptance.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    name: Prove the compiled ReviewLab circuits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install the pinned Compact compiler
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/ci-install-midnight.sh
+      - name: Install the committed dependency graph
+        run: npm ci --ignore-scripts
+      - name: Compile the contract and generate proof keys
+        run: npm run compile
+      - name: Test the generated contract
+        run: npm test
+      - name: Start isolated loopback proof server 8.1.3
+        run: |
+          docker run --detach --rm --name midnight-reviewlab-proof-server \
+            --publish 127.0.0.1:6301:6300 --log-driver none \
+            --env NUM_WORKERS=1 --env NO_FETCH_PARAMS=true \
+            --env MIDNIGHT_PROOF_SERVER_NUM_WORKERS=1 \
+            --env MIDNIGHT_PROOF_SERVER_NO_FETCH_PARAMS=true \
+            midnightntwrk/proof-server@sha256:0f4ab0716985eaebbe55a970348f52ff05ffd8a96631ed7232bd0c4ba02c115c
+          node --input-type=module <<'NODE'
+          let ready = false;
+          for (let attempt = 0; attempt < 60; attempt++) {
+            try {
+              const response = await fetch('http://127.0.0.1:6301/ready', { signal: AbortSignal.timeout(1000) });
+              if (response.ok && (await response.json()).status === 'ok') { ready = true; break; }
+            } catch { /* Readiness checks carry no private input. */ }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          if (!ready) throw new Error('Local proof server did not become ready');
+          NODE
+      - name: Generate actual local circuit proofs
+        env:
+          MIDNIGHT_LOCAL_PROOF_SERVER: http://127.0.0.1:6301
+        # Private witnesses remain in process memory and loopback requests.
+        # Do not collect proof-server request bodies or verbose container logs.
+        run: npm run test:proofs
+      - name: Stop the proof server
+        if: always()
+        run: |
+          if docker container inspect midnight-reviewlab-proof-server >/dev/null 2>&1; then
+            docker stop midnight-reviewlab-proof-server
+          fi
+      - name: Retain the sanitized proof report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewlab-proof-evidence
+          path: artifacts/proof-evidence.json
+          if-no-files-found: warn
+          retention-days: 30

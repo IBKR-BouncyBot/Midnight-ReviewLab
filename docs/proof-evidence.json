@@ -1,0 +1,62 @@
+{
+  "schema": "reviewlab-circuit-proofs/v1",
+  "startedAt": "2026-11-06T14:57:40.181Z",
+  "status": "passed",
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "proofServer": "8.1.3",
+  "proofs": [
+    {
+      "circuit": "enroll",
+      "proofBytes": 4508,
+      "sha256": "84db0f84387b614d5061795593d2ea0e0ffbd59d45fa5921f35d54bf9f56214e",
+      "elapsedMs": 1008
+    },
+    {
+      "circuit": "createTask",
+      "proofBytes": 4508,
+      "sha256": "7859d1a2c6543eba64e256c3a43d4c471b4c7cde0f54c6b2af08bccca115ea63",
+      "elapsedMs": 959
+    },
+    {
+      "circuit": "submitReview",
+      "proofBytes": 4508,
+      "sha256": "7905a75cee9857d09613671fe6b037e26f505ff032d5a59fc017951b9b3bf958",
+      "elapsedMs": 2145
+    },
+    {
+      "circuit": "approveReview",
+      "proofBytes": 4508,
+      "sha256": "34293f6ca1170322a8c80db2f8e551f192c4062848ec648075d720e8ef81cbf0",
+      "elapsedMs": 984
+    },
+    {
+      "circuit": "claimReward",
+      "proofBytes": 4508,
+      "sha256": "0946b1857ffd63a0567ff576fb75a8257f4af4419aaadc65f4b816f2e1d27c35",
+      "elapsedMs": 1025
+    },
+    {
+      "circuit": "closeTask",
+      "proofBytes": 4508,
+      "sha256": "e3560332485e155752e257b6894a68bb6b733cc3e17696720062432d42256957",
+      "elapsedMs": 962
+    }
+  ],
+  "negativeChecks": [
+    {
+      "case": "duplicate credential on same task",
+      "result": "rejected before proving"
+    },
+    {
+      "case": "review preimage with enrollment circuit",
+      "result": "rejected by proof server"
+    }
+  ],
+  "networkSubmission": false,
+  "networkAcceptance": false,
+  "independentProofVerification": false,
+  "contractSha256": "b027c55cbe0266879acc753d96674b457799fbf810171568dcfae4195e14cad1",
+  "bindingsSha256": "db34e6d150d1c8350d9c3d9818536fd6e6ea922bb9ed69ef53a3dd7e556fd1c8",
+  "finishedAt": "2026-11-06T14:57:47.440Z"
+}
