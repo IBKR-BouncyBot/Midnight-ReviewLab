@@ -4,11 +4,23 @@ ReviewLab reports four different milestones separately: generated-contract execu
 
 ## Lace internal WASM status
 
-The public-client setup now targets Lace's **Run in this app (WASM)** mode for both contract and wallet/DUST proofs. The [source review](LACE-WASM.md) confirms this path in Lace's released 2.5.0 source; the Chrome Web Store lists 2.5.1 as of 6 November. **No end-to-end public Preview transaction run through the actual Lace extension in this mode has yet been recorded.**
+**A user-operated Edge / Lace 2.5.1 test produced an accepted public Preview task-creation transaction on 6 November 2026.** The user followed the published application's Lace connection and task-creation steps and supplied the transaction identifier. The [session record](lace-preview-session.json) records the user-reported environment separately from the [read-only transaction verification](lace-preview-transaction.json), completed at 18:28:58 UTC.
 
-The app's session confirmation and rejection of reported prover URLs are guardrails, not a mode attestation: API 4 also omits the URL for Lace's remote TEE mode. A completed internal-only run needs the actual extension setting, accepted transaction identifiers and evidence covering extension proving traffic. Earlier reports below retain their original source hashes and prover mechanisms. They do not verify subsequent client changes or establish Lace WASM success.
+| Indexed result | Value |
+| --- | --- |
+| Transaction identifier | `008239371f3f4996cadc573d89272d4ce9e4f06041c90b3f44f26b2b54ebe7ec51` |
+| Network status | Preview, `SucceedEntirely`, block **1,627,842** |
+| Operation | One `createTask` call on the published ReviewLab contract |
+| Contract proof | One serialized proof, **4,508 bytes** |
+| Wallet/DUST proof | One serialized DUST-spend proof, **2,940 bytes** |
 
-The new client policy passed 26 unit tests (15 contract and 11 network-boundary tests), full compilation regenerated all six circuit key sets, and the production build passed. Both updated Chromium suites passed eight cases each, as detailed below. These checks do not establish an accepted Lace transaction.
+The verifier decoded the public transaction and checked its identifier, contract and operation; it did not access a wallet or submit anything. This establishes indexed acceptance and the presence of both proof types. It does not independently verify their cryptography or chain inclusion, and it does not complete the six-circuit marketplace lifecycle through Lace.
+
+An additional historical before/after state query did not produce usable states, so no separate state-delta verification is claimed.
+
+The instructed setup uses Lace's **Run in this app (WASM)** mode. The [source review](LACE-WASM.md) confirms that path in the released 2.5.0 snapshot; this user's reported version was 2.5.1. The extension UI and its network traffic were not directly observed by the verifier. API 4 also omits the prover URL for remote TEE mode, so the app's session confirmation and URL rejection are guardrails, not attestation. The transaction cannot prove where its proofs were generated. The earlier HTTP-prover reports below remain separate historical evidence.
+
+The new client policy passed 26 unit tests (15 contract and 11 network-boundary tests), full compilation regenerated all six circuit key sets, and the production build passed. Both updated Chromium suites passed eight cases each, as detailed below. These automated checks are separate from the user-operated transaction above.
 
 ## Recorded native results — 6 November 2026
 
@@ -110,5 +122,7 @@ The two-demo release at revision `e801196918e1ad8306ebc3b01467a7d28689f05d` pass
 The same revision also passed the separate [isolated-network CI run 42257495410](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42257495410), including both the SDK lifecycle and funded Chromium/API-4 workflow against actual node, indexer and prover services on the Linux runner. Its retained reports are scoped to that disposable `undeployed` chain.
 
 The optional-support release at revision `edcdd8d38f949f0535f98ec464341459225c4236` subsequently passed compilation, unit tests, both browser suites and Pages deployment in [run 42261190359](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42261190359).
+
+The Lace internal-mode client and public transaction verifier at revision `d54970f5169b105edfd733052bfb68c8dbc00c5e` passed the build/test workflow and successfully deployed on the latest retry of [run 42268335926](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42268335926). This is the published frontend used for the user-operated test described above.
 
 The browser lab executes the contract locally. The separate testnet client connects to a real wallet/provider transaction path and requires the setup in [TESTNET.md](TESTNET.md). Neither mode establishes independently vetted professional qualifications or transfers reviewer rewards. Sponsorship remains a proposed service; the testnet wallet pays its own DUST fees. Website deployment, installed SDK support and standalone proof checks do not imply accepted public-network transactions.

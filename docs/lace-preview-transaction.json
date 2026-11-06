@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-11-06T18:28:58.336Z",
+  "networkId": "preview",
+  "source": "https://indexer.preview.midnight.network/api/v4/graphql",
+  "context": "public-transaction-proof-presence",
+  "status": "passed-indexer-proof-presence",
+  "walletAndModeObservedByVerifier": false,
+  "provingModeAttestedByIndexer": false,
+  "independentChainVerification": false,
+  "networkSubmission": false,
+  "privateWalletAccess": false,
+  "txId": "008239371f3f4996cadc573d89272d4ce9e4f06041c90b3f44f26b2b54ebe7ec51",
+  "marketplaceFileSha256": "22f599578b5944f4002e9439a1b16b8df06b14193adf47977885a2944a72df1a",
+  "verifierSourceSha256": "8ba3318a241b3e5beba1180f9287b14b0b393d879a0f577aee800d24dc9d0c6e",
+  "transactionHash": "5d0c1df4d1415eb0369313b5e2eb0242ae8f79ff31ca5beca55f89a6026a1624",
+  "blockHeight": 1627842,
+  "blockHash": "cf162c08a893c101b439c81e1a247c6563701899dfcfec34c5a8ecde06c69326",
+  "indexerStatus": "SucceedEntirely",
+  "contractAddress": "0cc1dae038920b32336617dcff14eab4246471b9b41564e12df8cdaea8c8e1d7",
+  "operation": "createTask",
+  "contractCallCount": 1,
+  "contractProofCount": 1,
+  "contractProofBytes": [
+    4508
+  ],
+  "dustSpendCount": 1,
+  "dustProofCount": 1,
+  "dustProofBytes": [
+    2940
+  ],
+  "fees": {
+    "paidFees": "1",
+    "estimatedFees": "1"
+  },
+  "cryptographicProofsIndependentlyVerified": false
+}

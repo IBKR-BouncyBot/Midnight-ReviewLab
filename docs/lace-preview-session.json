@@ -1,0 +1,47 @@
+{
+  "schema": "reviewlab-lace-preview-session/v1",
+  "recordedAt": "2026-11-06T18:30:19.759Z",
+  "networkId": "preview",
+  "transactionEvidence": "lace-preview-transaction.json",
+  "txId": "008239371f3f4996cadc573d89272d4ce9e4f06041c90b3f44f26b2b54ebe7ec51",
+  "workflow": {
+    "site": "https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html",
+    "sourceCommit": "d54970f5169b105edfd733052bfb68c8dbc00c5e",
+    "deploymentWorkflow": "https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42268335926",
+    "operation": "createTask",
+    "userOperated": true,
+    "submittedByVerifier": false
+  },
+  "browserAndWallet": {
+    "source": "user-reported",
+    "browser": "Microsoft Edge",
+    "wallet": "Lace",
+    "version": "2.5.1"
+  },
+  "proving": {
+    "requestedMode": "Run in this app (WASM)",
+    "appRequiresSessionConfirmation": true,
+    "appRejectsReportedProverUrls": true,
+    "directObservationOfExtensionMode": false,
+    "extensionNetworkTrafficObserved": false,
+    "provingModeAttestedByWalletApi": false,
+    "remoteProverAbsenceIndependentlyVerified": false
+  },
+  "result": {
+    "indexerStatus": "SucceedEntirely",
+    "blockHeight": 1627842,
+    "contractProofCount": 1,
+    "dustSpendProofCount": 1
+  },
+  "additionalStateComparison": {
+    "attempted": true,
+    "completed": false,
+    "stateDeltaVerified": false
+  },
+  "limitations": [
+    "The user supplied the public transaction identifier after completing the requested Edge/Lace workflow; the verifier did not control or inspect the extension.",
+    "The public indexer confirms acceptance and serialized contract/DUST proof presence, not the location where proving occurred.",
+    "This records one createTask transaction, not the complete six-circuit marketplace lifecycle through Lace.",
+    "Cryptographic proofs and chain inclusion were not independently verified by this read-only inspector."
+  ]
+}

@@ -36,7 +36,11 @@ The public client rejects a reported `proverServerUri`, including a loopback URL
 
 **API 4 cannot independently attest internal mode.** Lace's [configuration response](https://github.com/input-output-hk/lace/blob/bec4d25a0ea75cc4fcd0dae36d63d4dfa8fb122d/packages/module/dapp-connector-midnight/src/store/dependencies/midnight-dapp-connector-api.ts#L414) omits `proverServerUri` for both internal WASM and its remote TEE mode. The API exposes neither the selected mode nor the installed extension version, and the dApp cannot inject a replacement prover into wallet balancing. Check the setting inside Lace; a page's CSP and network log do not control or cover all extension traffic. Verification of a no-external-prover run must include the extension's selected mode and its proving traffic, not merely an absent URL.
 
-The historical eight accepted public transactions used a Node wallet and local HTTP prover. They establish contract/network behavior, not Lace WASM acceptance. A new end-to-end Lace/Preview result remains unrecorded until that exact workflow succeeds.
+## Recorded user-operated test
+
+On 6 November 2026, a user reporting **Edge and Lace 2.5.1** followed the published app's connection and task-creation steps and supplied a Preview transaction identifier. The [public transaction check](lace-preview-transaction.json) confirmed `SucceedEntirely` at block **1,627,842**, one `createTask` call for ReviewLab, a **4,508-byte contract proof** and a **2,940-byte DUST-spend proof**. See the [session record](lace-preview-session.json) and [verification details](VERIFICATION.md#lace-internal-wasm-status).
+
+The requested mode was internal WASM; the verifier did not observe the extension UI or capture its traffic. Indexed acceptance establishes both proof types in this transaction, not their proving location. This is one user-operated task-creation test, not a complete Lace run of every marketplace circuit. The earlier eight accepted public transactions remain separate Node-wallet/HTTP-prover evidence.
 
 ## Inspecting a public test transaction
 
