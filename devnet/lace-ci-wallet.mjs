@@ -57,7 +57,14 @@ async function selectPreview(context, evidence, save) {
   const group = page.getByTestId(/network-selection-sheet-radio-group-midnight/i);
   await group.getByTestId('radio-button-preview').click({ timeout: 30_000 });
   assert.equal(await group.getByTestId('radio-button-preview').getAttribute('aria-selected'), 'true');
-  await closeSheet(page);
+  await page.getByTestId('network-selection-sheet-confirm-button').click();
+  await group.waitFor({ state: 'hidden', timeout: 30_000 });
+  await page.getByTestId('option-list-item-network').click();
+  await group.waitFor({ state: 'visible', timeout: 30_000 });
+  assert.equal(await page.getByTestId('radio-button-testnet').getAttribute('aria-selected'), 'true');
+  assert.equal(await group.getByTestId('radio-button-preview').getAttribute('aria-selected'), 'true');
+  await page.getByTestId('network-selection-sheet-cancel-button').click();
+  await group.waitFor({ state: 'hidden', timeout: 30_000 });
   evidence.previewSelectedInExtensionUi = true; await save();
 }
 async function wasmSettings(context, evidence, save, select) {
@@ -91,7 +98,8 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
   await page.locator('#internal-prover-confirmed').check();
   await page.locator('#connect-form button.primary').click();
   await approveWallet({ kind: 'connect', timeoutMs: 600_000, until: async () =>
-    /Wallet connected.*preview/.test(await page.locator('#connection-badge').innerText()) });
+    /Wallet connected.*preview/.test(await page.locator('#connection-badge').innerText()) ||
+    await page.locator('#connect-form button.primary').isEnabled() });
   assert.match(await page.locator('#connection-badge').innerText(), /Wallet connected.*preview/);
   // Use only the real, already authorized DApp Connector. No injected API or
   // provider replacement is created by this harness.
@@ -128,21 +136,33 @@ async function balances(page) {
 export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   const secrets = { walletPassword: password(), appPassword: password() };
   await writeFile(path.join(privateRoot, 'temporary-passwords.json'), JSON.stringify(secrets), { flag: 'wx', mode: 0o600 });
-  evidence.stage = 'import-fresh-runner-only-mnemonic'; await save();
+  const stage = async name => { evidence.stage = name; await save(); };
+  await stage('open-restore-wallet-for-fresh-ci-wallet');
   await clickControl(context, 'onboarding-start-restore-wallet-button');
+  await stage('enter-fresh-runner-only-mnemonic');
+  const phrase = await findControl(context, 'restore-passphrase-input-value');
+  assert.equal(await phrase.control.isEditable(), true);
   let mnemonic = generateMnemonic(wordlist, 256);
-  const phrase = await findControl(context, 'restore-passphrase-input');
-  await phrase.control.fill(mnemonic); mnemonic = undefined;
+  try { await phrase.control.fill(mnemonic); } finally { mnemonic = undefined; }
+  await stage('confirm-fresh-ci-mnemonic');
   await clickControl(context, 'next-button');
-  const login = await findControl(context, 'new-password-input');
+  await stage('set-fresh-ci-wallet-password');
+  const login = await findControl(context, 'new-password-input-value');
+  assert.equal(await login.control.getAttribute('type'), 'password');
   await login.control.fill(secrets.walletPassword);
-  await login.page.getByTestId('confirm-password-input').fill(secrets.walletPassword);
+  const confirmation = login.page.getByTestId('confirm-password-input-value');
+  assert.equal(await confirmation.getAttribute('type'), 'password');
+  await confirmation.fill(secrets.walletPassword);
+  await stage('confirm-fresh-ci-wallet-password');
   await clickControl(context, 'next-btn');
+  await stage('select-midnight-account-only');
   const midnight = await findControl(context, 'onboarding-create-wallet-toggle-midnight');
   if (await midnight.control.getAttribute('aria-checked') !== 'true') await midnight.control.click();
   const cardano = midnight.page.getByTestId('onboarding-create-wallet-toggle-cardano');
   if (await visible(cardano) && await cardano.getAttribute('aria-checked') === 'true') await cardano.click();
+  await stage('finish-fresh-ci-wallet-creation');
   await clickControl(context, 'onboarding-create-wallet-finish-button');
+  await stage('wait-for-created-wallet-home');
   await findControl(context, 'main-menu-tab-btn', 180_000);
   evidence.walletCreated = true;
   evidence.walletOrigin = 'Fresh cryptographic mnemonic generated in runner memory and imported through released Lace UI';
@@ -197,7 +217,7 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     if (!await visible(portfolio)) { await walletPage.getByTestId('main-menu-tab-btn').click(); portfolio = walletPage.getByRole('button', { name: 'Portfolio', exact: true }); }
     await portfolio.click({ timeout: 20_000 });
     await clickControl(context, 'account-card-generate-dust-button', 300_000);
-    const address = await findControl(context, 'dust-address-input');
+    const address = await findControl(context, 'dust-address-input-value');
     assert.match(await address.control.inputValue(), /^mn_dust_preview1[ac-hj-np-z02-9]+$/);
     await clickControl(context, 'designate-button');
     await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
