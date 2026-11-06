@@ -30,6 +30,8 @@ The [encrypted-storage evidence](private-storage-evidence.json) records nine che
 
 ## Lace internal WASM status
 
+The [isolated GitHub runner probe](lace-ci-probe-evidence.json) independently downloaded the released **Lace 2.5.1** Chrome Store package, verified its pinned hash, three CRX3 signatures, developer identity and Store publisher signature, and opened its unchanged production UI in Chromium. The real extension service worker and onboarding controls were observed in [workflow 42279947215](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42279947215). This first checkpoint created no wallet and made no transaction; it is not full Lace acceptance evidence. No source rebuild, mocked backend or earlier-version binary was used.
+
 **A user-operated Edge / Lace 2.5.1 test produced an accepted public Preview task-creation transaction on 6 November 2026.** The user followed the published application's Lace connection and task-creation steps and supplied the transaction identifier. The [session record](lace-preview-session.json) records the user-reported environment separately from the [read-only transaction verification](lace-preview-transaction.json), completed at 18:28:58 UTC.
 
 | Indexed result | Value |

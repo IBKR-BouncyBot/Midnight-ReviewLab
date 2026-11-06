@@ -1,7 +1,13 @@
-name: Probe released Lace in an isolated runner
+name: Test released Lace on Preview in an isolated runner
 
 on:
   workflow_dispatch:
+    inputs:
+      phase:
+        description: Official package probe, or fresh-wallet funded Preview lifecycle
+        type: choice
+        options: [probe, setup-and-accept]
+        default: probe
 
 permissions:
   contents: read
@@ -13,9 +19,9 @@ concurrency:
 jobs:
   probe:
     if: github.repository == 'IBKR-BouncyBot/Midnight-ReviewLab' && github.ref == 'refs/heads/main'
-    name: Verify official Lace 2.5.1 and production UI boot
+    name: Run unmodified official Lace 2.5.1
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 110
     defaults:
       run:
         shell: bash
@@ -30,13 +36,35 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Install committed browser dependencies
-        run: npm ci --ignore-scripts
+        run: |
+          npm ci --ignore-scripts
+          npm ci --prefix devnet --ignore-scripts
       - name: Install isolated Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify the Store package and observe real initial UI
+        if: inputs.phase == 'probe'
         # No wallet is created in this first checkpoint. No seed, password,
         # browser profile, screenshot, trace or network payload is retained.
         run: xvfb-run --auto-servernum node devnet/lace-ci-preview.mjs probe
+      - name: Create a fresh ephemeral Preview wallet and select internal WASM
+        if: inputs.phase == 'setup-and-accept'
+        run: xvfb-run --auto-servernum node devnet/lace-ci-preview.mjs setup
+      - name: Publish only the public Preview funding request
+        if: inputs.phase == 'setup-and-accept'
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewlab-lace-funding-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/lace-ci/funding-request.json
+            artifacts/lace-ci/setup-evidence.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Resume encrypted wallet, await test funding and prove through real Lace
+        if: inputs.phase == 'setup-and-accept'
+        # The previous artifact is available while this bounded wait runs.
+        # The operator sends only test NIGHT to its public Preview address.
+        # No existing wallet seed or GitHub secret is passed to this job.
+        run: xvfb-run --auto-servernum node devnet/lace-ci-preview.mjs acceptance
       - name: Remove the private ephemeral browser profile
         if: always()
         run: node devnet/lace-ci-preview.mjs cleanup
@@ -45,6 +73,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: reviewlab-lace-probe-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/lace-ci/probe-evidence.json
+          path: |
+            artifacts/lace-ci/probe-evidence.json
+            artifacts/lace-ci/setup-evidence.json
+            artifacts/lace-ci/acceptance-evidence.json
+            artifacts/lace-ci/funding-request.json
+            artifacts/lace-ci/public-record.json
           if-no-files-found: warn
           retention-days: 14

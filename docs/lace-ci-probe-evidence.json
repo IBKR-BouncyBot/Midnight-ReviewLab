@@ -1,0 +1,120 @@
+{
+  "schema": "reviewlab-lace-ci-probe-v1",
+  "status": "passed",
+  "workflowRunId": "42279947215",
+  "workflowRunAttempt": "1",
+  "sourceCommit": "1b171ddcadfc389ddaf3b88c111b344571d9b8c9",
+  "startedAt": "2026-11-06T19:29:13.589Z",
+  "networkId": "preview",
+  "requestedLaceVersion": "2.5.1",
+  "scope": "Unmodified official extension package and initial production UI boot only",
+  "walletCreated": false,
+  "fundsRequested": false,
+  "internalWasmModeSelected": false,
+  "acceptedTransactions": [],
+  "limitations": [
+    "No wallet, proving-mode selection, proof generation or network acceptance is claimed by this probe."
+  ],
+  "stage": "initial-ui-observed",
+  "package": {
+    "source": "Chrome Web Store official update service",
+    "extensionId": "gafhhkghbfjjkeiendhlofajokpaflmk",
+    "version": "2.5.1",
+    "crxSha256": "bff973f7c741ccdbf91c4a1125d4d6da8e9a0b2384b6b1f51c6898b24c87e055",
+    "crxBytes": 73665394,
+    "crxVersion": 3,
+    "signaturesVerified": 3,
+    "developerKeySha256": "60577a671599a484d37be509eaf05bca221cb9ebc4872d8f77008df0b8b79d86",
+    "chromeStorePublisherProofVerified": true,
+    "publisherKeySha256": "61f7f2a6bfcf74cd0bc1fe2497cc9b04254c658f79f2145392867ea8366367cf",
+    "manifestSha256": "5e67d8265b510e9b5b1c0546677d5f3f6316aaa440591dcc0af3d7f4a8858391",
+    "manifestVersion": 3,
+    "filesExtracted": 1085,
+    "expandedBytes": 178245221,
+    "pathsAndCrcValidated": true,
+    "extensionExecuted": false,
+    "walletAccess": false
+  },
+  "harnessSha256": "ba29abe5711918f8f91e309e46b0c3c12280795d44b5415ef8c53830a7cd95d4",
+  "browserVersion": "156.0.8078.4",
+  "extensionServiceWorkerObserved": true,
+  "initialUi": {
+    "documentReady": true,
+    "knownVisibleControls": [
+      "onboarding-start-create-wallet-button",
+      "onboarding-start-restore-wallet-button",
+      "onboarding-start-hardware-wallet-button"
+    ],
+    "visibleControlMetadata": [
+      {
+        "tag": "div",
+        "testId": "lace-brand-logo"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-create-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-restore-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-hardware-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "legal-text"
+      },
+      {
+        "tag": "span",
+        "testId": "terms-of-service-link"
+      },
+      {
+        "tag": "span",
+        "testId": "cookie-policy-link"
+      },
+      {
+        "tag": "span",
+        "testId": "privacy-policy-link"
+      }
+    ]
+  },
+  "completedAt": "2026-11-06T19:29:42.751Z"
+}

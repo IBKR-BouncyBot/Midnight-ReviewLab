@@ -27,14 +27,15 @@ if (mode === 'cleanup') {
   await rm(privateRoot, { recursive: true, force: true });
   process.exit(0);
 }
-if (mode !== 'probe') throw new Error('UNSUPPORTED_LACE_CI_PHASE');
+if (!['probe', 'setup', 'acceptance'].includes(mode)) throw new Error('UNSUPPORTED_LACE_CI_PHASE');
 
 const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const evidenceDirectory = path.join(root, 'artifacts', 'lace-ci');
 await mkdir(evidenceDirectory, { recursive: true });
-await mkdir(privateRoot, { recursive: false, mode: 0o700 });
-const evidence = {
-  schema: 'reviewlab-lace-ci-probe-v1',
+if (mode !== 'acceptance') await mkdir(privateRoot, { recursive: false, mode: 0o700 });
+const evidence = mode === 'acceptance'
+  ? JSON.parse(await readFile(path.join(evidenceDirectory, 'setup-evidence.json'), 'utf8')) : {
+  schema: 'reviewlab-lace-ci-v1',
   status: 'running',
   workflowRunId: runId,
   workflowRunAttempt: runAttempt,
@@ -42,35 +43,88 @@ const evidence = {
   startedAt: new Date().toISOString(),
   networkId: 'preview',
   requestedLaceVersion: '2.5.1',
-  scope: 'Unmodified official extension package and initial production UI boot only',
+  scope: mode === 'probe' ? 'Unmodified official extension package and initial production UI boot only' : 'Real released Lace, fresh ephemeral wallet, actual Preview network and internal WASM UI setting',
   walletCreated: false,
   fundsRequested: false,
   internalWasmModeSelected: false,
   acceptedTransactions: [],
-  limitations: ['No wallet, proving-mode selection, proof generation or network acceptance is claimed by this probe.'],
+  limitations: mode === 'probe' ? ['No wallet, proving-mode selection, proof generation or network acceptance is claimed by this probe.'] : [
+    'UI settings and connector observations are not cryptographic mode attestation.',
+    'Outbound metadata covers requests surfaced by Playwright, including surfaced service-worker requests; it is not an operating-system packet capture.',
+    'Public indexer results are not independent chain or cryptographic proof verification.',
+  ],
 };
-const save = () => writeFile(path.join(evidenceDirectory, 'probe-evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+evidence.phase = mode;
+if (mode === 'acceptance') { evidence.status = 'running'; delete evidence.completedAt; evidence.acceptanceStartedAt = new Date().toISOString(); }
+const save = () => writeFile(path.join(evidenceDirectory, `${mode}-evidence.json`), `${JSON.stringify(evidence, null, 2)}\n`);
 let context;
 let timer;
+const assetTasks = [];
 try {
   evidence.stage = 'verify-official-package';
   await save();
-  const { acquireOfficialLace } = await import('./lace-ci-package.mjs');
-  const { extensionDirectory, evidence: packageEvidence } = await acquireOfficialLace({ outputDirectory: path.join(privateRoot, 'package') });
-  evidence.package = packageEvidence;
+  const extensionDirectory = path.join(privateRoot, 'package');
+  if (mode !== 'acceptance') {
+    const { acquireOfficialLace } = await import('./lace-ci-package.mjs');
+    const result = await acquireOfficialLace({ outputDirectory: extensionDirectory });
+    evidence.package = result.evidence;
+  } else {
+    if (evidence.workflowRunId !== runId || evidence.workflowRunAttempt !== runAttempt || evidence.sourceCommit !== process.env.GITHUB_SHA) throw new Error('PROFILE_PROVENANCE_MISMATCH');
+    if (createHash('sha256').update(await readFile(path.join(extensionDirectory, 'manifest.json'))).digest('hex') !== evidence.package.manifestSha256) throw new Error('MANIFEST_CHANGED');
+  }
   evidence.harnessSha256 = createHash('sha256').update(await readFile(fileURLToPath(import.meta.url))).digest('hex');
+  if (mode !== 'probe') {
+    evidence.sourceHashes = {};
+    for (const name of ['lace-ci-preview.mjs', 'lace-ci-wallet.mjs', 'lace-ci-package.mjs', 'lace-ci-approver.mjs', 'lace-ci-marketplace.mjs']) {
+      evidence.sourceHashes[`devnet/${name}`] = createHash('sha256').update(await readFile(path.join(root, 'devnet', name))).digest('hex');
+    }
+  }
   evidence.stage = 'launch-unmodified-extension';
   await save();
   // No proxy, request rewriting, feature-flag overrides, mock API, source
-  // mutation, devtools inspector, trace, video or screenshot is enabled.
+  // mutation, trace, video or screenshot is enabled. Network interception
+  // only aborts recognized HTTP proving attempts; it never rewrites traffic.
   context = await chromium.launchPersistentContext(path.join(privateRoot, 'profile'), {
     channel: 'chromium', headless: false,
     args: [`--disable-extensions-except=${extensionDirectory}`, `--load-extension=${extensionDirectory}`],
     viewport: { width: 1280, height: 900 },
     timeout: 60_000,
   });
-  timer = setTimeout(() => { void context?.close(); }, 180_000);
+  timer = setTimeout(() => { void context?.close(); }, mode === 'probe' ? 180_000 : mode === 'setup' ? 20 * 60_000 : 75 * 60_000);
   evidence.browserVersion = context.browser()?.version() ?? null;
+  evidence.outboundProofRequestObserved ??= false;
+  evidence.outboundDestinations ??= [];
+  evidence.loadedAppAssets ??= {};
+  const proofRequest = request => {
+    const url = new URL(request.url());
+    if (!['http:', 'https:'].includes(url.protocol)) return false;
+    const knownProver = /(?:^|\.)proofserver(?:\.|$)/.test(url.hostname) || ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+    return request.method() === 'POST' && (knownProver || /\/(?:prove|prove-tx|check|check-tx)(?:\/|$)/.test(url.pathname));
+  };
+  await context.route('**/*', async route => {
+    if (proofRequest(route.request())) {
+      evidence.outboundProofRequestObserved = true;
+      evidence.recognizedProvingRequestAborted = true;
+      await route.abort('blockedbyclient');
+    } else await route.continue();
+  });
+  context.on('request', request => {
+    const url = new URL(request.url());
+    if (!['http:', 'https:'].includes(url.protocol)) return;
+    const worker = Boolean(request.serviceWorker());
+    const prior = evidence.outboundDestinations.find(item => item.hostname === url.hostname && item.method === request.method() && item.serviceWorker === worker);
+    if (prior) prior.count++;
+    else if (evidence.outboundDestinations.length < 150) evidence.outboundDestinations.push({hostname:url.hostname, method:request.method(), serviceWorker:worker, count:1});
+    if (proofRequest(request)) evidence.outboundProofRequestObserved = true;
+  });
+  context.on('response', response => {
+    const url = new URL(response.url());
+    const publicAsset = url.origin === 'https://ibkr-bouncybot.github.io' && /^\/Midnight-ReviewLab\/(?:network\.html|network-bundle\.mjs|network\.css|midnight\.css)$/.test(url.pathname);
+    if (!publicAsset || !response.ok()) return;
+    assetTasks.push(response.body().then(bytes => {
+      evidence.loadedAppAssets[path.posix.basename(url.pathname)] = {sha256:createHash('sha256').update(bytes).digest('hex'), bytes:bytes.length};
+    }).catch(() => {}));
+  });
   let worker = context.serviceWorkers().find(item => item.url().startsWith(`chrome-extension://${extensionId}/`));
   if (!worker) worker = await context.waitForEvent('serviceworker', {
     predicate: item => item.url().startsWith(`chrome-extension://${extensionId}/`), timeout: 45_000,
@@ -78,6 +132,7 @@ try {
   evidence.extensionServiceWorkerObserved = Boolean(worker);
   const page = await context.newPage();
   await page.goto(`chrome-extension://${extensionId}/expo/index.html`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  if (mode !== 'acceptance') {
   // These public control identifiers were reviewed in official Lace source.
   // We only observe the initial empty-wallet UI; no recovery UI is opened.
   const knownControls = [
@@ -104,6 +159,21 @@ try {
   const onboardingVisible = evidence.initialUi.knownVisibleControls.some(id => id.startsWith('onboarding-start-'));
   evidence.status = onboardingVisible ? 'passed' : 'blocked';
   if (!onboardingVisible) evidence.blocker = 'EXPECTED_ONBOARDING_CONTROL_NOT_OBSERVED';
+  if (!onboardingVisible) throw new Error('EXPECTED_ONBOARDING_CONTROL_NOT_OBSERVED');
+  }
+  if (mode === 'setup') {
+    const {setupFreshWallet} = await import('./lace-ci-wallet.mjs');
+    const funding = await setupFreshWallet({context, privateRoot, evidence, save});
+    const serialized = `${JSON.stringify(funding, null, 2)}\n`;
+    await writeFile(path.join(privateRoot, 'funding-request.json'), serialized, {flag:'wx', mode:0o600});
+    await writeFile(path.join(evidenceDirectory, 'funding-request.json'), serialized);
+  } else if (mode === 'acceptance') {
+    const {resumeFundedWallet} = await import('./lace-ci-wallet.mjs');
+    const record = await resumeFundedWallet({context, privateRoot, evidence, save});
+    if (evidence.outboundProofRequestObserved) throw new Error('REMOTE_PROVING_ATTEMPT_OBSERVED');
+    await writeFile(path.join(evidenceDirectory, 'public-record.json'), `${JSON.stringify(record, null, 2)}\n`);
+    evidence.status = 'passed'; evidence.stage = 'real-lace-preview-lifecycle-complete';
+  }
 } catch (error) {
   // Browser/package exceptions may embed paths, URLs or page values. Do not
   // publish their message, cause, stack or console/network payloads.
@@ -111,11 +181,15 @@ try {
   evidence.blocker = error?.name === 'TimeoutError' ? 'UI_OR_STARTUP_TIMEOUT' : 'PACKAGE_OR_BROWSER_CHECK_FAILED';
   evidence.errorType = ['Error', 'TimeoutError', 'TypeError'].includes(error?.name) ? error.name : 'Error';
   if (error?.name === 'LacePackageError' && /^[a-z-]{1,80}$/.test(error.code ?? '')) evidence.packageCheck = error.code;
+  if (context && mode !== 'probe') {
+    try { const {safeUiIdentifiers} = await import('./lace-ci-wallet.mjs'); evidence.visibleUiIdentifiers = await safeUiIdentifiers(context); } catch { /* no raw diagnostics */ }
+  }
 } finally {
   clearTimeout(timer);
   await context?.close().catch(() => {});
+  await Promise.allSettled(assetTasks);
   evidence.completedAt = new Date().toISOString();
   await save();
 }
 console.log(JSON.stringify({ status: evidence.status, stage: evidence.stage, blocker: evidence.blocker, workflowRunId: runId }));
-if (evidence.status !== 'passed') process.exitCode = 1;
+if (!['passed', 'awaiting-funding'].includes(evidence.status)) process.exitCode = 1;
