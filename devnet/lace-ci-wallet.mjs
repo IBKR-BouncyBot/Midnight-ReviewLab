@@ -36,10 +36,10 @@ async function settings(context) {
     if (await visible(current)) return page;
   }
   const { page } = await findControl(context, 'main-menu-tab-btn', 120_000);
-  let item = page.getByRole('button', { name: 'Settings', exact: true });
+  let item = page.getByTestId('settings-tab-btn');
   if (!await visible(item)) {
     await page.getByTestId('main-menu-tab-btn').click();
-    item = page.getByRole('button', { name: 'Settings', exact: true });
+    item = page.getByTestId('settings-tab-btn');
   }
   await item.click({ timeout: 20_000 });
   await page.getByTestId('option-list-item-midnight').waitFor({ state: 'visible', timeout: 30_000 });
@@ -50,19 +50,24 @@ async function closeSheet(page) {
   if (await visible(close)) await close.click();
 }
 async function selectPreview(context, evidence, save) {
-  evidence.stage = 'select-preview-in-real-lace'; await save();
+  const stage = async name => { evidence.stage = name; await save(); };
+  await stage('open-real-lace-network-settings');
   const page = await settings(context);
   await page.getByTestId('option-list-item-network').click();
+  await stage('select-testnet-network-mode');
   await page.getByTestId('radio-button-testnet').click({ timeout: 30_000 });
   const group = page.getByTestId(/network-selection-sheet-radio-group-midnight/i);
-  await group.getByTestId('radio-button-preview').click({ timeout: 30_000 });
-  assert.equal(await group.getByTestId('radio-button-preview').getAttribute('aria-selected'), 'true');
+  await stage('select-midnight-preview-radio');
+  await group.getByTestId('radio-button-midnight-preview').click({ timeout: 30_000 });
+  assert.equal(await group.getByTestId('radio-button-midnight-preview').getAttribute('aria-selected'), 'true');
+  await stage('confirm-midnight-preview-network');
   await page.getByTestId('network-selection-sheet-confirm-button').click();
   await group.waitFor({ state: 'hidden', timeout: 30_000 });
+  await stage('recheck-persisted-preview-network');
   await page.getByTestId('option-list-item-network').click();
   await group.waitFor({ state: 'visible', timeout: 30_000 });
   assert.equal(await page.getByTestId('radio-button-testnet').getAttribute('aria-selected'), 'true');
-  assert.equal(await group.getByTestId('radio-button-preview').getAttribute('aria-selected'), 'true');
+  assert.equal(await group.getByTestId('radio-button-midnight-preview').getAttribute('aria-selected'), 'true');
   await page.getByTestId('network-selection-sheet-cancel-button').click();
   await group.waitFor({ state: 'hidden', timeout: 30_000 });
   evidence.previewSelectedInExtensionUi = true; await save();
@@ -111,13 +116,18 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
     const connection = await api.getConnectionStatus();
     const address = await api.getUnshieldedAddress();
     if (configuration.proverServerUri !== undefined || configuration.networkId !== 'preview' || connection.networkId !== 'preview') throw new Error('PREVIEW_INTERNAL_MODE_REQUIRED');
+    // The authenticated 2.5.1 Store bundle ships IO's Preview proxy. This is
+    // a network service, not a prover; retain the same strict Preview boundary.
+    const indexer = new URL(configuration.indexerUri);
+    const previewIndexer = (indexer.origin === 'https://indexer.preview.midnight.network' && indexer.pathname === '/api/v4/graphql') ||
+      (indexer.origin === 'https://blockfrost.lw.iog.io' && /^\/midnight-preview\/?$/.test(indexer.pathname));
+    if (!previewIndexer || indexer.search || indexer.hash || indexer.username || indexer.password) throw new Error('EXPECTED_PREVIEW_INDEXER_REQUIRED');
     return { unshieldedAddress: address.unshieldedAddress, networkId: configuration.networkId,
       apiVersion: initial.apiVersion, rdns: initial.rdns,
-      indexerHost: new URL(configuration.indexerUri).hostname,
+      indexerEndpoint: `${indexer.origin}${indexer.pathname}`,
       reportedProverServerUri: null };
   });
   assert.match(account.unshieldedAddress, /^mn_addr_preview1[ac-hj-np-z02-9]+$/);
-  assert.equal(account.indexerHost, 'indexer.preview.midnight.network');
   evidence.connector = account; await save();
   return page;
 }
@@ -190,7 +200,9 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
   const approveWallet = createLaceApprover({context, walletPassword: secrets.walletPassword, evidence, save});
   evidence.stage = 'unlock-same-ephemeral-lace-profile'; await save();
   await approveWallet({ kind: 'unlock', timeoutMs: 180_000, until: async () => {
-    for (const page of extensionPages(context)) if (await visible(page.getByTestId('main-menu-tab-btn'))) return true;
+    const pages = extensionPages(context);
+    for (const page of pages) if (await visible(page.getByTestId('authentication-prompt-body'))) return false;
+    for (const page of pages) if (await visible(page.getByTestId('main-menu-tab-btn'))) return true;
     return false;
   }});
   await wasmSettings(context, evidence, save, false);
@@ -213,8 +225,8 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     // The Portfolio route exposes the official account action. No wallet SDK
     // or raw registration transaction is substituted for Lace here.
     const walletPage = await settings(context);
-    let portfolio = walletPage.getByRole('button', { name: 'Portfolio', exact: true });
-    if (!await visible(portfolio)) { await walletPage.getByTestId('main-menu-tab-btn').click(); portfolio = walletPage.getByRole('button', { name: 'Portfolio', exact: true }); }
+    let portfolio = walletPage.getByTestId('portfolio-tab-btn');
+    if (!await visible(portfolio)) { await walletPage.getByTestId('main-menu-tab-btn').click(); portfolio = walletPage.getByTestId('portfolio-tab-btn'); }
     await portfolio.click({ timeout: 20_000 });
     await clickControl(context, 'account-card-generate-dust-button', 300_000);
     const address = await findControl(context, 'dust-address-input-value');
@@ -249,7 +261,7 @@ export async function safeUiIdentifiers(context) {
     result.push(await page.evaluate(() => [...new Set([...document.querySelectorAll('[data-testid]')]
       .filter(el => el.getClientRects().length > 0)
       .map(el => el.getAttribute('data-testid'))
-      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|network|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,100)));
+      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,100)));
   }
   return result;
 }
