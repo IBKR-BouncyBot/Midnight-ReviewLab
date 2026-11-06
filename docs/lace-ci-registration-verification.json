@@ -1,0 +1,71 @@
+{
+  "schema": "reviewlab-lace-ci-public-registration-verification-v1",
+  "status": "no-accepted-registration-observed",
+  "checkedAt": "2026-11-06T20:59:42.256Z",
+  "networkId": "preview",
+  "endpoint": "https://indexer.preview.midnight.network/api/v4/graphql",
+  "websocketEndpoint": "wss://indexer.preview.midnight.network/api/v4/graphql/ws",
+  "recipient": "mn_addr_preview1h9uhqe9t8pkxmn9ykfk3gwetw8p4uf3vvkqcvsdd9atxhtgqwufshdnhp2",
+  "fundingTxId": "00cae2416d0dacbe8573c7a519f5ce933d7e36004f0ea2e18c6532d793f23c5e6b",
+  "confirmationSource": "canonical-public-Preview-indexer",
+  "walletAccessed": false,
+  "transactionSubmitted": false,
+  "independentConsensusOrCryptographicProofVerification": false,
+  "publicHistory": [
+    {
+      "id": 80579,
+      "hash": "57032ec64a25fadc52587a3e48ce57bceee674e9695e7c7ff0f9aa3c086a58a5",
+      "identifiers": [
+        "00f44df14e1bf09b66b6956ccc02ea76268ae08f57bf4aa023cb6032e87625ba35",
+        "00cae2416d0dacbe8573c7a519f5ce933d7e36004f0ea2e18c6532d793f23c5e6b"
+      ],
+      "transactionResult": {
+        "status": "SUCCESS"
+      },
+      "fees": {
+        "paidFees": "1",
+        "estimatedFees": "1"
+      },
+      "block": {
+        "height": 1629256,
+        "hash": "292e9bfd3f8c0d43fdab69c3bfc5b882f7cb3bcbe50a3c3d46848cc1785f443d",
+        "timestamp": 1793998236000
+      },
+      "createdUtxos": [
+        {
+          "tokenType": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "1000000000",
+          "outputIndex": 0,
+          "intentHash": "1374d905522712e7290538919b11622a737a73db62fe9f321026b725fed0e674",
+          "registeredForDustGeneration": false
+        }
+      ],
+      "spentUtxos": []
+    }
+  ],
+  "registrations": [],
+  "highestAddressTransactionId": 80579,
+  "fundingOutputState": [
+    {
+      "valueSTAR": "1000000000",
+      "outputIndex": 0,
+      "intentHash": "1374d905522712e7290538919b11622a737a73db62fe9f321026b725fed0e674",
+      "registeredForDustGeneration": false,
+      "spent": false,
+      "spentAtTransaction": null
+    }
+  ],
+  "indexerHead": {
+    "height": 1629345,
+    "hash": "bd361895a17f72aef98a19738cb301804c997b3195b71967e0d470834573a618",
+    "timestamp": 1793998770000
+  },
+  "acceptedRegistrationObserved": false,
+  "limitations": [
+    "Public indexer evidence is checked against decoded transaction identifiers and ownership; independent consensus and cryptographic signature/proof verification are not performed.",
+    "This check cannot establish whether Lace synchronized the registration or displayed usable DUST capacity.",
+    "Only the requested recipient history and matching registration delegation/proof fields are retained; raw transactions and unrelated outputs are omitted."
+  ],
+  "completedAt": "2026-11-06T20:59:44.547Z",
+  "helperSha256": "92f33b6458f648dbd0e31745427f2f9a0321b59338adae1efef4311800a47f17"
+}

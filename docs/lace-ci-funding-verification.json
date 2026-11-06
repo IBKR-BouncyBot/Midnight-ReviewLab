@@ -1,0 +1,45 @@
+{
+  "schema": "reviewlab-lace-ci-public-funding-verification-v1",
+  "status": "passed",
+  "checkedAt": "2026-11-06T20:54:15.878Z",
+  "networkId": "preview",
+  "confirmationSource": "canonical-public-Preview-indexer",
+  "endpoint": "https://indexer.preview.midnight.network/api/v4/graphql",
+  "txId": "00cae2416d0dacbe8573c7a519f5ce933d7e36004f0ea2e18c6532d793f23c5e6b",
+  "recipient": "mn_addr_preview1h9uhqe9t8pkxmn9ykfk3gwetw8p4uf3vvkqcvsdd9atxhtgqwufshdnhp2",
+  "scope": "Public funding-transfer output and accepted proof-presence verification only",
+  "walletAccessed": false,
+  "transactionSubmitted": false,
+  "laceFundingSynchronizationObserved": false,
+  "proofGenerationLocationObserved": false,
+  "independentConsensusOrCryptographicProofVerification": false,
+  "indexerStatus": "SucceedEntirely",
+  "transactionHash": "57032ec64a25fadc52587a3e48ce57bceee674e9695e7c7ff0f9aa3c086a58a5",
+  "blockHeight": 1629256,
+  "blockHash": "292e9bfd3f8c0d43fdab69c3bfc5b882f7cb3bcbe50a3c3d46848cc1785f443d",
+  "transactionBytes": 3811,
+  "recipientAddressChecksumVerified": true,
+  "recipientOutputMatched": true,
+  "matchingOutputCount": 1,
+  "matchingOutputSections": [
+    {
+      "segment": 1,
+      "section": "fallible"
+    }
+  ],
+  "nativeNightTokenType": "0000000000000000000000000000000000000000000000000000000000000000",
+  "amountSTAR": "1000000000",
+  "amountTestNIGHT": "1000",
+  "dustSpendCount": 1,
+  "dustProofCount": 1,
+  "dustProofBytes": [
+    2940
+  ],
+  "paidFeesIndexerUnits": "1",
+  "helperSha256": "746b66c4c8f7ad814d07e756df0bf1891b12ab63fb45ee0373ce6e5b851a2b72",
+  "limitations": [
+    "Only the expected recipient output is reported; unrelated outputs and raw transaction bytes are omitted.",
+    "An indexed successful funding transfer does not establish that the Lace wallet has synchronized or can access its configured Preview services."
+  ],
+  "completedAt": "2026-11-06T20:54:16.102Z"
+}

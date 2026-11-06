@@ -23,6 +23,25 @@ const AUTH_MESSAGES = Object.freeze({
   transaction: "Confirm the transaction using your wallet's password",
   signTransaction: 'Please enter your password to sign this transaction',
 });
+const DUST_RESULT_SUBTITLES = Object.freeze({
+  processing: 'Processing transaction',
+  success: 'Transaction confirmed on the network. Your balance and activity may take a moment to update.',
+  failure: 'Please check the details below',
+});
+// Static identifiers observed in the signed 2.5.1 JS package. Lace's
+// parseErrorDetails renders `Error Code: ${submissionError.code || name}`.
+// Its generic fallback description mentions a network timeout even when the
+// underlying error is unknown, so that fallback must NOT imply network cause.
+const DUST_FAILURE_CLASSES = Object.freeze({
+  InsufficientDustForFeeError: 'insufficientDust',
+  ProvingError: 'proof', ProvingConfigurationError: 'proof',
+  ProvingEpochMismatchError: 'proof', UnsupportedProvingVersionError: 'proof',
+  ProofOperationUnavailableError: 'proof',
+  NetworkError: 'network', ConnectionError: 'network',
+  WebsocketConnectionError: 'network', ConnectTimeoutError: 'network',
+  HeadersTimeoutError: 'network', BodyTimeoutError: 'network',
+  TransactionRejectedRpcError: 'rejected', UserRejectedRequestError: 'rejected',
+});
 
 class LaceApprovalError extends Error {
   constructor(code) { super(code); this.name = 'LaceApprovalError'; this.code = code; }
@@ -101,6 +120,7 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
     let actionCount = 0;
     let transactionAuthorized = false;
     let dustAuthorized = false;
+    let lastDustResult;
     const remaining = () => Math.max(1, Math.min(5_000, deadline - Date.now()));
     async function bounded(predicate) {
       let timer;
@@ -132,9 +152,73 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
       requireValue(await visible(origin) && await origin.evaluate((el, expected) => el.textContent?.trim() === expected,
         APP_ORIGIN), 'LACE_APPROVAL_DAPP_ORIGIN_MISMATCH');
     }
+    async function observeDustResult() {
+      if (kind !== 'dust-registration') return false;
+      let resultOpen = false;
+      for (const page of context.pages().filter(isLaceUi)) {
+        const subtitle = page.getByTestId('send-result-subtitle');
+        if (!await visible(subtitle)) continue;
+        resultOpen = true;
+        const failureDetails = await visible(page.getByTestId('send-result-error-title'));
+        const result = failureDetails ? 'failure' : await subtitle.evaluate((el, known) =>
+          Object.entries(known).find(([, text]) => text === el.textContent?.trim())?.[0] ?? 'unrecognized',
+        DUST_RESULT_SUBTITLES);
+        if (lastDustResult !== result) {
+          lastDustResult = result;
+          evidence.dustRegistrationResultUiHistory ??= [];
+          requireValue(evidence.dustRegistrationResultUiHistory.length < 32, 'LACE_APPROVAL_RESULT_STATE_LIMIT');
+          evidence.dustRegistrationResultUiHistory.push({ state: result, observedAt: new Date().toISOString(),
+            source: 'released-Lace-result-UI', independentlyConfirmedTransaction: false });
+          await bounded(save);
+        }
+        if (result === 'failure') {
+          const failure = await page.evaluate(knownClasses => {
+            const code = document.querySelector('[data-testid="send-result-error-code"]')?.textContent?.trim();
+            const matched = Object.entries(knownClasses).find(([name]) => code === `Error Code: ${name}`);
+            if (matched) return {category:matched[1], matchedStaticIdentifier:matched[0]};
+            // Previously source-reviewed ledger/RPC rejection codes only. The
+            // number is evidence of the displayed code, not its underlying cause.
+            for (const knownCode of ['117', '1010', '1012']) {
+              if (code === `Error Code: ${knownCode}`)
+                return {category:'rejected', matchedStaticIdentifier:`numeric-code-${knownCode}`};
+            }
+            const description = document.querySelector('[data-testid="send-result-error-description"]')?.textContent?.trim();
+            // Exact variants of designation-flow.error.insufficient-dust.
+            if (description === 'Insufficient tDUST balance' || description === 'Insufficient DUST balance')
+              return {category:'insufficientDust', matchedStaticIdentifier:'designation-insufficient-dust'};
+            return {category:'unknown', matchedStaticIdentifier:null};
+          }, DUST_FAILURE_CLASSES);
+          evidence.dustRegistrationFailureUi = {...failure, observedAt:new Date().toISOString(),
+            source:'released-Lace-result-UI', independentlyConfirmedTransaction:false};
+          await bounded(save);
+          throw new LaceApprovalError('LACE_APPROVAL_DUST_REGISTRATION_UI_FAILURE');
+        }
+        // Midnight's processing result is deliberately not closable. Its
+        // failure primary action is Try again: this helper never clicks it.
+        if (result !== 'success' || await visible(page.getByTestId('authentication-prompt-body'))) continue;
+        requireValue(dustAuthorized, 'LACE_APPROVAL_UNEXPECTED_DUST_RESULT');
+        const state = pageState.get(page) ?? { authSubmitted: false, clicked: new Set() };
+        pageState.set(page, state);
+        const close = page.getByTestId('send-result-close-button');
+        if (!state.clicked.has('dust-result-close') && await pressableReady(close)) {
+          await click(page, close, 'close-successful-dust-result', 'Close');
+          state.clicked.add('dust-result-close');
+        }
+      }
+      if (!resultOpen && lastDustResult === 'success') {
+        lastDustResult = 'closed';
+        evidence.dustRegistrationResultUiHistory.push({ state: 'closed', observedAt: new Date().toISOString(),
+          source: 'released-Lace-result-UI', independentlyConfirmedTransaction: false });
+        await bounded(save);
+      }
+      return resultOpen;
+    }
     try {
       while (Date.now() < deadline) {
-        const complete = await bounded(until);
+        // A result sheet can obscure the Home balance. Observe its explicit
+        // terminal state and dismiss only success before checking the cap.
+        const resultOpen = await observeDustResult();
+        const complete = resultOpen ? false : await bounded(until);
         requireValue(typeof complete === 'boolean', 'LACE_APPROVAL_CONDITION_INVALID');
         if (complete) {
           // The caller may use an error/idle condition to end its wait. This is

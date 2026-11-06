@@ -71,6 +71,7 @@ let timer;
 let diagnosticTimer;
 let diagnosticBusy = false;
 let diagnosticStopped = false;
+let lastWalletUiCheckpoint = 0;
 const assetTasks = [];
 try {
   evidence.stage = 'verify-official-package';
@@ -111,6 +112,8 @@ try {
   evidence.websocketEvents ??= [];
   evidence.pageErrorCount ??= 0;
   evidence.appProgressHistory ??= [];
+  evidence.walletUiSnapshots ??= [];
+  evidence.walletUiSnapshotsCaptured ??= 0;
   const observePage = page => {
     page.on('pageerror', () => { evidence.pageErrorCount++; });
     page.on('websocket', socket => {
@@ -157,6 +160,20 @@ try {
         }, publicProgress);
         if (!diagnosticStopped && stage !== evidence.appProgressHistory.at(-1)?.stage && evidence.appProgressHistory.length < 100) {
           evidence.appProgressHistory.push({stage, at:new Date().toISOString()});
+          await save();
+        }
+      }
+      if (mode !== 'probe' && !diagnosticStopped && Date.now() - lastWalletUiCheckpoint >= 10_000) {
+        lastWalletUiCheckpoint = Date.now();
+        const {safeUiIdentifiers, safeWalletUiReadiness} = await import('./lace-ci-wallet.mjs');
+        const snapshot = await safeWalletUiReadiness(context);
+        snapshot.visibleUiIdentifiers = await safeUiIdentifiers(context);
+        if (!diagnosticStopped) {
+          snapshot.stage = evidence.stage;
+          evidence.walletUiSnapshotsCaptured++;
+          evidence.walletUiSnapshots.push(snapshot);
+          // Keep the last two minutes of public UI observations bounded.
+          evidence.walletUiSnapshots = evidence.walletUiSnapshots.slice(-12);
           await save();
         }
       }

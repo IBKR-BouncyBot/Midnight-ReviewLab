@@ -164,11 +164,14 @@ async function connectApp(context, secrets, approveWallet, evidence, save) {
     const connection = await api.getConnectionStatus();
     const address = await api.getUnshieldedAddress();
     if (configuration.proverServerUri !== undefined || configuration.networkId !== 'preview' || connection.networkId !== 'preview') throw new Error('PREVIEW_INTERNAL_MODE_REQUIRED');
-    // The authenticated 2.5.1 Store bundle ships IO's Preview proxy. This is
-    // a network service, not a prover; retain the same strict Preview boundary.
+    // Lace can refresh its official network services through feature flags.
+    // The released default and observed refreshed Preview host are network
+    // services, not provers. This validation never redirects wallet traffic.
     const indexer = new URL(configuration.indexerUri);
     const previewIndexer = (indexer.origin === 'https://indexer.preview.midnight.network' && indexer.pathname === '/api/v4/graphql') ||
-      (indexer.origin === 'https://blockfrost.lw.iog.io' && /^\/midnight-preview\/?$/.test(indexer.pathname));
+      (indexer.origin === 'https://blockfrost.lw.iog.io' && /^\/midnight-preview\/?$/.test(indexer.pathname)) ||
+      (indexer.origin === 'https://midnight-preview.blockfrost.io' && indexer.pathname.length <= 100 &&
+        /^\/(?:[A-Za-z][A-Za-z0-9_-]*\/?)*$/.test(indexer.pathname));
     if (!previewIndexer || indexer.search || indexer.hash || indexer.username || indexer.password) throw new Error('EXPECTED_PREVIEW_INDEXER_REQUIRED');
     return { unshieldedAddress: address.unshieldedAddress, networkId: configuration.networkId,
       indexerEndpoint: `${indexer.origin}${indexer.pathname}`,
@@ -391,9 +394,73 @@ export async function safeUiIdentifiers(context) {
     result.push(await page.evaluate(() => [...new Set([...document.querySelectorAll('[data-testid]')]
       .filter(el => el.getClientRects().length > 0)
       .map(el => el.getAttribute('data-testid'))
-      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication|receive-|dropdown-|Unshielded$|Shielded$)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,160)));
+      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication|receive-|dropdown-|send-result-|Unshielded$|Shielded$)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,160)));
   }
   return result;
+}
+
+export async function safeWalletUiReadiness(context) {
+  const pages = [];
+  for (const page of extensionPages(context)) {
+    try {
+      pages.push(await page.evaluate(() => {
+        const get = id => document.querySelector(`[data-testid="${id}"]`);
+        const visible = el => {
+          if (!el || ![...el.getClientRects()].some(box => box.width > 0 && box.height > 0)) return false;
+          for (let node = el; node; node = node.parentElement) {
+            const style = getComputedStyle(node);
+            if (style.display === 'none' || style.visibility !== 'visible' || Number(style.opacity) === 0) return false;
+          }
+          return true;
+        };
+        const dustAmount = id => {
+          const el = get(id), shown = visible(el);
+          const text = shown ? (el.getAttribute('aria-label') ?? el.textContent ?? '').trim() : '';
+          const match = text.match(/^(?:\/\s*)?([0-9][0-9,.\s]*)(?:\s*(?:tDUST|DUST))?$/);
+          return {visible:shown, numericFormatRecognized:Boolean(match), positive:Boolean(match && /[1-9]/.test(match[1]))};
+        };
+        const buttonState = id => {
+          const el = get(id), shown = visible(el);
+          if (!shown) return {visible:false, disabled:false, interactive:false};
+          // ActionButton's icon is directly inside its nested Pressable.
+          const icon = id === 'account-card-generate-dust-button' ? get(`${id}-icon`) : null;
+          const target = icon?.parentElement && el.contains(icon.parentElement) ? icon.parentElement : el;
+          let disabled = false;
+          for (let node = target; node; node = node.parentElement) {
+            if (node.matches(':disabled,[aria-disabled="true"],[inert]') || getComputedStyle(node).pointerEvents === 'none') disabled = true;
+          }
+          if ([...target.querySelectorAll('button,[role="button"]')].some(node => node.matches(':disabled,[aria-disabled="true"]'))) disabled = true;
+          const box = target.getBoundingClientRect();
+          const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return {visible:shown, disabled, interactive:!disabled && Boolean(hit && (hit === target || target.contains(hit)))};
+        };
+        const knownResultIds = ['send-result-sheet-header','send-result-subtitle','send-result-close-button',
+          'send-result-primary-button','send-result-error-title','send-result-error-description','send-result-error-code',
+          'send-result-error-timestamp','send-result-error-request-id','send-result-sent-label',
+          'send-result-recipient-value','send-result-fee-value'];
+        const subtitle = visible(get('send-result-subtitle')) ? get('send-result-subtitle').textContent?.trim() : '';
+        const knownSubtitles = {
+          'Processing transaction':'processing',
+          'Transaction confirmed on the network. Your balance and activity may take a moment to update.':'success',
+          'Please check the details below':'failure',
+        };
+        return {
+          dustCap:dustAmount('dust-tank-max-value'), dustBalance:dustAmount('dust-tank-current-value'),
+          generateDust:buttonState('account-card-generate-dust-button'), designate:buttonState('designate-button'),
+          confirmDesignation:buttonState('confirm-designation-button'),
+          authenticationPresent:visible(get('authentication-prompt-body')),
+          dustFormPresent:visible(get('dust-address-input-value')),
+          ownDustReviewPresent:visible(get('dust-designation-review-account-tag')),
+          transactionResultUi:visible(get('send-result-error-title')) ? 'failure' :
+            Object.hasOwn(knownSubtitles, subtitle) ? knownSubtitles[subtitle] :
+              (subtitle || visible(get('send-result-sheet-header')) ? 'unrecognized' : 'absent'),
+          visibleTransactionResultControls:knownResultIds.filter(id => visible(get(id))),
+          resultClose:buttonState('send-result-close-button'),
+        };
+      }));
+    } catch { /* A closing UI page is omitted without exporting its error. */ }
+  }
+  return {observedAt:new Date().toISOString(), source:'Visible released-Lace UI only; no chain confirmation inferred', pages};
 }
 
 export async function safeRadioStates(context) {
