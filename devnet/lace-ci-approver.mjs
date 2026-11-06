@@ -29,6 +29,18 @@ class LaceApprovalError extends Error {
 }
 const requireValue = (ok, code) => { if (!ok) throw new LaceApprovalError(code); };
 const visible = async locator => await locator.count() === 1 && await locator.isVisible();
+// RN Web Pressable may be a DIV whose disabled prop is represented by pointer
+// behavior rather than an HTML disabled attribute. isEnabled() alone is not a
+// readiness check. Inspect only rendered interactivity, never React internals.
+const pressableReady = async locator => await visible(locator) && await locator.isEnabled() &&
+  await locator.evaluate(el => {
+    if (getComputedStyle(el).pointerEvents === 'none') return false;
+    for (let node = el; node instanceof HTMLElement; node = node.parentElement) {
+      if (node.matches(':disabled,[aria-disabled="true"],[inert]')) return false;
+    }
+    const inner = [...el.querySelectorAll('button,[role="button"]')];
+    return !inner.some(node => node.matches(':disabled,[aria-disabled="true"]'));
+  });
 
 function isLaceUi(page) {
   if (page.isClosed()) return false;
@@ -99,15 +111,17 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
         })]);
       } finally { clearTimeout(timer); }
     }
-    async function record(action) {
+    async function record(action, observation = 'click-dispatched') {
       actionCount += 1;
       requireValue(actionCount <= 32 && evidence.walletApprovals.length < 256, 'LACE_APPROVAL_ACTION_LIMIT');
-      evidence.walletApprovals.push({ kind, action, at: new Date().toISOString() });
+      evidence.walletApprovals.push({ kind, action, observation, at: new Date().toISOString() });
       await bounded(save);
     }
     async function click(page, locator, action, expectedLabel) {
       requireValue(isLaceUi(page), 'LACE_APPROVAL_PAGE_CHANGED');
-      requireValue(await visible(locator) && await locator.isEnabled(), 'LACE_APPROVAL_CONTROL_UNAVAILABLE');
+      const readyDeadline = Math.min(deadline, Date.now() + 5_000);
+      while (Date.now() < readyDeadline && !await pressableReady(locator)) await delay(100);
+      requireValue(await pressableReady(locator), 'LACE_APPROVAL_CONTROL_UNAVAILABLE');
       if (expectedLabel) requireValue(await locator.evaluate((el, label) => el.textContent?.trim() === label,
         expectedLabel), 'LACE_APPROVAL_LABEL_MISMATCH');
       await locator.click({ timeout: remaining() });
@@ -122,7 +136,12 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
       while (Date.now() < deadline) {
         const complete = await bounded(until);
         requireValue(typeof complete === 'boolean', 'LACE_APPROVAL_CONDITION_INVALID');
-        if (complete) return;
+        if (complete) {
+          // The caller may use an error/idle condition to end its wait. This is
+          // not proof that a click authorized a request or a transaction passed.
+          await record('caller-completion-condition-observed', 'condition-observed');
+          return;
+        }
         for (const page of context.pages().filter(isLaceUi)) {
           if (Date.now() >= deadline) break;
           const state = pageState.get(page) ?? { authSubmitted: false, clicked: new Set() };
@@ -162,7 +181,10 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
             await checkDappOrigin(page);
             if (state.clicked.has('connect')) continue;
             const authorize = page.getByTestId('dapp-connector-primary-button');
-            if (!await authorize.isEnabled()) {
+            // selectedAccount starts null in MidnightDappConnectView. Always
+            // select explicitly; an enabled-looking DIV cannot establish that
+            // the underlying Authorize handler has an account to authorize.
+            if (!state.clicked.has('account-selected')) {
               const option = page.getByTestId('dropdown-menu-item-0');
               if (!await visible(option)) {
                 if (!state.clicked.has('account-menu')) {
@@ -176,7 +198,20 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
                 /^dropdown-menu-item-\d+$/.test(el.getAttribute('data-testid') ?? '')).length);
               requireValue(count === 1, 'LACE_APPROVAL_ACCOUNT_SELECTION_AMBIGUOUS');
               await click(page, option, 'select-single-midnight-account');
+              state.clicked.add('account-selected');
               continue;
+            }
+            // Source binds this title to selectedAccount.metadata.name and the
+            // primary disabled prop to !selectedAccount. Observe the resulting
+            // UI change after the selection, not the click return value.
+            const title = page.getByTestId('dropdown-button-title');
+            const menu = page.getByTestId('dropdown-menu');
+            if (await visible(menu) || !await visible(title) ||
+                !await title.evaluate(el => Boolean(el.textContent?.trim()) &&
+                  el.textContent.trim() !== 'Select Account') || !await pressableReady(authorize)) continue;
+            if (!state.clicked.has('account-selection-observed')) {
+              await record('single-midnight-account-selection-observed', 'ui-state-observed');
+              state.clicked.add('account-selection-observed');
             }
             await click(page, authorize, 'authorize-published-app', 'Authorize');
             state.clicked.add('connect');
@@ -188,7 +223,7 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
             await checkDappOrigin(page);
             requireValue(await prove.evaluate(el => el.textContent?.trim() === 'Signing this transaction will prove this transaction'),
               'LACE_APPROVAL_TRANSACTION_DESCRIPTION_MISMATCH');
-            if (!state.clicked.has('prove')) {
+            if (!state.clicked.has('prove') && await pressableReady(page.getByTestId('dapp-connector-primary-button'))) {
               await click(page, page.getByTestId('dapp-connector-primary-button'),
                 'authorize-midnight-transaction', 'Sign transaction');
               state.clicked.add('prove');
@@ -203,7 +238,7 @@ export function createLaceApprover({ context, walletPassword, evidence, save }) 
               !await visible(page.getByTestId('dust-designation-review-external-address')) &&
               await visible(page.getByTestId('dust-designation-review-designating-label')),
             'LACE_APPROVAL_DUST_RECIPIENT_NOT_OWN_ACCOUNT');
-            if (!state.clicked.has('dust') && await designation.isEnabled()) {
+            if (!state.clicked.has('dust') && await pressableReady(designation)) {
               await click(page, designation, 'confirm-own-dust-registration');
               state.clicked.add('dust');
               dustAuthorized = true;

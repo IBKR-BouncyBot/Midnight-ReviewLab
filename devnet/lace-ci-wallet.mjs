@@ -6,6 +6,7 @@ import path from 'node:path';
 import { generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { createLaceApprover } from './lace-ci-approver.mjs';
+import { readPreviewReceivingAddress, showMidnightAccountCard } from './lace-ci-receive.mjs';
 
 const EXTENSION = 'chrome-extension://gafhhkghbfjjkeiendhlofajokpaflmk/';
 const APP = 'https://ibkr-bouncybot.github.io/Midnight-ReviewLab/network.html';
@@ -186,8 +187,24 @@ async function balances(apiHandle) {
   });
 }
 
-async function openOwnDustForm(context) {
-  const deadline = Date.now() + 300_000;
+async function positiveDustCapUi(context) {
+  for (const page of extensionPages(context)) {
+    const cap = page.getByTestId('dust-tank-max-value').first();
+    if (!await visible(cap)) continue;
+    const positive = await cap.evaluate(el => {
+      const text = (el.getAttribute('aria-label') ?? el.textContent ?? '').trim();
+      // Public formatted balance only. Do not store its text or infer a chain
+      // transaction from this UI observation. English is the runner locale.
+      const match = text.match(/^(?:\/\s*)?([0-9][0-9,.\s]*)(?:\s*(?:tDUST|DUST))?$/);
+      return Boolean(match && /[1-9]/.test(match[1]));
+    });
+    if (positive) return true;
+  }
+  return false;
+}
+
+async function openOwnDustForm(context, timeoutMs = 300_000) {
+  const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     for (const page of extensionPages(context)) {
       const input = page.getByTestId('dust-address-input-value');
@@ -212,7 +229,7 @@ async function openOwnDustForm(context) {
         }
       }
     }
-    await delay(1_000);
+    await delay(3_000);
   }
   throw new Error('OWN_DUST_FORM_NOT_READY');
 }
@@ -254,14 +271,16 @@ export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   await selectPreview(context, evidence, save);
   evidence.stage = 'select-and-save-internal-wasm'; await save();
   await wasmSettings(context, evidence, save, true);
-  const approveWallet = createLaceApprover({context, walletPassword: secrets.walletPassword, evidence, save});
-  await connectApp(context, secrets, approveWallet, evidence, save);
+  evidence.stage = 'read-own-preview-unshielded-receive-address'; await save();
+  const unshieldedAddress = await readPreviewReceivingAddress({context, evidence, save});
+  assert.match(unshieldedAddress, /^mn_addr_preview1[ac-hj-np-z02-9]+$/);
+  evidence.fundingAddress = {unshieldedAddress, source:'Released Lace Unshielded Receive UI', networkId:'preview'};
   evidence.fundsRequested = true;
   evidence.stage = 'public-funding-address-ready';
   evidence.status = 'awaiting-funding';
   await save();
   return {
-    networkId: 'preview', laceVersion: '2.5.1', unshieldedAddress: evidence.connector.unshieldedAddress,
+    networkId: 'preview', laceVersion: '2.5.1', unshieldedAddress,
     workflowRunId: process.env.GITHUB_RUN_ID, workflowRunAttempt: process.env.GITHUB_RUN_ATTEMPT,
     sourceCommit: process.env.GITHUB_SHA, requestedTestNight: '1000',
     internalWasmSelectedAndSavedInUi: true, packageSha256: evidence.package.crxSha256,
@@ -280,35 +299,29 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     return false;
   }});
   await wasmSettings(context, evidence, save, false);
-  const {appPage, apiHandle} = await connectApp(context, secrets, approveWallet, evidence, save);
   const request = JSON.parse(await readFile(path.join(privateRoot, 'funding-request.json'), 'utf8'));
-  assert.equal(evidence.connector.unshieldedAddress, request.unshieldedAddress);
-  evidence.stage = 'wait-for-authorized-preview-funding'; await save();
-  let balance;
-  const deadline = Date.now() + 40 * 60_000;
-  while (Date.now() < deadline) {
-    balance = await balances(apiHandle);
-    if (BigInt(balance.night) > 0n) break;
-    await delay(15_000);
-  }
-  assert.ok(balance && BigInt(balance.night) > 0n, 'PREVIEW_FUNDING_TIMEOUT');
-  evidence.fundingObserved = { unshieldedNightBaseUnits: balance.night, observedAt: new Date().toISOString() };
-  await save();
-  if (BigInt(balance.dustCap) === 0n) {
-    evidence.stage = 'register-night-for-dust-through-lace-ui'; await save();
+  const receiveAddress = await readPreviewReceivingAddress({context, evidence, save});
+  assert.equal(receiveAddress, request.unshieldedAddress);
+  await showMidnightAccountCard({context});
+  if (!await positiveDustCapUi(context)) {
+    evidence.stage = 'wait-for-funded-own-dust-form-in-lace-ui'; await save();
     // The Portfolio route exposes the official account action. No wallet SDK
     // or raw registration transaction is substituted for Lace here.
-    const walletPage = await settings(context);
-    let portfolio = walletPage.getByTestId('portfolio-tab-btn');
-    if (!await visible(portfolio)) { await walletPage.getByTestId('main-menu-tab-btn').click(); portfolio = walletPage.getByTestId('portfolio-tab-btn'); }
-    await portfolio.click({ timeout: 20_000 });
-    await openOwnDustForm(context);
+    await openOwnDustForm(context, 40 * 60_000);
+    evidence.fundedDesignationFormUiObserved = true;
+    evidence.stage = 'register-night-for-dust-through-lace-ui'; await save();
     await clickControl(context, 'designate-button');
     await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
-      balance = await balances(apiHandle); return BigInt(balance.dustCap) > 0n;
+      return positiveDustCapUi(context);
     }});
-    evidence.dustRegistrationObserved = true; await save();
   }
+  evidence.dustRegistrationUiObservation = {positiveDisplayedDustCap:true, observedAt:new Date().toISOString(), independentlyConfirmedTransaction:false};
+  await save();
+  const {appPage, apiHandle} = await connectApp(context, secrets, approveWallet, evidence, save);
+  assert.equal(evidence.connector.unshieldedAddress, request.unshieldedAddress);
+  let balance = await balances(apiHandle);
+  assert.ok(BigInt(balance.night) > 0n && BigInt(balance.dustCap) > 0n, 'FUNDED_REGISTERED_PREVIEW_WALLET_REQUIRED');
+  evidence.fundingObserved = {unshieldedNightBaseUnits:balance.night, observedAt:new Date().toISOString(), source:'Real Lace API'};
   evidence.stage = 'wait-for-usable-dust'; await save();
   const dustDeadline = Date.now() + 20 * 60_000;
   while (Date.now() < dustDeadline) {

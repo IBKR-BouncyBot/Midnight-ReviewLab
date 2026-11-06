@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -56,9 +56,21 @@ const evidence = mode === 'acceptance'
 };
 evidence.phase = mode;
 if (mode === 'acceptance') { evidence.status = 'running'; delete evidence.completedAt; evidence.acceptanceStartedAt = new Date().toISOString(); }
-const save = () => writeFile(path.join(evidenceDirectory, `${mode}-evidence.json`), `${JSON.stringify(evidence, null, 2)}\n`);
+let saveQueue = Promise.resolve();
+const save = () => {
+  const snapshot = `${JSON.stringify(evidence, null, 2)}\n`;
+  const destination = path.join(evidenceDirectory, `${mode}-evidence.json`);
+  saveQueue = saveQueue.then(async () => {
+    await writeFile(`${destination}.tmp`, snapshot);
+    await rename(`${destination}.tmp`, destination);
+  });
+  return saveQueue;
+};
 let context;
 let timer;
+let diagnosticTimer;
+let diagnosticBusy = false;
+let diagnosticStopped = false;
 const assetTasks = [];
 try {
   evidence.stage = 'verify-official-package';
@@ -75,7 +87,7 @@ try {
   evidence.harnessSha256 = createHash('sha256').update(await readFile(fileURLToPath(import.meta.url))).digest('hex');
   if (mode !== 'probe') {
     evidence.sourceHashes = {};
-    for (const name of ['lace-ci-preview.mjs', 'lace-ci-wallet.mjs', 'lace-ci-package.mjs', 'lace-ci-approver.mjs', 'lace-ci-marketplace.mjs']) {
+    for (const name of ['lace-ci-preview.mjs', 'lace-ci-wallet.mjs', 'lace-ci-package.mjs', 'lace-ci-approver.mjs', 'lace-ci-marketplace.mjs', 'lace-ci-receive.mjs']) {
       evidence.sourceHashes[`devnet/${name}`] = createHash('sha256').update(await readFile(path.join(root, 'devnet', name))).digest('hex');
     }
   }
@@ -95,6 +107,62 @@ try {
   evidence.outboundProofRequestObserved ??= false;
   evidence.outboundDestinations ??= [];
   evidence.loadedAppAssets ??= {};
+  evidence.httpResponses ??= [];
+  evidence.websocketEvents ??= [];
+  evidence.pageErrorCount ??= 0;
+  evidence.appProgressHistory ??= [];
+  const observePage = page => {
+    page.on('pageerror', () => { evidence.pageErrorCount++; });
+    page.on('websocket', socket => {
+      const url = new URL(socket.url());
+      if (!['ws:', 'wss:'].includes(url.protocol)) return;
+      let entry = evidence.websocketEvents.find(item => item.hostname === url.hostname);
+      if (!entry && evidence.websocketEvents.length < 50) {
+        entry = {hostname:url.hostname, created:0, closed:0, errors:0}; evidence.websocketEvents.push(entry);
+      }
+      if (!entry) return;
+      entry.created++;
+      socket.on('close', () => { entry.closed++; });
+      socket.on('socketerror', () => { entry.errors++; });
+      // No frame, URL, query, error string, header or message body is retained.
+    });
+  };
+  context.pages().forEach(observePage);
+  context.on('page', observePage);
+  const publicProgress = {
+    'connection-settings':'Checking the selected network settings…',
+    'connection-permission':'Approve the connection in your wallet…',
+    'connection-account':'Reading the wallet’s public account…',
+    'connection-network':'Checking the wallet network…',
+    'connection-internal-prover':'Checking the Lace connector for the selected proving mode…',
+    'connection-providers':'Preparing Midnight providers…',
+    'connection-proving-provider':'Preparing the wallet’s proof provider…',
+    'connection-storage':'Opening the encrypted app key store…',
+    'wallet-connected':'Wallet connected. Choose Set up marketplace to deploy or join a contract.',
+    'proving-provider-started':'Preparing proofs in your wallet…',
+    'proving-provider-completed':'Proof provider completed. Waiting for wallet approval…',
+    'wallet-approval-requested':'Approve this testnet transaction in your wallet…',
+    'wallet-balanced':'Wallet balanced the transaction with test DUST…',
+    'submission-returned':'Transaction submitted. Waiting for indexer acceptance…',
+  };
+  diagnosticTimer = setInterval(async () => {
+    if (diagnosticBusy || diagnosticStopped) return;
+    diagnosticBusy = true;
+    try {
+      for (const page of context.pages()) {
+        if (!/^https:\/\/ibkr-bouncybot\.github\.io\/Midnight-ReviewLab\/network\.html(?:#.*)?$/.test(page.url())) continue;
+        const stage = await page.evaluate(known => {
+          const text = document.getElementById('action-status')?.textContent;
+          return Object.entries(known).find(([,value]) => text === value)?.[0] ?? 'other-or-idle';
+        }, publicProgress);
+        if (!diagnosticStopped && stage !== evidence.appProgressHistory.at(-1)?.stage && evidence.appProgressHistory.length < 100) {
+          evidence.appProgressHistory.push({stage, at:new Date().toISOString()});
+          await save();
+        }
+      }
+    } catch { /* No raw browser errors or page text enter diagnostics. */ }
+    finally { diagnosticBusy = false; }
+  }, 2_000);
   const proofRequest = request => {
     const url = new URL(request.url());
     if (!['http:', 'https:'].includes(url.protocol)) return false;
@@ -119,6 +187,12 @@ try {
   });
   context.on('response', response => {
     const url = new URL(response.url());
+    if (['http:', 'https:'].includes(url.protocol)) {
+      const method = response.request().method(), status = response.status();
+      const entry = evidence.httpResponses.find(item => item.hostname === url.hostname && item.method === method && item.status === status);
+      if (entry) entry.count++;
+      else if (evidence.httpResponses.length < 250) evidence.httpResponses.push({hostname:url.hostname, method, status, count:1});
+    }
     const publicAsset = url.origin === 'https://ibkr-bouncybot.github.io' && /^\/Midnight-ReviewLab\/(?:network\.html|network-bundle\.mjs|network\.css|midnight\.css)$/.test(url.pathname);
     if (!publicAsset || !response.ok()) return;
     assetTasks.push(response.body().then(bytes => {
@@ -190,6 +264,8 @@ try {
   }
 } finally {
   clearTimeout(timer);
+  diagnosticStopped = true;
+  clearInterval(diagnosticTimer);
   await context?.close().catch(() => {});
   await Promise.allSettled(assetTasks);
   evidence.completedAt = new Date().toISOString();
