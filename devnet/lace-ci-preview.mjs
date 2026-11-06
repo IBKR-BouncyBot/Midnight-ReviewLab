@@ -255,6 +255,8 @@ try {
   evidence.blocker = error?.name === 'TimeoutError' ? 'UI_OR_STARTUP_TIMEOUT' : 'PACKAGE_OR_BROWSER_CHECK_FAILED';
   evidence.errorType = ['Error', 'TimeoutError', 'TypeError'].includes(error?.name) ? error.name : 'Error';
   if (error?.name === 'LacePackageError' && /^[a-z-]{1,80}$/.test(error.code ?? '')) evidence.packageCheck = error.code;
+  const walletUiCodes = new Set(['LACE_WALLET_DESIGNATE_NOT_READY', 'LACE_WALLET_DUST_REVIEW_NOT_OBSERVED']);
+  if (error?.name === 'LaceWalletUiError' && walletUiCodes.has(error.code)) evidence.errorCode = error.code;
   if (context && mode !== 'probe') {
     try {
       const {safeUiIdentifiers, safeRadioStates} = await import('./lace-ci-wallet.mjs');

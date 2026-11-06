@@ -21,19 +21,20 @@ try{
   const request=JSON.parse(bytes);assert.equal(request.networkId,'preview');assert.equal(request.laceVersion,'2.5.1');assert.match(request.workflowRunId,/^[0-9]{1,24}$/);
   const address=MidnightBech32m.parse(request.unshieldedAddress);assert.equal(address.network,'preview');
   const receiverAddress=address.decode(UnshieldedAddress,'preview');
-  const recipientHash=createHash('sha256').update(request.unshieldedAddress).digest('hex');
+  const recipient=address.asString();
+  const recipientHash=createHash('sha256').update(recipient).digest('hex');
   path=join(directory,`${recipientHash}.json`);await mkdir(directory,{recursive:true});
-  report={networkId:'preview',workflowRunId:request.workflowRunId,recipient:request.unshieldedAddress,amountStar:'1000000000',amountTestNight:1000,status:'preparing',startedAt:new Date().toISOString(),provingMetrics:{},realMoneyTransferred:false};
+  report={networkId:'preview',workflowRunId:request.workflowRunId,recipient,amountStar:'1000000000',amountTestNight:1000,status:'preparing',startedAt:new Date().toISOString(),provingMetrics:{},realMoneyTransferred:false};
   // Exclusive creation makes retries fail closed, even if a response was lost.
   await writeFile(path,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
   for(const method of ['log','info','debug','warn','error','trace','dir'])console[method]=()=>{};
   const wasm=await createLocalWasmProving({zkConfigProvider:{get(){throw new Error('Contract proofs not allowed in funding helper');}},metrics:report.provingMetrics});
   context=await startPreviewWallet({localWasmProvingService:wasm.walletProvingService});
-  assert.notEqual(context.address,request.unshieldedAddress);
+  assert.notEqual(MidnightBech32m.parse(context.address).asString(),recipient);
   await context.built.wallet.waitForSyncedState();
   const {wallet,seeds,keystore}=context.built;
   const secretKeys={shieldedSecretKeys:context.ledger.ZswapSecretKeys.fromSeed(seeds.shielded),dustSecretKey:context.ledger.DustSecretKey.fromSeed(seeds.dust)};
-  output({status:'preparing-preview-funding',recipient:request.unshieldedAddress,amountTestNight:1000});
+  output({status:'preparing-preview-funding',recipient,amountTestNight:1000});
   const recipe=await wallet.transferTransaction([{type:'unshielded',outputs:[{type:context.ledger.unshieldedToken().raw,receiverAddress,amount:1_000_000_000n}]}],secretKeys,{ttl:new Date(Date.now()+3600000),payFees:true});
   const signed=await wallet.signRecipe(recipe,payload=>keystore.signData(payload));
   const transaction=await wallet.finalizeRecipe(signed);

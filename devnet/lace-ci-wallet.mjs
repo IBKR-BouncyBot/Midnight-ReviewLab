@@ -14,6 +14,9 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const visible = locator => locator.isVisible().catch(() => false);
 const extensionPages = context => context.pages().filter(page => page.url().startsWith(EXTENSION) && !page.isClosed());
 const password = () => `Ci!${randomBytes(30).toString('base64url')}7aQ`;
+class LaceWalletUiError extends Error {
+  constructor(code) { super(code); this.name = 'LaceWalletUiError'; this.code = code; }
+}
 
 async function findControl(context, id, timeout = 45_000) {
   const end = Date.now() + timeout;
@@ -234,6 +237,38 @@ async function openOwnDustForm(context, timeoutMs = 300_000) {
   throw new Error('OWN_DUST_FORM_NOT_READY');
 }
 
+async function openDustReviewOnce(context, evidence, save) {
+  evidence.stage = 'wait-for-own-dust-designate-readiness'; await save();
+  const {page, control} = await findControl(context, 'designate-button');
+  await control.scrollIntoViewIfNeeded();
+  try {
+    await page.waitForFunction(() => {
+      const el = document.querySelector('[data-testid="designate-button"]');
+      if (!el || !el.getClientRects().length || getComputedStyle(el).pointerEvents === 'none') return false;
+      for (let node = el; node instanceof HTMLElement; node = node.parentElement) {
+        const style = getComputedStyle(node);
+        if (node.matches(':disabled,[aria-disabled="true"],[inert]') || style.visibility !== 'visible' || Number(style.opacity) === 0) return false;
+      }
+      if ([...el.querySelectorAll('button,[role="button"]')].some(node =>
+        node.matches(':disabled,[aria-disabled="true"]') || getComputedStyle(node).pointerEvents === 'none')) return false;
+      const box = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return Boolean(hit && (hit === el || el.contains(hit)));
+    }, null, {timeout:300_000, polling:'raf'});
+  } catch { throw new LaceWalletUiError('LACE_WALLET_DESIGNATE_NOT_READY'); }
+  evidence.stage = 'open-own-dust-designation-review-once'; await save();
+  // This is deliberately one click. A failure after dispatch never causes a
+  // new designation or confirmation attempt to be manufactured by this helper.
+  await control.click({timeout:15_000});
+  evidence.dustDesignationClickDispatched = true; await save();
+  try {
+    await findControl(context, 'confirm-designation-button', 120_000);
+    await findControl(context, 'dust-designation-review-account-tag', 15_000);
+  } catch { throw new LaceWalletUiError('LACE_WALLET_DUST_REVIEW_NOT_OBSERVED'); }
+  evidence.dustDesignationReviewUiObserved = true;
+  evidence.stage = 'approve-own-dust-registration'; await save();
+}
+
 export async function setupFreshWallet({context, privateRoot, evidence, save}) {
   const secrets = { walletPassword: password(), appPassword: password() };
   await writeFile(path.join(privateRoot, 'temporary-passwords.json'), JSON.stringify(secrets), { flag: 'wx', mode: 0o600 });
@@ -310,7 +345,7 @@ export async function resumeFundedWallet({context, privateRoot, evidence, save})
     await openOwnDustForm(context, 40 * 60_000);
     evidence.fundedDesignationFormUiObserved = true;
     evidence.stage = 'register-night-for-dust-through-lace-ui'; await save();
-    await clickControl(context, 'designate-button');
+    await openDustReviewOnce(context, evidence, save);
     await approveWallet({ kind: 'dust-registration', timeoutMs: 900_000, until: async () => {
       return positiveDustCapUi(context);
     }});
@@ -346,7 +381,7 @@ export async function safeUiIdentifiers(context) {
     result.push(await page.evaluate(() => [...new Set([...document.querySelectorAll('[data-testid]')]
       .filter(el => el.getClientRects().length > 0)
       .map(el => el.getAttribute('data-testid'))
-      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,100)));
+      .filter(id => /^(?:onboarding|next|password|new-password|confirm-password|settings|portfolio|network|radio-button|proof-server|restore|option-list|main-menu|side-sheet|account-card|designate|dust-|authentication|receive-|dropdown-|Unshielded$|Shielded$)/.test(id) && /^[a-zA-Z0-9_-]{1,100}$/.test(id)))].slice(0,160)));
   }
   return result;
 }
