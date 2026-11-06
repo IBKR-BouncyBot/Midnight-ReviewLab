@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "reviewlab-network-record",
+  "mode": "network",
+  "networkId": "preview",
+  "contractAddress": "b960ebc46ccf3fea10283563cc695c46f50dedfd715f8265938b49f3592e0add",
+  "marketplaceId": "2e75d7405820126f7f6ab4bb2baccf5bf888981f56bf414bdf01e6414844766a",
+  "issuerIdentity": "ea3dfd8f2b8bbe49fa7f1395eaa749307db09cb0ccb3daef5a0937f3d0504512",
+  "confirmationSource": "configured-indexer",
+  "ledgerInclusionIndependentlyVerified": false,
+  "expertsEnrolled": 1,
+  "tasks": [
+    {
+      "id": "d4ad7f9eed3a3e2afff927536c6cb17cd00b1b1aca00f65050e620e29121f4ea",
+      "profession": "software",
+      "deadline": 1794165615,
+      "capacity": 3,
+      "reward": 100,
+      "contentDigest": "cf155a03582ce1de06fff5d96df56a4554fcd6c46ac40cc822a3cb3924e9b091",
+      "accepted": 1,
+      "closed": true
+    }
+  ],
+  "reviews": [
+    {
+      "version": 1,
+      "mode": "network",
+      "networkId": "preview",
+      "contractAddress": "b960ebc46ccf3fea10283563cc695c46f50dedfd715f8265938b49f3592e0add",
+      "marketplaceId": "2e75d7405820126f7f6ab4bb2baccf5bf888981f56bf414bdf01e6414844766a",
+      "taskId": "d4ad7f9eed3a3e2afff927536c6cb17cd00b1b1aca00f65050e620e29121f4ea",
+      "taskContentDigest": "cf155a03582ce1de06fff5d96df56a4554fcd6c46ac40cc822a3cb3924e9b091",
+      "receiptId": "28e87b2c39d6ee52af1dab2c54a5e6e7be8369f69ed5ee45917f44903c0956d6",
+      "nullifier": "358c6dc7b114145fb7eb29790de454e5b7d258a6f0e2663d2a8df570910cc0f0",
+      "feedbackCommitment": "65de36c78af176d0aad27dd47bdfee8885c6c908185b7de2a15cb432598980f3",
+      "scores": [
+        2,
+        2,
+        4
+      ],
+      "status": "claimed"
+    }
+  ],
+  "claims": 1
+}

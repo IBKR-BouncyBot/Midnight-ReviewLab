@@ -1,0 +1,8 @@
+{
+  "source": "Official wallet-sdk-prover-client default public parameter host",
+  "baseUrl": "https://midnight-s3-fileshare-dev-eu-west-1.s3.eu-west-1.amazonaws.com/",
+  "parameters": [
+    { "name": "bls_midnight_2p13", "bytes": 1573252, "sha256": "d3324910969c4cc54143b8045b649e5c3a4bd5fb7b8f85fe1b770f640ce1c803" },
+    { "name": "bls_midnight_2p15", "bytes": 6291844, "sha256": "724c7c3d779148bb113c7ee9c034b2f27db16e6bdf315fde90105a9bad00b1de" }
+  ]
+}

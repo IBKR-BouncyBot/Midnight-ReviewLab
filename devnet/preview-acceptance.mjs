@@ -38,8 +38,9 @@ function safeErrorFacts(error){
 }
 
 /** Starts only the dedicated Preview wallet; no faucet or transaction action. */
-export async function startPreviewWallet({onState=()=>{}}={}){
-  requirePreviewEndpoints(PREVIEW_ENVIRONMENT);
+export async function startPreviewWallet({onState=()=>{},localWasmProvingService}={}){
+  const environment=localWasmProvingService?{...PREVIEW_ENVIRONMENT,proofServer:undefined}:PREVIEW_ENVIRONMENT;
+  requirePreviewEndpoints(environment,{localWasm:Boolean(localWasmProvingService)});
   const [testkit,walletSdk,{default:pino},ledger,network,Rx,{default:WebSocket}]=await Promise.all([import('@midnight-ntwrk/testkit-js'),import('@midnight-ntwrk/wallet-sdk'),import('pino'),import('@midnight-ntwrk/midnight-js-protocol/ledger'),import('@midnight-ntwrk/midnight-js-network-id'),import('rxjs'),import('ws')]);
   testkit.logger.level='silent';
   const silent=pino({level:'silent'});
@@ -50,8 +51,9 @@ export async function startPreviewWallet({onState=()=>{}}={}){
   const address=keystore.getBech32Address().asString();
   if(!address.startsWith('mn_addr_preview1'))throw new Error('Dedicated wallet has the wrong network');
   const checkpoint=await loadPreviewCheckpoint(address);
-  const built=checkpoint?await restorePreviewWallet({sdk:walletSdk,ledger,environment:PREVIEW_ENVIRONMENT,seeds,keystore,checkpoint}):await testkit.FluentWalletBuilder.forEnvironment(PREVIEW_ENVIRONMENT).withSeed(seed).withDustOptions({...testkit.DEFAULT_DUST_OPTIONS,additionalFeeOverhead:1000n}).buildWithoutStarting();
-  const walletProvider=await testkit.MidnightWalletProvider.withWallet(silent,PREVIEW_ENVIRONMENT,built.wallet,ledger.ZswapSecretKeys.fromSeed(built.seeds.shielded),ledger.DustSecretKey.fromSeed(built.seeds.dust),built.keystore);
+  if(localWasmProvingService&&!checkpoint)throw new Error('WASM acceptance requires the dedicated funded wallet checkpoint');
+  const built=checkpoint?await restorePreviewWallet({sdk:walletSdk,ledger,environment,seeds,keystore,checkpoint,localWasmProvingService}):await testkit.FluentWalletBuilder.forEnvironment(environment).withSeed(seed).withDustOptions({...testkit.DEFAULT_DUST_OPTIONS,additionalFeeOverhead:1000n}).buildWithoutStarting();
+  const walletProvider=await testkit.MidnightWalletProvider.withWallet(silent,environment,built.wallet,ledger.ZswapSecretKeys.fromSeed(built.seeds.shielded),ledger.DustSecretKey.fromSeed(built.seeds.dust),built.keystore);
   await walletProvider.start(false);
   let latest=null,streamFailed=false;
   const subscription=built.wallet.state().subscribe({next:state=>{latest=state;onState({synced:state.isSynced===true,nightStar:String(state.unshielded.balances[ledger.unshieldedToken().raw]??0n),dustSpeck:String(state.dust.balance(new Date())),progress:previewSyncProgress(state)});},error:()=>{streamFailed=true;}});

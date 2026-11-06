@@ -1,0 +1,318 @@
+{
+  "schema": "reviewlab-browser-worker-proofs/v1",
+  "startedAt": "2026-11-06T19:18:31.571Z",
+  "status": "passed",
+  "networkSubmission": false,
+  "networkAcceptance": false,
+  "walletConnected": false,
+  "realLaceWalletTested": false,
+  "walletDustProofsTested": false,
+  "proofServerUsed": false,
+  "independentProofVerification": false,
+  "privateInputsSynthetic": true,
+  "privateInputsGeneratedInsideWorker": true,
+  "proofs": [
+    {
+      "circuit": "enroll",
+      "rawProofBytes": 4501,
+      "sha256": "cad46be6ca57b00d05ecbc7c6b0fea7cad9d8fe265c0481cebed3e5a3c0f8471",
+      "elapsedMs": 11570,
+      "zkirMemoryBytes": 108724224
+    },
+    {
+      "circuit": "createTask",
+      "rawProofBytes": 4501,
+      "sha256": "55edbf96f463cb13c931b7cb244bd8357297fb0d5f43f08a28b35c615f109ba2",
+      "elapsedMs": 11234,
+      "zkirMemoryBytes": 179830784
+    },
+    {
+      "circuit": "submitReview",
+      "rawProofBytes": 4501,
+      "sha256": "2118b62da4c088abd96b27798f07dfb2f95d0b22f4b15cd44b0facfbcc543b01",
+      "elapsedMs": 39774,
+      "zkirMemoryBytes": 573767680
+    },
+    {
+      "circuit": "approveReview",
+      "rawProofBytes": 4501,
+      "sha256": "38766dd85d4e501a20d8e34ab552923bec7ccd5d7ac17592bb040b88654d7439",
+      "elapsedMs": 10473,
+      "zkirMemoryBytes": 573767680
+    },
+    {
+      "circuit": "claimReward",
+      "rawProofBytes": 4501,
+      "sha256": "744b8165688e1bb06d5f61570f693388c54fff31ed6dc37c69a7c5d9f30e37a6",
+      "elapsedMs": 10797,
+      "zkirMemoryBytes": 606142464
+    },
+    {
+      "circuit": "closeTask",
+      "rawProofBytes": 4501,
+      "sha256": "c8945c99d79ec2a15bbca5068b94609dd5b0c4a6f3d63525f9fba1a7bf8db995",
+      "elapsedMs": 11320,
+      "zkirMemoryBytes": 651558912
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/params/bls_midnight_2p13",
+      "bytes": 1573252,
+      "sha256": "d3324910969c4cc54143b8045b649e5c3a4bd5fb7b8f85fe1b770f640ce1c803"
+    },
+    {
+      "path": "assets/params/bls_midnight_2p15",
+      "bytes": 6291844,
+      "sha256": "724c7c3d779148bb113c7ee9c034b2f27db16e6bdf315fde90105a9bad00b1de"
+    },
+    {
+      "path": "assets/contract/keys/enroll.prover",
+      "bytes": 2824122,
+      "sha256": "f408c7f37a747f1cb5216c911d00bae443aad83bd29e4d7867ca90eaf8652995"
+    },
+    {
+      "path": "assets/contract/keys/enroll.verifier",
+      "bytes": 2119,
+      "sha256": "faea2e3068c6bc9fafd84f97197082e9bc8e68d345fd7e94c9d9b0f094f6f486"
+    },
+    {
+      "path": "assets/contract/zkir/enroll.bzkir",
+      "bytes": 455,
+      "sha256": "1dd939e6cc713cdf9f8b3246b520cd91b75f90af10134cd9ffd024af570b7971"
+    },
+    {
+      "path": "assets/contract/keys/createTask.prover",
+      "bytes": 2821435,
+      "sha256": "103d967ab671f392df2c4372dc03d2783010ea19ab50cf5c222609499ad87dd6"
+    },
+    {
+      "path": "assets/contract/keys/createTask.verifier",
+      "bytes": 2119,
+      "sha256": "6886a2682c66109038a8fc262ca38231e94f199b4bcac7fa183be5845925a2d2"
+    },
+    {
+      "path": "assets/contract/zkir/createTask.bzkir",
+      "bytes": 420,
+      "sha256": "814eebb9aabcdab563ad2aa7cabb617a76f28cc5fc58eeb82789ed178a2e7c6e"
+    },
+    {
+      "path": "assets/contract/keys/submitReview.prover",
+      "bytes": 9995834,
+      "sha256": "8c42071266e17227bf181be4956580f547db7aea6d673d9514df8de0b05ade39"
+    },
+    {
+      "path": "assets/contract/keys/submitReview.verifier",
+      "bytes": 2119,
+      "sha256": "6143add7550130dd454118cff048e1dbded06aa31aa1b6bb34fecf3aa899dbf7"
+    },
+    {
+      "path": "assets/contract/zkir/submitReview.bzkir",
+      "bytes": 1671,
+      "sha256": "fb8d074e41731723bd1dc97872f5f1e0f874dd6ff1942bf043fa98e483d5ed9c"
+    },
+    {
+      "path": "assets/contract/keys/approveReview.prover",
+      "bytes": 2820598,
+      "sha256": "8de57d76b9ec7094c77454956af479b418109e94c940ca400bca2fb294a4ff75"
+    },
+    {
+      "path": "assets/contract/keys/approveReview.verifier",
+      "bytes": 2119,
+      "sha256": "d4a0cb1fa883f873cd1e2bc28cb3937fd9524c013a9a9baaff46d5e8bd2af067"
+    },
+    {
+      "path": "assets/contract/zkir/approveReview.bzkir",
+      "bytes": 479,
+      "sha256": "076e64c46be18e8e7071b427c4f3c1446595425cc4c35e2822b0e65e5af3e35e"
+    },
+    {
+      "path": "assets/contract/keys/claimReward.prover",
+      "bytes": 2823885,
+      "sha256": "fd6825d3c05afdc8dce920519f5af6ac5e9dc9c5e7c322fc7e3ae0f3c354ad15"
+    },
+    {
+      "path": "assets/contract/keys/claimReward.verifier",
+      "bytes": 2119,
+      "sha256": "ea2f999b78711e6106c675d9ddd177b06b73d174fe9b4f3f7b0a77a723547828"
+    },
+    {
+      "path": "assets/contract/zkir/claimReward.bzkir",
+      "bytes": 501,
+      "sha256": "b25c43673d40077165c3f3a7630f1dd571e86d370da039d026973ebc9d0c591f"
+    },
+    {
+      "path": "assets/contract/keys/closeTask.prover",
+      "bytes": 2820583,
+      "sha256": "c1abeb7b06afb59bb851abbe85230564f6e11d2455831d56bf92bc9f0ce77b43"
+    },
+    {
+      "path": "assets/contract/keys/closeTask.verifier",
+      "bytes": 2119,
+      "sha256": "5c262f7ebff144a3516ee2030ae36eab5834c6ff3691f8e836cec99b4fb67465"
+    },
+    {
+      "path": "assets/contract/zkir/closeTask.bzkir",
+      "bytes": 370,
+      "sha256": "c3357d4fca72c3a6bec2649acb2dddf6ff1428b32f4d9bf474b31847b0c58e1b"
+    },
+    {
+      "path": "wasm/midnight_zkir_wasm_bg-6b4c38c097a215568fedf87183a495652b142b84b1caa6681b414b4c11da642b.wasm",
+      "bytes": 1968826,
+      "sha256": "6b4c38c097a215568fedf87183a495652b142b84b1caa6681b414b4c11da642b"
+    },
+    {
+      "path": "wasm/midnight_onchain_runtime_wasm_bg-edeea319fe8b1dca486a3aeaa051e64d4b7fb96d83b5d2bb15e68fc1ce23369e.wasm",
+      "bytes": 1398935,
+      "sha256": "edeea319fe8b1dca486a3aeaa051e64d4b7fb96d83b5d2bb15e68fc1ce23369e"
+    },
+    {
+      "path": "proof-worker.mjs",
+      "bytes": 349055,
+      "sha256": "36cdf4775c07233f9175c4ca980ef9ae1b9d11c222fb9c64b82f1276af22aa8b"
+    },
+    {
+      "path": "page.mjs",
+      "bytes": 1783,
+      "sha256": "5a5139e8a65555ee429adc720c6134bc366aec599056be1092fc3b28009533ec"
+    },
+    {
+      "path": "index.html",
+      "bytes": 656,
+      "sha256": "0b322cf7009aa76bdbad2501369b28490fe174c9896dcc24486f983fcf9574d5"
+    }
+  ],
+  "sourceHashes": {
+    "scripts/test-worker-proofs.mjs": "0187e16e9ecc7fd7f128deda03d40d45f366af5dc6d0ab23963dab61fca9c13a",
+    "scripts/native-wasm-plugin.mjs": "458c0023f177923c94e969416854f749acce64d314e04a19f3de2b92287fe630",
+    "scripts/serve.mjs": "00111c18386e6e2da71def7976d5bb0153f737fb3ed87e3778f701f558084273",
+    "devnet/worker-proofs/worker.mjs": "a0c9611c6c47675691726d4659fb00c8d0e580b4086cfa3d5ffdf721576d098d",
+    "devnet/worker-proofs/page.mjs": "5a5139e8a65555ee429adc720c6134bc366aec599056be1092fc3b28009533ec",
+    "devnet/worker-proofs/index.html": "0b322cf7009aa76bdbad2501369b28490fe174c9896dcc24486f983fcf9574d5",
+    "devnet/worker-proofs/public-assets.json": "5eeb82e606a7e7bfa2a37062e12232bae0281cf14533a1e3a7e98933cbe1ec92",
+    "lib/native-engine.mjs": "725de5404c074890ffb5386c0396cbe8e33e839682205f7e116a76ca967d1daa",
+    "contracts/reviewlab.compact": "b027c55cbe0266879acc753d96674b457799fbf810171568dcfae4195e14cad1",
+    "contracts/managed/reviewlab/contract/index.js": "db34e6d150d1c8350d9c3d9818536fd6e6ea922bb9ed69ef53a3dd7e556fd1c8",
+    "package-lock.json": "241508a4d6a35441122dd48c06ad9637bdd2e1439ec7193ddf563b0dab638dd6",
+    "devnet/package-lock.json": "483d80b9ba15333c58fbc38c405546d00c94ddca059d7f51ba275748221e37ff"
+  },
+  "versions": {
+    "zkir": "2.1.1",
+    "compactRuntime": "0.16.0",
+    "compilerTarget": "0.31.1"
+  },
+  "events": [
+    {
+      "type": "progress",
+      "circuit": "enroll",
+      "heartbeat": 5,
+      "receivedAtMs": 274
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "enroll",
+      "heartbeat": 583,
+      "receivedAtMs": 11845
+    },
+    {
+      "type": "progress",
+      "circuit": "createTask",
+      "heartbeat": 583,
+      "receivedAtMs": 11845
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "createTask",
+      "heartbeat": 1145,
+      "receivedAtMs": 23079
+    },
+    {
+      "type": "progress",
+      "circuit": "submitReview",
+      "heartbeat": 1145,
+      "receivedAtMs": 23079
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "submitReview",
+      "heartbeat": 3134,
+      "receivedAtMs": 62853
+    },
+    {
+      "type": "progress",
+      "circuit": "approveReview",
+      "heartbeat": 3134,
+      "receivedAtMs": 62853
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "approveReview",
+      "heartbeat": 3658,
+      "receivedAtMs": 73326
+    },
+    {
+      "type": "progress",
+      "circuit": "claimReward",
+      "heartbeat": 3658,
+      "receivedAtMs": 73326
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "claimReward",
+      "heartbeat": 4198,
+      "receivedAtMs": 84123
+    },
+    {
+      "type": "progress",
+      "circuit": "closeTask",
+      "heartbeat": 4198,
+      "receivedAtMs": 84123
+    },
+    {
+      "type": "proof-completed",
+      "circuit": "closeTask",
+      "heartbeat": 4763,
+      "receivedAtMs": 95443
+    }
+  ],
+  "rejectedBrowserRequests": 0,
+  "pageErrors": 0,
+  "negativeChecks": {
+    "duplicateReviewRejectedBeforeProving": true,
+    "wrongCircuitPreimageRejectedByZkirCheck": true
+  },
+  "mainThreadHeartbeats": 4764,
+  "largestHeartbeatGapMs": 33,
+  "sharedWasmMemory": false,
+  "crossOriginIsolated": false,
+  "browserVersion": "156.0.8078.4",
+  "fetchedAssetPaths": [
+    "",
+    "assets/contract/keys/approveReview.prover",
+    "assets/contract/keys/approveReview.verifier",
+    "assets/contract/keys/claimReward.prover",
+    "assets/contract/keys/claimReward.verifier",
+    "assets/contract/keys/closeTask.prover",
+    "assets/contract/keys/closeTask.verifier",
+    "assets/contract/keys/createTask.prover",
+    "assets/contract/keys/createTask.verifier",
+    "assets/contract/keys/enroll.prover",
+    "assets/contract/keys/enroll.verifier",
+    "assets/contract/keys/submitReview.prover",
+    "assets/contract/keys/submitReview.verifier",
+    "assets/contract/zkir/approveReview.bzkir",
+    "assets/contract/zkir/claimReward.bzkir",
+    "assets/contract/zkir/closeTask.bzkir",
+    "assets/contract/zkir/createTask.bzkir",
+    "assets/contract/zkir/enroll.bzkir",
+    "assets/contract/zkir/submitReview.bzkir",
+    "assets/params/bls_midnight_2p13",
+    "assets/params/bls_midnight_2p15",
+    "page.mjs",
+    "proof-worker.mjs",
+    "wasm/midnight_onchain_runtime_wasm_bg-edeea319fe8b1dca486a3aeaa051e64d4b7fb96d83b5d2bb15e68fc1ce23369e.wasm",
+    "wasm/midnight_zkir_wasm_bg-6b4c38c097a215568fedf87183a495652b142b84b1caa6681b414b4c11da642b.wasm"
+  ],
+  "responsivenessRequirement": "At least five main-thread heartbeats during each proof; no heartbeat gap of 2 seconds or longer",
+  "completedAt": "2026-11-06T19:20:07.823Z"
+}

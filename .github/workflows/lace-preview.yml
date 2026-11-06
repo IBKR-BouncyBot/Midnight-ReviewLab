@@ -1,0 +1,50 @@
+name: Probe released Lace in an isolated runner
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reviewlab-lace-preview
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: github.repository == 'IBKR-BouncyBot/Midnight-ReviewLab' && github.ref == 'refs/heads/main'
+    name: Verify official Lace 2.5.1 and production UI boot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install committed browser dependencies
+        run: npm ci --ignore-scripts
+      - name: Install isolated Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify the Store package and observe real initial UI
+        # No wallet is created in this first checkpoint. No seed, password,
+        # browser profile, screenshot, trace or network payload is retained.
+        run: xvfb-run --auto-servernum node devnet/lace-ci-preview.mjs probe
+      - name: Remove the private ephemeral browser profile
+        if: always()
+        run: node devnet/lace-ci-preview.mjs cleanup
+      - name: Retain only sanitized probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewlab-lace-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/lace-ci/probe-evidence.json
+          if-no-files-found: warn
+          retention-days: 14

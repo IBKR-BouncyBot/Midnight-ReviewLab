@@ -2,6 +2,32 @@
 
 ReviewLab reports four different milestones separately: generated-contract execution, real circuit proof generation, blockchain acceptance and website deployment. Passing one does not imply the others.
 
+## Expanded automated checks — 6 November 2026
+
+**A fresh complete public Preview lifecycle passed at 19:26:13 UTC with local WASM for both contract and wallet/DUST proving.** The [SDK WASM evidence](preview-wasm-evidence.json) records seven `SucceedEntirely` transactions: deployment, enrollment, task creation, review, approval, entitlement claim and closure. The official wallet SDK prover worker generated six contract proofs and seven DUST-spend proofs. No HTTP proving service was configured; only public parameter/key downloads used the official public asset host. This run used the dedicated encrypted SDK test wallet, not Lace.
+
+| Action | Preview block |
+| --- | --- |
+| Deploy | 1,628,365 |
+| Enroll expert | 1,628,372 |
+| Create task | 1,628,380 |
+| Submit review | 1,628,396 |
+| Approve review | 1,628,403 |
+| Claim entitlement | 1,628,411 |
+| Close task | 1,628,419 |
+
+Every accepted transaction contains a 2,940-byte serialized DUST proof; each of the six contract calls contains a 4,508-byte serialized contract proof. The [final public record](preview-wasm-record.json) contains one expert, one closed task, one review and one claimed entitlement. Six pre-submission rejection checks passed: injected prover failure, a fresh submission while the previous outcome was pending, duplicate review, wrong task owner, duplicate claim and wrong marketplace identity. The review test deliberately lost the response after one real submission, then recovered the exact indexed receipt without submitting again or fabricating a transaction reference. Acceptance is reported by the public Preview indexer, not independent consensus or cryptographic verification. No reward payment or sponsor service was involved.
+
+The current suite passes **38 tests**: 27 generated-contract tests and 11 network-boundary tests. The additional contract cases exercise the full 1,024-entry Merkle registry, exact deadline/expiry boundaries, corrupted membership paths, cross-market replay, cross-task ownership, rollback after late failures and immutable receipt fields. Both browser suites also passed eight cases each with zero page errors.
+
+The [browser-worker evidence](browser-worker-proof-evidence.json) records six genuine proofs produced by official ZKIR 2.1.1 inside a Chromium Web Worker. Each raw proof is 4,501 bytes. The largest circuit took about 40 seconds; the six-proof run took about 96 seconds. A main-thread heartbeat continued throughout (largest observed gap 33 ms). Duplicate review execution and deliberately wrong proving material were rejected. This harness uses synthetic private inputs generated inside the worker and only local static assets during browser execution; the preparatory download retrieves two hash-pinned public parameter files. It neither connects a wallet nor submits transactions.
+
+The worker test uses single-thread WASM without SharedArrayBuffer or cross-origin isolation. Peak recorded WASM memory was about 621 MiB. These are measurements on the test machine, not a mobile-device performance guarantee or a measurement of Lace's complete memory usage.
+
+The [encrypted-storage evidence](private-storage-evidence.json) records nine checks against the official encryption provider and real filesystem LevelDB. State and signing keys survived reopen and password rotation; incorrect-password reads and failed rotation preserved the ciphertext; account, network-qualified account and contract namespaces were isolated; synthetic plaintext markers were absent from the database records/files. This does not establish browser IndexedDB crash recovery.
+
+**Storage limitation:** the upstream provider's direct `set()` call encrypts with the supplied password but does not first authenticate that password against an existing entry. The disposable negative test confirmed that it can overwrite that entry under another valid password. The report does not label direct writes as authenticated. ReviewLab reads existing state when joining; encryption alone must not be used as write authorization. Pending review recovery and feedback openings remain session-local unless explicitly saved; reload recovery is not established by these tests.
+
 ## Lace internal WASM status
 
 **A user-operated Edge / Lace 2.5.1 test produced an accepted public Preview task-creation transaction on 6 November 2026.** The user followed the published application's Lace connection and task-creation steps and supplied the transaction identifier. The [session record](lace-preview-session.json) records the user-reported environment separately from the [read-only transaction verification](lace-preview-transaction.json), completed at 18:28:58 UTC.

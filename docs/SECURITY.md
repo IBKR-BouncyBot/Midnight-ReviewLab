@@ -20,6 +20,8 @@ The testnet client's SDK uses encrypted browser storage for maintenance/signing 
 
 ## Honest evidence
 
+The storage regression tests confirm encryption and wrong-password read/rotation rejection for the official filesystem LevelDB provider. Its direct write API does not authenticate a password before replacing an existing value: a different valid password can encrypt a replacement. Applications must read/validate existing state before writes; encryption is not write authorization. Browser IndexedDB crash recovery and automatic restoration of pending review openings are not established by these filesystem tests. See the [recorded storage boundary](private-storage-evidence.json).
+
 Executing generated Compact code locally is not the same as generating a zero-knowledge proof. Generating proof keys is not proof generation either. A proof is not a network confirmation, and deploying the website is not deploying the contract.
 
 A downloaded record that agrees with itself can still be fabricated. Receipts bind the task content digest and the scored feedback commitment; these checks detect mismatched supplied content but do not establish the source's authenticity. Mutable approval status is not part of the immutable receipt digest. Independent chain authenticity requires verifying the network, contract, state and transaction evidence. Browser clocks are not authoritative network time. Demonstration state must not be represented as current public-chain state.

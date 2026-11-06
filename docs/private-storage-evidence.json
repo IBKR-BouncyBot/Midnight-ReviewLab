@@ -1,0 +1,57 @@
+{
+  "schema": "reviewlab-private-storage-regression/v1",
+  "startedAt": "2026-11-06T19:23:23.413Z",
+  "status": "passed-with-documented-write-boundary",
+  "backend": "official-Level-provider-with-filesystem-LevelDB",
+  "syntheticInputsOnly": true,
+  "walletAccess": false,
+  "networkRequests": 0,
+  "tests": [
+    {
+      "name": "write-and-read-private-state-and-signing-key",
+      "status": "passed"
+    },
+    {
+      "name": "reopen-after-invalidating-key-cache",
+      "status": "passed"
+    },
+    {
+      "name": "wrong-password-warm-and-cold-reads-do-not-change-records",
+      "status": "passed"
+    },
+    {
+      "name": "account-isolation-and-network-qualified-account-isolation",
+      "status": "passed"
+    },
+    {
+      "name": "contract-context-isolation",
+      "status": "passed"
+    },
+    {
+      "name": "wrong-password-rotation-is-atomic",
+      "status": "passed"
+    },
+    {
+      "name": "successful-password-rotation-reopens-state-and-signing-keys",
+      "status": "passed"
+    },
+    {
+      "name": "raw-level-records-and-files-contain-no-synthetic-secret-plaintext",
+      "status": "passed"
+    },
+    {
+      "name": "direct-writes-are-not-password-authentication",
+      "status": "passed"
+    }
+  ],
+  "limitations": [
+    "The SDK set() API encrypts with the supplied password but does not authenticate it against existing records before overwriting. Applications must verify existing state before writes; wrong-password read/rotation protection is not write authorization."
+  ],
+  "encryptedRecordCount": 4,
+  "databaseFileCount": 16,
+  "plaintextMarkersFound": 0,
+  "directWrongPasswordWriteRejected": false,
+  "sourceSha256": "c26f8646899b24144e2acfe8de50f0b8d58e6dc0583abbf7b1ed589f085a4170",
+  "completedAt": "2026-11-06T19:23:26.659Z",
+  "scope": "Filesystem LevelDB backend using the same official encryption provider; browser IndexedDB restart and crash recovery are not established."
+}

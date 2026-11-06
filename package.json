@@ -18,7 +18,10 @@
     "test:network-browser": "node scripts/test-network-browser.mjs",
     "test:devnet": "node devnet/run-marketplace.mjs --isolated-local-devnet",
     "test:devnet:browser": "node devnet/browser-acceptance.mjs --isolated-local-devnet",
-    "test:proofs": "node scripts/prove.mjs"
+    "test:proofs": "node scripts/prove.mjs",
+    "test:worker-proofs": "node scripts/test-worker-proofs.mjs",
+    "test:private-storage": "node devnet/test-private-storage.mjs",
+    "test:preview:wasm": "node devnet/preview-wasm-acceptance.mjs --public-preview"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",

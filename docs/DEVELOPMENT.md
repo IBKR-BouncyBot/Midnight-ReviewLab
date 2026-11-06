@@ -35,6 +35,18 @@ The generated-runtime tests should exercise valid reviews and rejection cases: w
 
 ## Working with private material
 
+Additional tests use the separately pinned SDK dependency graph:
+
+```sh
+npm ci --prefix devnet --ignore-scripts
+npm run test:worker-proofs
+npm run test:private-storage
+```
+
+The worker test needs full generated proof keys and Chromium. It downloads only two hash-pinned public parameter files, then runs six real contract proofs locally in a Web Worker. `npm run test:worker-proofs -- --offline` requires those files to be cached. Its bundle is isolated under ignored `artifacts/worker-proofs`; it does not change the public app's Lace proving integration. The storage test uses disposable synthetic data and the official filesystem LevelDB encryption provider, not a wallet or browser IndexedDB.
+
+`npm run test:preview:wasm` is a separate, state-changing public Preview SDK test. It requires the existing dedicated Windows DPAPI wallet/checkpoint and usable test DUST; it never accepts an external seed. It creates a fresh marketplace, uses the official WASM worker for contract and wallet/DUST proofs, and keeps encrypted transaction records before submission. Each run has a distinct report and private test plan. It is not a Lace extension test. Never blindly retry an uncertain submission; reconcile its saved public identifier first.
+
 Use synthetic demonstration credentials and test funds. Keep wallet seeds, private inputs and unencrypted keys out of source control, browser storage, CI artifacts and screenshots. The SDK's existing signing-key store is encrypted; role keys, credentials and feedback openings remain session-private unless explicitly downloaded. Do not copy private downloads into bug reports.
 
 ## Network integration

@@ -1,0 +1,299 @@
+{
+  "schema": "reviewlab-preview-wasm/v1",
+  "runId": "wasm-1793992812961-e11a251d",
+  "startedAt": "2026-11-06T19:20:12.961Z",
+  "status": "passed",
+  "networkId": "preview",
+  "wallet": "dedicated-DPAPI-SDK-test-wallet",
+  "realLaceWalletTested": false,
+  "proving": "official-wallet-sdk-WASM-worker-contract-and-DUST",
+  "httpProvingServiceConfigured": false,
+  "confirmationSource": "public-Preview-indexer",
+  "independentChainInclusionVerified": false,
+  "acceptedTransactions": [
+    {
+      "operation": "deploy",
+      "txId": "00b160b164ea32d9ed4c79a5248293f03aa3d129d695d2b422d5cb0678ea1a9e70",
+      "blockHeight": "1628365",
+      "status": "SucceedEntirely",
+      "contractCalls": [],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "enroll-expert",
+      "txId": "00af2789f9bef4e4083893cc5071676952c31e9d0043fe6f4d3e55e2123410f124",
+      "blockHeight": "1628372",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "enroll",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "create-task",
+      "txId": "00376227dce5e434e90cdf4f0e0d814af34f7c4d00de801f86cb760795be008723",
+      "blockHeight": "1628380",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "createTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "submit-review",
+      "txId": "0049723b8e71d6525634b093ccbc1dc8c6a649f4b3e004fe7d7a7cc9a0cdf0f524",
+      "blockHeight": "1628396",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "submitReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "approve-review",
+      "txId": "008b67cb149af809f76ec750152f1cf84ef58e8f5ef6c7db622de792919474ea2d",
+      "blockHeight": "1628403",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "approveReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "claim-entitlement",
+      "txId": "0088c2a60d114eede4104b0f3a9d1ffad70d96d51c6184fb203b742fddc3c5494b",
+      "blockHeight": "1628411",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "claimReward",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    },
+    {
+      "operation": "close-task",
+      "txId": "00c62ec5fac5676d659f3f903a3787455e5fa5ab572aa4cceb2753fe75c367fc56",
+      "blockHeight": "1628419",
+      "status": "SucceedEntirely",
+      "contractCalls": [
+        {
+          "entryPoint": "closeTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ]
+    }
+  ],
+  "rejectedBeforeSubmission": [
+    "proof-failure-clears-pending",
+    "pending-review-blocks-new-submission",
+    "duplicate-review",
+    "wrong-task-owner",
+    "duplicate-claim",
+    "wrong-marketplace-identity"
+  ],
+  "provingMetrics": {
+    "publicAssetDownloads": [
+      {
+        "path": "dust/9/spend.bzkir",
+        "method": "GET",
+        "bytes": 2555,
+        "sha256": "904181287e75b0fb596ba5fcc116c882ee5d28e3115304c93ebd913722ce5841"
+      },
+      {
+        "path": "dust/9/spend.verifier",
+        "method": "GET",
+        "bytes": 1351,
+        "sha256": "3f1569ebcab0655c5c145b28947c74edc4e3f5c6b276e4404b661cf0905b49d3"
+      },
+      {
+        "path": "dust/9/spend.prover",
+        "method": "GET",
+        "bytes": 2175671,
+        "sha256": "996602da7ca386284e656c78ea03e55bffdba29475e6a67965c50de05e13efc2"
+      },
+      {
+        "path": "bls_midnight_2p13",
+        "method": "GET",
+        "bytes": 1573252,
+        "sha256": "d3324910969c4cc54143b8045b649e5c3a4bd5fb7b8f85fe1b770f640ce1c803"
+      },
+      {
+        "path": "bls_midnight_2p15",
+        "method": "GET",
+        "bytes": 6291844,
+        "sha256": "724c7c3d779148bb113c7ee9c034b2f27db16e6bdf315fde90105a9bad00b1de"
+      }
+    ],
+    "proofs": [
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 11846
+      },
+      {
+        "circuit": "enroll",
+        "bytes": 4501,
+        "durationMs": 13734
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 10549
+      },
+      {
+        "circuit": "createTask",
+        "bytes": 4501,
+        "durationMs": 13731
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 11891
+      },
+      {
+        "circuit": "submitReview",
+        "bytes": 4501,
+        "durationMs": 56075
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 11342
+      },
+      {
+        "circuit": "approveReview",
+        "bytes": 4501,
+        "durationMs": 13658
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 10337
+      },
+      {
+        "circuit": "claimReward",
+        "bytes": 4501,
+        "durationMs": 13909
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 10507
+      },
+      {
+        "circuit": "closeTask",
+        "bytes": 4501,
+        "durationMs": 13278
+      },
+      {
+        "circuit": "midnight/dust/spend",
+        "bytes": 2933,
+        "durationMs": 10552
+      }
+    ],
+    "checks": 6
+  },
+  "rewardPaymentExecuted": false,
+  "sponsorServiceUsed": false,
+  "sourceHashes": {
+    "lib/network/sdk-client.mjs": "f2c406b284257821e5ebb1c1d1ab9d90b099d3e681215cca95a64d5069ead2db",
+    "lib/network/config.mjs": "1a7bcaf49e121c8a920ee7370d22ad7c729c749b91f8bb412f12aa525995e9bc",
+    "lib/network/public-testnet.mjs": "1b52d93ed0a1cb21ff8c6f7cbee0ca781fe37d407e18efc40affbb154dc42c1b",
+    "lib/native-engine.mjs": "725de5404c074890ffb5386c0396cbe8e33e839682205f7e116a76ca967d1daa",
+    "contracts/managed/reviewlab/contract/index.js": "db34e6d150d1c8350d9c3d9818536fd6e6ea922bb9ed69ef53a3dd7e556fd1c8",
+    "contracts/reviewlab.compact": "b027c55cbe0266879acc753d96674b457799fbf810171568dcfae4195e14cad1",
+    "devnet/preview-wasm-acceptance.mjs": "35a82ff670dfd29ca6e3ff9e35f68618801f758cb1319543c15a394bd8668923",
+    "devnet/wasm-proving.mjs": "56ad38c46eda1cca0766c9472341073b5e7d00b4b5aac75dba060ab21c2531b5",
+    "devnet/preview-state.mjs": "8bf7d48549a46c6bc8362ec6413eee00253e98228a1a7c0605dba34e0745394f",
+    "devnet/preview-acceptance.mjs": "92e9a04fb3622b4b353c5030eac456f14cdc1d8a1deffde60fb2d0f2c03f19d6",
+    "devnet/package-lock.json": "483d80b9ba15333c58fbc38c405546d00c94ddca059d7f51ba275748221e37ff"
+  },
+  "walletState": {
+    "synced": true,
+    "nightStar": "5000000000",
+    "dustSpeck": "371270969999987987",
+    "progress": {
+      "shielded": {
+        "appliedIndex": "285045",
+        "highestRelevantWalletIndex": "285045",
+        "highestIndex": "0",
+        "highestRelevantIndex": "0",
+        "connected": true,
+        "complete": true
+      },
+      "unshielded": {
+        "appliedId": "80449",
+        "highestTransactionId": "80449",
+        "connected": true,
+        "complete": true
+      },
+      "dust": {
+        "appliedIndex": "285113",
+        "highestRelevantWalletIndex": "285113",
+        "highestIndex": "0",
+        "highestRelevantIndex": "0",
+        "connected": true,
+        "complete": true
+      }
+    }
+  },
+  "unshieldedAddress": "mn_addr_preview1p35fx287danunuhw7ezctf5n0hkr5cc4ctxv00nhsf7wmvyjxx8sqc3n0f",
+  "restoredCheckpointAt": "2026-11-06T17:46:55.043Z",
+  "contractAddress": "b960ebc46ccf3fea10283563cc695c46f50dedfd715f8265938b49f3592e0add",
+  "marketplaceId": "2e75d7405820126f7f6ab4bb2baccf5bf888981f56bf414bdf01e6414844766a",
+  "issuerIdentity": "ea3dfd8f2b8bbe49fa7f1395eaa749307db09cb0ccb3daef5a0937f3d0504512",
+  "uncertainSubmissionRecovery": {
+    "tested": true,
+    "receiptRecovered": true,
+    "resubmitted": false,
+    "transactionReferenceFabricated": false,
+    "pendingStatePersistedAutomatically": false
+  },
+  "finalState": {
+    "experts": 1,
+    "tasks": 1,
+    "reviews": 1,
+    "claims": 1,
+    "taskClosed": true
+  },
+  "receiptCheck": {
+    "receiptId": "28e87b2c39d6ee52af1dab2c54a5e6e7be8369f69ed5ee45917f44903c0956d6",
+    "receiptMatchesIndexedState": true,
+    "currentStatus": "claimed",
+    "networkId": "preview",
+    "contractAddress": "b960ebc46ccf3fea10283563cc695c46f50dedfd715f8265938b49f3592e0add",
+    "confirmationSource": "configured-indexer",
+    "ledgerInclusionIndependentlyVerified": false,
+    "transactionReferenceVerified": false
+  },
+  "completedAt": "2026-11-06T19:26:13.726Z"
+}

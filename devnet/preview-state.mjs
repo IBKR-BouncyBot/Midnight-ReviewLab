@@ -17,9 +17,10 @@ export function previewSyncProgress(state){
   return {shielded:summary(state.shielded.state.progress),unshielded:summary(state.unshielded.progress),dust:summary(state.dust.state.progress)};
 }
 
-export function requirePreviewEndpoints(environment){
+export function requirePreviewEndpoints(environment,{localWasm=false}={}){
   const expected={networkId:'preview',walletNetworkId:'preview',node:'https://rpc.preview.midnight.network',nodeWS:'wss://rpc.preview.midnight.network',indexer:'https://indexer.preview.midnight.network/api/v4/graphql',indexerWS:'wss://indexer.preview.midnight.network/api/v4/graphql/ws'};
   for(const [name,value] of Object.entries(expected))if(environment[name]!==value)throw new Error('Preview wallet endpoint scope does not match');
+  if(localWasm){if(environment.proofServer!==undefined)throw new Error('Local WASM must not configure an HTTP prover');return;}
   const prover=new URL(environment.proofServer);
   if(!['http:','https:'].includes(prover.protocol)||!['127.0.0.1','localhost','[::1]'].includes(prover.hostname)||prover.username||prover.password||prover.search||prover.hash)throw new Error('Preview test wallet requires a local prover');
 }
@@ -56,15 +57,15 @@ export function savePreviewCheckpoint(wallet,address){
   return operation;
 }
 
-export async function restorePreviewWallet({sdk,ledger,environment,seeds,keystore,checkpoint}){
-  requirePreviewEndpoints(environment);
+export async function restorePreviewWallet({sdk,ledger,environment,seeds,keystore,checkpoint,localWasmProvingService}){
+  requirePreviewEndpoints(environment,{localWasm:Boolean(localWasmProvingService)});
   if(checkpoint.address!==keystore.getBech32Address().asString())throw new Error('Checkpoint does not belong to this test wallet');
-  const configuration={indexerClientConnection:{indexerHttpUrl:environment.indexer,indexerWsUrl:environment.indexerWS},provingServerUrl:new URL(environment.proofServer),networkId:'preview',relayURL:new URL(environment.nodeWS),txHistoryStorage:new sdk.InMemoryTransactionHistoryStorage(sdk.WalletEntrySchema,sdk.mergeWalletEntries),costParameters:{feeBlocksMargin:5}};
+  const configuration={indexerClientConnection:{indexerHttpUrl:environment.indexer,indexerWsUrl:environment.indexerWS},...(localWasmProvingService?{}:{provingServerUrl:new URL(environment.proofServer)}),networkId:'preview',relayURL:new URL(environment.nodeWS),txHistoryStorage:new sdk.InMemoryTransactionHistoryStorage(sdk.WalletEntrySchema,sdk.mergeWalletEntries),costParameters:{feeBlocksMargin:5}};
   const shielded=sdk.ShieldedWallet(configuration).restore(checkpoint.shielded);
   const unshielded=sdk.UnshieldedWallet({...configuration,txHistoryStorage:new sdk.InMemoryTransactionHistoryStorage(sdk.WalletEntrySchema,sdk.mergeWalletEntries)}).restore(checkpoint.unshielded);
   // A positive supported fee overhead prevents the SDK's zero-fee path from
   // creating an empty DustActions intent (upstream midnight-wallet issue 700).
   const dust=sdk.DustWallet({...configuration,costParameters:{ledgerParams:ledger.LedgerParameters.initialParameters(),additionalFeeOverhead:1000n,feeBlocksMargin:5}}).restore(checkpoint.dust);
-  const wallet=await sdk.WalletFacade.init({configuration,shielded:()=>shielded,unshielded:()=>unshielded,dust:()=>dust});
+  const wallet=await sdk.WalletFacade.init({configuration,shielded:()=>shielded,unshielded:()=>unshielded,dust:()=>dust,...(localWasmProvingService?{provingService:()=>localWasmProvingService}:{})});
   return {wallet,seeds,keystore};
 }
