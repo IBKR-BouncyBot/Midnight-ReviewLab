@@ -1,0 +1,2305 @@
+{
+  "schema": "reviewlab-lace-ci-v1",
+  "status": "passed",
+  "workflowRunId": "42297109348",
+  "workflowRunAttempt": "1",
+  "sourceCommit": "5118cc2b2f0081c31007acf12c635ce3df5c12c4",
+  "startedAt": "2026-11-06T21:30:03.794Z",
+  "networkId": "preview",
+  "fundingMode": "sdk-dust-designation",
+  "requestedLaceVersion": "2.5.1",
+  "scope": "Real released Lace, fresh ephemeral wallet, actual Preview network and internal WASM UI setting",
+  "walletCreated": true,
+  "fundsRequested": true,
+  "internalWasmModeSelected": true,
+  "acceptedTransactions": [
+    {
+      "operation": "deploy",
+      "txId": "0098b6ff70fc0009e324ac2b51402b03dfbe6f6f5072953d641920968bff802e9e",
+      "transactionHash": "6f88b4ede2c063529535d5ee397f8a8833e690f33f58fa9a1ce17e719f6eebf7",
+      "blockHeight": "1629979",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "create-task",
+      "txId": "0030d453061674c543ac8880b57525f01a448767b5d3a8a3992457ce8534f6a0de",
+      "transactionHash": "7fc9a5e3a01ddd73056842c73443245d24a040c220becc34e9430fb8b665d029",
+      "blockHeight": "1629991",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "createTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "enroll-expert",
+      "txId": "00895f50113a8a316d42ebe2cc00b2c69f13f9a78f3f906d39127f5d5773bc42a8",
+      "transactionHash": "7c69f50d360c1fb88e91d4d1703b78330570a803cf1288b967932ee6140d08b8",
+      "blockHeight": "1630003",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "enroll",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "submit-review",
+      "txId": "003a93513bd948beb9869811dbcd20ca36430e2418992a7187b95a944c8724763f",
+      "transactionHash": "595a71a6c490a107f98df58eea13ca73af82bb7ad9b8cc048a3672f8820c479b",
+      "blockHeight": "1630025",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "submitReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "approve-review",
+      "txId": "004b3b5238aa661bb0e524983687555b31d617172e1a71e267d95dacfb1780102f",
+      "transactionHash": "94bc1623e9b9f7a2a0dc28958623dc5b47e2e31e03e74acd812bdb6a9ba2c1ed",
+      "blockHeight": "1630037",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "approveReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "claim-entitlement",
+      "txId": "000ecc087453dcc17a3b7d721ef458d5818c052cc2aea87ca66612a4b16ae0a18b",
+      "transactionHash": "b46c3fcc93826091a8ed32e01283bcc7fbfdecda7e4bb10db4990d1634219017",
+      "blockHeight": "1630049",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "claimReward",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "close-task",
+      "txId": "0057232c3c6edd083d7c74bc5789817f80c2a8086067368fa4748eb4ca05683310",
+      "transactionHash": "adda2180155e62f5da2ba6fe8dc0ae97b27a5d4778a9b8187843faf410630669",
+      "blockHeight": "1630061",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "closeTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    }
+  ],
+  "limitations": [
+    "UI settings and connector observations are not cryptographic mode attestation.",
+    "Outbound metadata covers requests surfaced by Playwright, including surfaced service-worker requests; it is not an operating-system packet capture.",
+    "Public indexer results are not independent chain or cryptographic proof verification."
+  ],
+  "phase": "acceptance",
+  "stage": "real-lace-preview-lifecycle-complete",
+  "package": {
+    "source": "Chrome Web Store official update service",
+    "extensionId": "gafhhkghbfjjkeiendhlofajokpaflmk",
+    "version": "2.5.1",
+    "crxSha256": "bff973f7c741ccdbf91c4a1125d4d6da8e9a0b2384b6b1f51c6898b24c87e055",
+    "crxBytes": 73665394,
+    "crxVersion": 3,
+    "signaturesVerified": 3,
+    "developerKeySha256": "60577a671599a484d37be509eaf05bca221cb9ebc4872d8f77008df0b8b79d86",
+    "chromeStorePublisherProofVerified": true,
+    "publisherKeySha256": "61f7f2a6bfcf74cd0bc1fe2497cc9b04254c658f79f2145392867ea8366367cf",
+    "manifestSha256": "5e67d8265b510e9b5b1c0546677d5f3f6316aaa440591dcc0af3d7f4a8858391",
+    "manifestVersion": 3,
+    "filesExtracted": 1085,
+    "expandedBytes": 178245221,
+    "pathsAndCrcValidated": true,
+    "extensionExecuted": false,
+    "walletAccess": false
+  },
+  "harnessSha256": "db0ba6aaf25996694534fb6827f59e6281b5e0b169e4e3d3b9330394a653341b",
+  "sourceHashes": {
+    "devnet/lace-ci-preview.mjs": "db0ba6aaf25996694534fb6827f59e6281b5e0b169e4e3d3b9330394a653341b",
+    "devnet/lace-ci-wallet.mjs": "c136ae2be845590942ddf1335a9af11ed57da8b40603cd2604eef50e6855c626",
+    "devnet/lace-ci-package.mjs": "708cbec947da8107c293b7a22212732e62960157b42a26f29bc7634d2e80eb39",
+    "devnet/lace-ci-approver.mjs": "2630552790f96c480ff2860cc6afc6ba721fe2d4a85064391f344864ffebf1e1",
+    "devnet/lace-ci-marketplace.mjs": "8c662955732ae0772329a67ca609e6fb24372998e654051ecdf6824b71737b54",
+    "devnet/lace-ci-receive.mjs": "e2cfe57aff010c83d7b8d9ad9920376acd1719148822fde9cf03dfcef69ea565",
+    ".github/workflows/lace-preview.yml": "a659e3a266cbf363c6acffdd2999c651c3f5bbeaa66b632499e5cc18c0672132"
+  },
+  "browserVersion": "156.0.8078.4",
+  "outboundProofRequestObserved": false,
+  "outboundDestinations": [
+    {
+      "hostname": "o622089.ingest.us.sentry.io",
+      "method": "POST",
+      "serviceWorker": false,
+      "count": 12
+    },
+    {
+      "hostname": "coingecko.live-mainnet.eks.lw.iog.io",
+      "method": "GET",
+      "serviceWorker": true,
+      "count": 2
+    },
+    {
+      "hostname": "cardano-cube.lw.iog.io",
+      "method": "GET",
+      "serviceWorker": true,
+      "count": 2
+    },
+    {
+      "hostname": "e.lw.iog.io",
+      "method": "POST",
+      "serviceWorker": true,
+      "count": 39
+    },
+    {
+      "hostname": "blockfrost.lw.iog.io",
+      "method": "GET",
+      "serviceWorker": true,
+      "count": 182
+    },
+    {
+      "hostname": "blockfrost.lw.iog.io",
+      "method": "POST",
+      "serviceWorker": true,
+      "count": 6
+    },
+    {
+      "hostname": "steelswap.lw.iog.io",
+      "method": "GET",
+      "serviceWorker": true,
+      "count": 2
+    },
+    {
+      "hostname": "midnight-preview.blockfrost.io",
+      "method": "POST",
+      "serviceWorker": true,
+      "count": 249
+    },
+    {
+      "hostname": "ibkr-bouncybot.github.io",
+      "method": "GET",
+      "serviceWorker": false,
+      "count": 50
+    },
+    {
+      "hostname": "image-proxy.lw.iog.io",
+      "method": "GET",
+      "serviceWorker": false,
+      "count": 8
+    },
+    {
+      "hostname": "indexer.preview.midnight.network",
+      "method": "POST",
+      "serviceWorker": false,
+      "count": 32
+    }
+  ],
+  "loadedAppAssets": {
+    "network.html": {
+      "sha256": "a0bcf0c9fab971328143118891e2aa779d2664036b5cefd747ccf7f535a619ce",
+      "bytes": 18722
+    },
+    "midnight.css": {
+      "sha256": "a162f7538bbd29c99288b8439f661a4be754037ac7842d60ffbee2251e08abe5",
+      "bytes": 1996
+    },
+    "network.css": {
+      "sha256": "d0d6f3567e54488fa646bc3a410d5dc5deda63094f7e031db85e9541cdd00db8",
+      "bytes": 8463
+    },
+    "network-bundle.mjs": {
+      "sha256": "bdd4e2d1380d7a0561ad942e3872d011d8dc9977e5ca007036e544f3df9bace3",
+      "bytes": 1149512
+    }
+  },
+  "httpResponses": [
+    {
+      "hostname": "o622089.ingest.us.sentry.io",
+      "method": "POST",
+      "status": 200,
+      "count": 12
+    },
+    {
+      "hostname": "cardano-cube.lw.iog.io",
+      "method": "GET",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "hostname": "coingecko.live-mainnet.eks.lw.iog.io",
+      "method": "GET",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "hostname": "blockfrost.lw.iog.io",
+      "method": "GET",
+      "status": 200,
+      "count": 107
+    },
+    {
+      "hostname": "e.lw.iog.io",
+      "method": "POST",
+      "status": 200,
+      "count": 37
+    },
+    {
+      "hostname": "blockfrost.lw.iog.io",
+      "method": "POST",
+      "status": 410,
+      "count": 6
+    },
+    {
+      "hostname": "blockfrost.lw.iog.io",
+      "method": "GET",
+      "status": 404,
+      "count": 75
+    },
+    {
+      "hostname": "steelswap.lw.iog.io",
+      "method": "GET",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "hostname": "midnight-preview.blockfrost.io",
+      "method": "POST",
+      "status": 200,
+      "count": 249
+    },
+    {
+      "hostname": "ibkr-bouncybot.github.io",
+      "method": "GET",
+      "status": 200,
+      "count": 50
+    },
+    {
+      "hostname": "image-proxy.lw.iog.io",
+      "method": "GET",
+      "status": 200,
+      "count": 8
+    },
+    {
+      "hostname": "indexer.preview.midnight.network",
+      "method": "POST",
+      "status": 200,
+      "count": 32
+    }
+  ],
+  "websocketEvents": [],
+  "pageErrorCount": 0,
+  "appProgressHistory": [
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T21:31:30.250Z"
+    },
+    {
+      "stage": "connection-permission",
+      "at": "2026-11-06T21:31:32.232Z"
+    },
+    {
+      "stage": "wallet-connected",
+      "at": "2026-11-06T21:31:44.233Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:02:13.372Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:02:25.379Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:02:49.381Z"
+    },
+    {
+      "stage": "submission-returned",
+      "at": "2026-11-06T22:03:09.388Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:03:11.388Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:03:17.395Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:03:41.394Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:04:03.396Z"
+    },
+    {
+      "stage": "submission-returned",
+      "at": "2026-11-06T22:04:23.409Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:04:25.404Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:04:33.407Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:04:57.410Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:05:17.414Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:05:35.419Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:05:41.420Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:07:05.426Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:07:23.427Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:07:45.431Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:07:53.446Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:08:17.435Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:08:39.440Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:08:59.443Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:09:07.446Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:09:31.448Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:09:49.448Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:10:09.455Z"
+    },
+    {
+      "stage": "proving-provider-started",
+      "at": "2026-11-06T22:10:19.459Z"
+    },
+    {
+      "stage": "wallet-approval-requested",
+      "at": "2026-11-06T22:10:43.458Z"
+    },
+    {
+      "stage": "wallet-balanced",
+      "at": "2026-11-06T22:11:03.461Z"
+    },
+    {
+      "stage": "other-or-idle",
+      "at": "2026-11-06T22:11:21.465Z"
+    }
+  ],
+  "walletUiSnapshots": [
+    {
+      "observedAt": "2026-11-06T22:09:35.452Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "claim-entitlement"
+    },
+    {
+      "observedAt": "2026-11-06T22:09:45.451Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "claim-entitlement"
+    },
+    {
+      "observedAt": "2026-11-06T22:09:55.453Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "claim-entitlement"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:05.457Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "claim-entitlement"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:15.459Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn",
+          "side-sheet-close-button",
+          "proof-server-section-on-device",
+          "proof-server-in-process-radio",
+          "proof-server-in-process-radio-checkmark",
+          "proof-server-in-process-title",
+          "proof-server-in-process-description",
+          "proof-server-section-custom",
+          "proof-server-local-host-radio",
+          "proof-server-local-host-title",
+          "proof-server-local-host-description"
+        ]
+      ],
+      "stage": "duplicate-claim"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:25.461Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:35.461Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:45.463Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        },
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ],
+        []
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:10:55.462Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:11:05.462Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:11:15.465Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn"
+        ]
+      ],
+      "stage": "close-task"
+    },
+    {
+      "observedAt": "2026-11-06T22:11:25.470Z",
+      "source": "Visible released-Lace UI only; no chain confirmation inferred",
+      "pages": [
+        {
+          "dustCap": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "dustBalance": {
+            "visible": false,
+            "numericFormatRecognized": false,
+            "positive": false
+          },
+          "generateDust": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "designate": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "confirmDesignation": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          },
+          "authenticationPresent": false,
+          "dustFormPresent": false,
+          "ownDustReviewPresent": false,
+          "transactionResultUi": "absent",
+          "visibleTransactionResultControls": [],
+          "resultClose": {
+            "visible": false,
+            "disabled": false,
+            "interactive": false
+          }
+        }
+      ],
+      "visibleUiIdentifiers": [
+        [
+          "portfolio-card",
+          "account-card-tokens-summary-tokens-list",
+          "portfolio-card-send-button",
+          "portfolio-card-receive-button",
+          "portfolio-card-accounts-button",
+          "account-card",
+          "account-card-account-name",
+          "account-card-account-type",
+          "account-card-accounts-button",
+          "account-card-accounts-button-title",
+          "account-card-send-button",
+          "account-card-send-button-icon",
+          "account-card-send-button-title",
+          "account-card-receive-button",
+          "account-card-receive-button-icon",
+          "account-card-receive-button-title",
+          "account-card-tokens-summary-value",
+          "account-card-tokens-summary-label",
+          "dust-tank-current-value",
+          "dust-tank-max-value",
+          "dust-tank-tag",
+          "dust-tank-tag-icon",
+          "dust-tank-tag-label",
+          "account-card-generate-dust-button",
+          "account-card-generate-dust-button-icon",
+          "portfolio-carousel-pagination",
+          "portfolio-card-indicator",
+          "portfolio-announcements",
+          "option-list-header-section",
+          "option-list-page-header",
+          "option-list-page-header-title",
+          "option-list-page-header-subtitle",
+          "option-list-item-account",
+          "option-list-item-account-icon",
+          "option-list-item-account-title",
+          "option-list-item-account-description",
+          "option-list-item-theme",
+          "option-list-item-theme-icon",
+          "option-list-item-theme-title",
+          "option-list-item-network",
+          "option-list-item-network-icon",
+          "option-list-item-network-title",
+          "option-list-item-language",
+          "option-list-item-language-icon",
+          "option-list-item-language-title",
+          "option-list-item-currency",
+          "option-list-item-currency-icon",
+          "option-list-item-currency-title",
+          "option-list-item-authorized-dapps",
+          "option-list-item-authorized-dapps-icon",
+          "option-list-item-authorized-dapps-title",
+          "option-list-item-app-lock-sources-settings",
+          "option-list-item-app-lock-sources-settings-icon",
+          "option-list-item-app-lock-sources-settings-title",
+          "option-list-item-default-view-mode",
+          "option-list-item-default-view-mode-icon",
+          "option-list-item-default-view-mode-title",
+          "option-list-item-midnight",
+          "option-list-item-midnight-icon",
+          "option-list-item-midnight-title",
+          "option-list-item-liquidity-sources-settings",
+          "option-list-item-liquidity-sources-settings-icon",
+          "option-list-item-liquidity-sources-settings-title",
+          "portfolio-tab-btn",
+          "main-menu-tab-btn",
+          "settings-tab-btn",
+          "side-sheet-close-button",
+          "proof-server-section-on-device",
+          "proof-server-in-process-radio",
+          "proof-server-in-process-radio-checkmark",
+          "proof-server-in-process-title",
+          "proof-server-in-process-description",
+          "proof-server-section-custom",
+          "proof-server-local-host-radio",
+          "proof-server-local-host-title",
+          "proof-server-local-host-description"
+        ]
+      ],
+      "stage": "close-task"
+    }
+  ],
+  "walletUiSnapshotsCaptured": 247,
+  "extensionServiceWorkerObserved": true,
+  "initialUi": {
+    "documentReady": true,
+    "knownVisibleControls": [
+      "onboarding-start-create-wallet-button",
+      "onboarding-start-restore-wallet-button",
+      "onboarding-start-hardware-wallet-button"
+    ],
+    "visibleControlMetadata": [
+      {
+        "tag": "div",
+        "testId": "lace-brand-logo"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-create-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-create-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-restore-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-restore-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button"
+      },
+      {
+        "tag": "svg",
+        "testId": "onboarding-start-hardware-wallet-button-icon"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button-title"
+      },
+      {
+        "tag": "div",
+        "testId": "onboarding-start-hardware-wallet-button-description"
+      },
+      {
+        "tag": "div",
+        "testId": "legal-text"
+      },
+      {
+        "tag": "span",
+        "testId": "terms-of-service-link"
+      },
+      {
+        "tag": "span",
+        "testId": "cookie-policy-link"
+      },
+      {
+        "tag": "span",
+        "testId": "privacy-policy-link"
+      }
+    ]
+  },
+  "walletOrigin": "Fresh cryptographic mnemonic generated in runner memory and imported through released Lace UI",
+  "privatePersistence": "Lace encrypted profile and temporary mode-0600 password file in RUNNER_TEMP; no seed file or private artifact",
+  "previewSelectedInExtensionUi": true,
+  "internalWasmSettingChecks": 10,
+  "receivingAddressSource": "released-Lace-Receive-Unshielded-UI",
+  "receivingAddressChecksumVerified": true,
+  "receivingAddressNetworkVerified": "preview",
+  "dustReceivingAddressSource": "released-Lace-Receive-Dust-UI",
+  "dustReceivingAddressChecksumVerified": true,
+  "dustReceivingAddressNetworkVerified": "preview",
+  "fundingAddress": {
+    "unshieldedAddress": "mn_addr_preview1cuwhsmpycqxta03mmj65ya3g2esxw57rsff3qk9qdz3kwtru4ukst2clde",
+    "source": "Released Lace Unshielded Receive UI",
+    "networkId": "preview"
+  },
+  "dustFundingAddress": {
+    "dustAddress": "mn_dust_preview1wv8axhhnpu5fa2qu8cmcd8fqruz5hhxzktgkk3fwj8pmhqgat0s55tff7m5",
+    "source": "Released Lace Dust Receive UI",
+    "networkId": "preview"
+  },
+  "fundingMechanism": "External SDK designation of NIGHT generation to Lace public DUST address",
+  "acceptanceStartedAt": "2026-11-06T21:31:09.726Z",
+  "walletApprovals": [
+    {
+      "kind": "unlock",
+      "action": "password-unlock",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T21:31:13.467Z"
+    },
+    {
+      "kind": "unlock",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T21:31:14.327Z"
+    },
+    {
+      "kind": "connect",
+      "action": "open-single-account-selector",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T21:31:37.825Z"
+    },
+    {
+      "kind": "connect",
+      "action": "select-single-midnight-account",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T21:31:38.301Z"
+    },
+    {
+      "kind": "connect",
+      "action": "single-midnight-account-selection-observed",
+      "observation": "ui-state-observed",
+      "at": "2026-11-06T21:31:38.894Z"
+    },
+    {
+      "kind": "connect",
+      "action": "authorize-published-app",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T21:31:38.944Z"
+    },
+    {
+      "kind": "connect",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T21:31:44.244Z"
+    },
+    {
+      "kind": "connect",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T21:31:47.063Z"
+    },
+    {
+      "kind": "deploy",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:02:24.440Z"
+    },
+    {
+      "kind": "deploy",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:02:26.707Z"
+    },
+    {
+      "kind": "deploy",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:02:26.809Z"
+    },
+    {
+      "kind": "deploy",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:03:09.548Z"
+    },
+    {
+      "kind": "create-task",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:03:41.601Z"
+    },
+    {
+      "kind": "create-task",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:03:43.769Z"
+    },
+    {
+      "kind": "create-task",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:03:43.837Z"
+    },
+    {
+      "kind": "create-task",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:04:23.742Z"
+    },
+    {
+      "kind": "enroll-expert",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:04:56.515Z"
+    },
+    {
+      "kind": "enroll-expert",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:04:58.818Z"
+    },
+    {
+      "kind": "enroll-expert",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:04:58.889Z"
+    },
+    {
+      "kind": "enroll-expert",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:05:34.766Z"
+    },
+    {
+      "kind": "submit-review",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:07:04.742Z"
+    },
+    {
+      "kind": "submit-review",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:07:07.079Z"
+    },
+    {
+      "kind": "submit-review",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:07:07.144Z"
+    },
+    {
+      "kind": "submit-review",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:07:44.843Z"
+    },
+    {
+      "kind": "approve-review",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:08:17.407Z"
+    },
+    {
+      "kind": "approve-review",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:08:19.593Z"
+    },
+    {
+      "kind": "approve-review",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:08:19.660Z"
+    },
+    {
+      "kind": "approve-review",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:08:58.295Z"
+    },
+    {
+      "kind": "claim-entitlement",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:09:30.602Z"
+    },
+    {
+      "kind": "claim-entitlement",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:09:32.022Z"
+    },
+    {
+      "kind": "claim-entitlement",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:09:32.090Z"
+    },
+    {
+      "kind": "claim-entitlement",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:10:09.333Z"
+    },
+    {
+      "kind": "close-task",
+      "action": "authorize-midnight-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:10:42.257Z"
+    },
+    {
+      "kind": "close-task",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:10:43.636Z"
+    },
+    {
+      "kind": "close-task",
+      "action": "password-transaction",
+      "observation": "click-dispatched",
+      "at": "2026-11-06T22:10:43.702Z"
+    },
+    {
+      "kind": "close-task",
+      "action": "caller-completion-condition-observed",
+      "observation": "condition-observed",
+      "at": "2026-11-06T22:11:21.571Z"
+    }
+  ],
+  "approvalSelectorSourceCommit": "bec4d25a0ea75cc4fcd0dae36d63d4dfa8fb122d",
+  "walletRestartUnlockUiObserved": true,
+  "laceOwnRegistration": {
+    "attempted": false,
+    "reason": "Explicit SDK-assisted DUST funding mode"
+  },
+  "connectorReadChecks": {
+    "configuration": {
+      "networkId": "preview",
+      "reportedProverServerUriAbsent": true,
+      "indexer": {
+        "reported": true,
+        "origin": "https://midnight-preview.blockfrost.io",
+        "path": "redacted",
+        "queryPresent": true,
+        "fragmentPresent": false
+      }
+    },
+    "connection-status": {
+      "status": "connected",
+      "networkId": "preview"
+    },
+    "unshielded-address": {
+      "previewAddressFormat": true,
+      "checksumVerified": true
+    }
+  },
+  "connector": {
+    "unshieldedAddress": "mn_addr_preview1cuwhsmpycqxta03mmj65ya3g2esxw57rsff3qk9qdz3kwtru4ukst2clde",
+    "networkId": "preview",
+    "reportedProverServerUri": null,
+    "apiVersion": "4.1.0-canary.20260819082604-3b622cb",
+    "rdns": "io.lace.wallet",
+    "dustAddress": "mn_dust_preview1wv8axhhnpu5fa2qu8cmcd8fqruz5hhxzktgkk3fwj8pmhqgat0s55tff7m5"
+  },
+  "dustFundingAddressMatchesRealApi": true,
+  "dustFundingWaitLimitMinutes": 45,
+  "dustFundingReadiness": {
+    "positiveCap": true,
+    "usableBalance": true,
+    "source": "Real Lace API",
+    "observedAt": "2026-11-06T22:02:11.900Z"
+  },
+  "dustFundingObservation": {
+    "requestedMechanism": "External SDK NIGHT designation to this Lace DUST address",
+    "source": "Real Lace API cap and balance",
+    "ownNightFundingRequired": false,
+    "designationTransactionIndependentlyVerifiedByRunner": false,
+    "observedAt": "2026-11-06T22:02:11.901Z"
+  },
+  "dustObserved": {
+    "balanceBaseUnits": "4910598000000000",
+    "capBaseUnits": "15000000000000000000",
+    "observedAt": "2026-11-06T22:02:11.901Z"
+  },
+  "marketplaceNegativeChecks": [
+    {
+      "operation": "duplicate-review",
+      "acceptedTransactionAdded": false
+    },
+    {
+      "operation": "duplicate-claim",
+      "acceptedTransactionAdded": false
+    }
+  ],
+  "rewardPaymentExecuted": false,
+  "sponsorServiceUsed": false,
+  "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+  "finalState": {
+    "experts": 1,
+    "tasks": 1,
+    "reviews": 1,
+    "claims": 1,
+    "taskClosed": true
+  },
+  "publicExportContainsPrivateFields": false,
+  "receiptFoundInConfiguredIndexer": true,
+  "completedAt": "2026-11-06T22:11:28.647Z"
+}

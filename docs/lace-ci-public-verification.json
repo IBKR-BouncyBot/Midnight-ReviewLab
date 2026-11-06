@@ -1,0 +1,147 @@
+{
+  "schema": "reviewlab-public-lace-lifecycle-recheck-v1",
+  "checkedAt": "2026-11-06T22:14:30.461Z",
+  "networkId": "preview",
+  "workflowRunId": "42297109348",
+  "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+  "status": "passed",
+  "walletAccess": false,
+  "transactionSubmitted": false,
+  "privateRecordRead": false,
+  "provingPerformed": false,
+  "provingLocationAttested": false,
+  "independentConsensusOrCryptographicProofVerification": false,
+  "acceptedTransactions": [
+    {
+      "operation": "deploy",
+      "txId": "0098b6ff70fc0009e324ac2b51402b03dfbe6f6f5072953d641920968bff802e9e",
+      "transactionHash": "6f88b4ede2c063529535d5ee397f8a8833e690f33f58fa9a1ce17e719f6eebf7",
+      "blockHeight": "1629979",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "create-task",
+      "txId": "0030d453061674c543ac8880b57525f01a448767b5d3a8a3992457ce8534f6a0de",
+      "transactionHash": "7fc9a5e3a01ddd73056842c73443245d24a040c220becc34e9430fb8b665d029",
+      "blockHeight": "1629991",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "createTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "enroll-expert",
+      "txId": "00895f50113a8a316d42ebe2cc00b2c69f13f9a78f3f906d39127f5d5773bc42a8",
+      "transactionHash": "7c69f50d360c1fb88e91d4d1703b78330570a803cf1288b967932ee6140d08b8",
+      "blockHeight": "1630003",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "enroll",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "submit-review",
+      "txId": "003a93513bd948beb9869811dbcd20ca36430e2418992a7187b95a944c8724763f",
+      "transactionHash": "595a71a6c490a107f98df58eea13ca73af82bb7ad9b8cc048a3672f8820c479b",
+      "blockHeight": "1630025",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "submitReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "approve-review",
+      "txId": "004b3b5238aa661bb0e524983687555b31d617172e1a71e267d95dacfb1780102f",
+      "transactionHash": "94bc1623e9b9f7a2a0dc28958623dc5b47e2e31e03e74acd812bdb6a9ba2c1ed",
+      "blockHeight": "1630037",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "approveReview",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "claim-entitlement",
+      "txId": "000ecc087453dcc17a3b7d721ef458d5818c052cc2aea87ca66612a4b16ae0a18b",
+      "transactionHash": "b46c3fcc93826091a8ed32e01283bcc7fbfdecda7e4bb10db4990d1634219017",
+      "blockHeight": "1630049",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "claimReward",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    },
+    {
+      "operation": "close-task",
+      "txId": "0057232c3c6edd083d7c74bc5789817f80c2a8086067368fa4748eb4ca05683310",
+      "transactionHash": "adda2180155e62f5da2ba6fe8dc0ae97b27a5d4778a9b8187843faf410630669",
+      "blockHeight": "1630061",
+      "status": "SucceedEntirely",
+      "contractAddress": "7454e6f34f77f0de82f251f92e315a0db5df2a5bba98f9d21511eae919ef93d3",
+      "contractCalls": [
+        {
+          "entryPoint": "closeTask",
+          "proofBytes": 4508
+        }
+      ],
+      "dustProofBytes": [
+        2940
+      ],
+      "confirmationSource": "public-Preview-indexer",
+      "independentCryptographicOrChainVerification": false
+    }
+  ],
+  "contractProofCount": 6,
+  "dustProofCount": 7,
+  "sourceSha256": "73d8bf6ccde5207daa4f4badc6c1a42e7032216e6e8e062de0b5eea2a53b3f61"
+}

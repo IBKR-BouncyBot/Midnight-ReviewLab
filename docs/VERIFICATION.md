@@ -2,6 +2,67 @@
 
 ReviewLab reports four different milestones separately: generated-contract execution, real circuit proof generation, blockchain acceptance and website deployment. Passing one does not imply the others.
 
+## Lace internal WASM status
+
+**The complete marketplace lifecycle passed independently through real Lace 2.5.1 on public Preview at 22:11:28 UTC on 6 November 2026.** [Workflow 42297109348](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42297109348) ran the unchanged official Store package in Chromium on an ephemeral GitHub-hosted Linux runner, using a fresh encrypted wallet and the published ReviewLab client. The package hash and all three CRX3 signatures were verified; no source rebuild or mocked wallet API was used. The [acceptance evidence](lace-ci-acceptance-evidence.json) records seven `SucceedEntirely` transactions:
+
+| Action | Preview block | Serialized proofs present |
+| --- | --- | --- |
+| Deploy | 1,629,979 | One DUST proof |
+| Create task | 1,629,991 | One contract proof and one DUST proof |
+| Enroll expert | 1,630,003 | One contract proof and one DUST proof |
+| Submit review | 1,630,025 | One contract proof and one DUST proof |
+| Approve review | 1,630,037 | One contract proof and one DUST proof |
+| Claim entitlement | 1,630,049 | One contract proof and one DUST proof |
+| Close task | 1,630,061 | One contract proof and one DUST proof |
+
+All six contract circuits were exercised through Lace, with **six 4,508-byte contract proofs** and **seven 2,940-byte DUST-spend proofs** in the indexed transactions. The [final public record](lace-ci-public-record.json) contains one expert, one closed task, one review and one claimed entitlement. Duplicate review and duplicate claim attempts added no accepted transaction. The browser checked the receipt and public export, reported no page errors, and the workflow successfully removed its private wallet profile. No reward payment or application sponsor service ran.
+
+A [separate public recheck](lace-ci-public-verification.json) passed at 22:14:30 UTC, decoding all seven transactions from the canonical Preview indexer and confirming their identities, contract, operations and proof counts without a wallet or submission. From a checkout with the developer dependencies installed, reproduce that read-only check with `node devnet/verify-lace-ci-marketplace.mjs`. It uses the same public indexer and does not independently verify consensus or proof cryptography.
+
+The runner saved and rechecked Lace's internal-WASM setting **ten times**, unlocked its encrypted profile after restart, and observed no recognized outbound HTTP proving request through Playwright. All marketplace contract proving, wallet/DUST proving, balancing and submission used the real Lace connector. These UI and surfaced-request observations are not cryptographic mode attestation or an operating-system packet capture. Acceptance and proof presence were checked against the public Preview indexer, not independently verified consensus or proof cryptography. The report includes the harness revision and loaded public application asset hashes.
+
+The report's nested `package.extensionExecuted: false` and `package.walletAccess: false` describe only package validation before launch. Actual extension execution is recorded by `extensionServiceWorkerObserved: true` and the subsequent wallet and transaction steps.
+
+Funding was a separate **SDK-assisted DUST designation**, [accepted at block 1,629,969](lace-ci-designation-verification.json): generation from 3,000 test NIGHT was assigned to the fresh Lace DUST address while NIGHT stayed with the sponsor. The successful marketplace run did not attempt Lace's own registration UI or require NIGHT in the Lace wallet. This is test funding infrastructure, not a local SDK or proof-server requirement for app users; the public client needs a browser, Lace and usable test DUST.
+
+### Earlier independent wallet attempts
+
+The [isolated GitHub runner probe](lace-ci-probe-evidence.json) independently downloaded the released **Lace 2.5.1** Chrome Store package, verified its pinned hash, three CRX3 signatures, developer identity and Store publisher signature, and opened its unchanged production UI in Chromium. The real extension service worker and onboarding controls were observed in [workflow 42279947215](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42279947215). This first checkpoint created no wallet and made no transaction; it is not full Lace acceptance evidence. No source rebuild, mocked backend or earlier-version binary was used.
+
+Subsequent independent runs used that genuine package on ephemeral GitHub-hosted Linux runners, created fresh wallets through the real UI, saved and rechecked Preview/internal-WASM settings, and unlocked the same encrypted profile after a browser restart. Private profiles and temporary passwords stayed in the runner's private temporary directory and were excluded from published artifacts. Two wallets each received **1,000 test NIGHT**, verified against the canonical public Preview indexer:
+
+| Run | Accepted funding | Registration outcome |
+| --- | --- | --- |
+| [42290089655](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42290089655) | [1,000 test NIGHT, block 1,629,256](lace-ci-funding-verification.json) | [Operator-cancelled before a terminal result was observed](lace-ci-funded-attempt-1.json). This is not a completed test or an observed registration failure. |
+| [42293370522](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42293370522) | [1,000 test NIGHT, block 1,629,437](lace-ci-funding-verification-2.json) | [Lace's actual registration UI changed from processing to failure](lace-ci-registration-failure.json) at 21:09:10 UTC; its cause remains unknown. |
+
+Neither of these earlier runs recorded an accepted marketplace transaction. The second run's UI failure does not establish a node rejection or a proving failure. Legacy service probes returning HTTP 410 do not explain it: Lace refreshed its service configuration dynamically and recognized the funding. The later complete marketplace success used SDK-assisted designation and does not resolve the cause of that own-registration failure.
+
+A separate SDK-assisted funding path designates generation from the test sponsor's NIGHT to the fresh Lace wallet's public DUST address; NIGHT remains sponsor-owned. Its [first transaction was structurally invalid](lace-ci-designation-invalid-attempt.json): a second SDK signing call appended a duplicate signature to one NIGHT input. Strict local ledger validation identified the mismatch, and the public indexer showed no acceptance after the bounded confirmation wait. The helper now preserves the original signatures, verifies their counts and cryptography, and requires strict local validation before submitting. The [native regression](native-signature-regression.json) reproduces the append behavior using synthetic keys. This funding helper is separate from Lace's own registration UI and does not establish marketplace acceptance.
+
+The corrected designation used to fund the successful Lace run [passed all five strict local validation flags](lace-ci-designation-preflight.json) against newer public block parameters before its single submission. The preflight waits for the indexed block time to reach the transaction's DUST creation time; it does not change timestamps or disable validation. The [public designation check](lace-ci-designation-verification.json) establishes SDK-assisted funding. Marketplace acceptance is established separately by the seven Lace transactions above.
+
+### Earlier user-operated test
+
+**A user-operated Edge / Lace 2.5.1 test produced an accepted public Preview task-creation transaction on 6 November 2026.** The user followed the published application's Lace connection and task-creation steps and supplied the transaction identifier. The [session record](lace-preview-session.json) records the user-reported environment separately from the [read-only transaction verification](lace-preview-transaction.json), completed at 18:28:58 UTC.
+
+| Indexed result | Value |
+| --- | --- |
+| Transaction identifier | `008239371f3f4996cadc573d89272d4ce9e4f06041c90b3f44f26b2b54ebe7ec51` |
+| Network status | Preview, `SucceedEntirely`, block **1,627,842** |
+| Operation | One `createTask` call on the published ReviewLab contract |
+| Contract proof | One serialized proof, **4,508 bytes** |
+| Wallet/DUST proof | One serialized DUST-spend proof, **2,940 bytes** |
+
+The verifier decoded the public transaction and checked its identifier, contract and operation; it did not access a wallet or submit anything. This earlier result establishes indexed acceptance and the presence of both proof types for one task creation. It does not independently verify their cryptography or chain inclusion; the complete independent Lace lifecycle is recorded above.
+
+An additional historical before/after state query did not produce usable states, so no separate state-delta verification is claimed.
+
+The instructed setup uses Lace's **Run in this app (WASM)** mode. The [source review](LACE-WASM.md) confirms that path in the released 2.5.0 snapshot; this user's reported version was 2.5.1. The extension UI and its network traffic were not directly observed by the verifier. API 4 also omits the prover URL for remote TEE mode, so the app's session confirmation and URL rejection are guardrails, not attestation. The transaction cannot prove where its proofs were generated. The earlier HTTP-prover reports below remain separate historical evidence.
+
+At that earlier client-policy revision, 26 unit tests passed (15 contract and 11 network-boundary tests), full compilation regenerated all six circuit key sets, and the production build passed. Both updated Chromium suites passed eight cases each, as detailed below. The expanded suite is recorded separately below.
+
 ## Expanded automated checks — 6 November 2026
 
 **A fresh complete public Preview lifecycle passed at 19:26:13 UTC with local WASM for both contract and wallet/DUST proving.** The [SDK WASM evidence](preview-wasm-evidence.json) records seven `SucceedEntirely` transactions: deployment, enrollment, task creation, review, approval, entitlement claim and closure. The official wallet SDK prover worker generated six contract proofs and seven DUST-spend proofs. No HTTP proving service was configured; only public parameter/key downloads used the official public asset host. This run used the dedicated encrypted SDK test wallet, not Lace.
@@ -27,41 +88,6 @@ The worker test uses single-thread WASM without SharedArrayBuffer or cross-origi
 The [encrypted-storage evidence](private-storage-evidence.json) records nine checks against the official encryption provider and real filesystem LevelDB. State and signing keys survived reopen and password rotation; incorrect-password reads and failed rotation preserved the ciphertext; account, network-qualified account and contract namespaces were isolated; synthetic plaintext markers were absent from the database records/files. This does not establish browser IndexedDB crash recovery.
 
 **Storage limitation:** the upstream provider's direct `set()` call encrypts with the supplied password but does not first authenticate that password against an existing entry. The disposable negative test confirmed that it can overwrite that entry under another valid password. The report does not label direct writes as authenticated. ReviewLab reads existing state when joining; encryption alone must not be used as write authorization. Pending review recovery and feedback openings remain session-local unless explicitly saved; reload recovery is not established by these tests.
-
-## Lace internal WASM status
-
-The [isolated GitHub runner probe](lace-ci-probe-evidence.json) independently downloaded the released **Lace 2.5.1** Chrome Store package, verified its pinned hash, three CRX3 signatures, developer identity and Store publisher signature, and opened its unchanged production UI in Chromium. The real extension service worker and onboarding controls were observed in [workflow 42279947215](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42279947215). This first checkpoint created no wallet and made no transaction; it is not full Lace acceptance evidence. No source rebuild, mocked backend or earlier-version binary was used.
-
-Subsequent independent runs used that genuine package on ephemeral GitHub-hosted Linux runners, created fresh wallets through the real UI, saved and rechecked Preview/internal-WASM settings, and unlocked the same encrypted profile after a browser restart. Private profiles and temporary passwords stayed in the runner's private temporary directory and were excluded from published artifacts. Two wallets each received **1,000 test NIGHT**, verified against the canonical public Preview indexer:
-
-| Run | Accepted funding | Registration outcome |
-| --- | --- | --- |
-| [42290089655](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42290089655) | [1,000 test NIGHT, block 1,629,256](lace-ci-funding-verification.json) | [Operator-cancelled before a terminal result was observed](lace-ci-funded-attempt-1.json). This is not a completed test or an observed registration failure. |
-| [42293370522](https://github.com/IBKR-BouncyBot/Midnight-ReviewLab/actions/runs/42293370522) | [1,000 test NIGHT, block 1,629,437](lace-ci-funding-verification-2.json) | [Lace's actual registration UI changed from processing to failure](lace-ci-registration-failure.json) at 21:09:10 UTC; its cause remains unknown. |
-
-Neither run recorded an accepted marketplace transaction. The second run's UI failure does not establish a node rejection or a proving failure. Legacy service probes returning HTTP 410 do not explain it: Lace refreshed its service configuration dynamically and recognized the funding. These results establish genuine wallet setup and the observed registration outcomes, not a complete Lace marketplace lifecycle. The seven accepted SDK/local-WASM transactions above remain a separate successful test.
-
-A separate SDK-assisted funding path designates generation from the test sponsor's NIGHT to the fresh Lace wallet's public DUST address; NIGHT remains sponsor-owned. Its [first transaction was structurally invalid](lace-ci-designation-invalid-attempt.json): a second SDK signing call appended a duplicate signature to one NIGHT input. Strict local ledger validation identified the mismatch, and the public indexer showed no acceptance after the bounded confirmation wait. The helper now preserves the original signatures, verifies their counts and cryptography, and requires strict local validation before submitting. The [native regression](native-signature-regression.json) reproduces the append behavior using synthetic keys. This funding helper is separate from Lace's own registration UI and does not establish marketplace acceptance.
-
-The corrected designation was accepted at Preview block **1,629,969**. It assigned DUST generation from **3,000 test NIGHT** to the runner's public DUST address while returning all NIGHT to the sponsor. Its exact saved transaction [passed all five strict local validation flags](lace-ci-designation-preflight.json) against newer public block parameters before its single submission. The preflight now waits for the indexed block time to reach the transaction's DUST creation time; it does not change timestamps or disable validation. See the [public designation check](lace-ci-designation-verification.json). This establishes SDK-assisted funding, not a successful Lace registration or marketplace transaction.
-
-**A user-operated Edge / Lace 2.5.1 test produced an accepted public Preview task-creation transaction on 6 November 2026.** The user followed the published application's Lace connection and task-creation steps and supplied the transaction identifier. The [session record](lace-preview-session.json) records the user-reported environment separately from the [read-only transaction verification](lace-preview-transaction.json), completed at 18:28:58 UTC.
-
-| Indexed result | Value |
-| --- | --- |
-| Transaction identifier | `008239371f3f4996cadc573d89272d4ce9e4f06041c90b3f44f26b2b54ebe7ec51` |
-| Network status | Preview, `SucceedEntirely`, block **1,627,842** |
-| Operation | One `createTask` call on the published ReviewLab contract |
-| Contract proof | One serialized proof, **4,508 bytes** |
-| Wallet/DUST proof | One serialized DUST-spend proof, **2,940 bytes** |
-
-The verifier decoded the public transaction and checked its identifier, contract and operation; it did not access a wallet or submit anything. This establishes indexed acceptance and the presence of both proof types. It does not independently verify their cryptography or chain inclusion, and it does not complete the six-circuit marketplace lifecycle through Lace.
-
-An additional historical before/after state query did not produce usable states, so no separate state-delta verification is claimed.
-
-The instructed setup uses Lace's **Run in this app (WASM)** mode. The [source review](LACE-WASM.md) confirms that path in the released 2.5.0 snapshot; this user's reported version was 2.5.1. The extension UI and its network traffic were not directly observed by the verifier. API 4 also omits the prover URL for remote TEE mode, so the app's session confirmation and URL rejection are guardrails, not attestation. The transaction cannot prove where its proofs were generated. The earlier HTTP-prover reports below remain separate historical evidence.
-
-The new client policy passed 26 unit tests (15 contract and 11 network-boundary tests), full compilation regenerated all six circuit key sets, and the production build passed. Both updated Chromium suites passed eight cases each, as detailed below. These automated checks are separate from the user-operated transaction above.
 
 ## Recorded native results — 6 November 2026
 
