@@ -44,6 +44,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Exercise the real browser application
         run: npm run test:browser
+      - name: Check the real testnet bundle and wallet failure boundaries
+        run: npm run test:network-browser
       - name: Retain the compiled application
         uses: actions/upload-artifact@v4
         with:

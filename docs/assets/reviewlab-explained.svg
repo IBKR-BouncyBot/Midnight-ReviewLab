@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1180" viewBox="0 0 1440 1180" role="img" aria-labelledby="title description">
+  <title id="title">How Midnight ReviewLab works</title>
+  <desc id="description">An AI team posts an evaluation. An expert uses a private credential. Midnight Compact checks membership, expertise, expiry and duplicate prevention. A public receipt binds task content, scores and a salted feedback commitment. The owner approves and the author can claim an entitlement, not a payment. Written feedback remains off-chain. Registered NIGHT generates nontransferable DUST for network fees. The browser lab executes locally; the testnet client needs a wallet, a prover and network services. Independent credential issuers, shared encrypted feedback, fee sponsorship and real payouts are separate production work.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1 8 5 0 9" fill="none" stroke="#C1C1C1" stroke-width="1.6"/></marker>
+    <style>
+      text{font-family:Arial,Helvetica,sans-serif;fill:#FFFFFF}
+      .eyebrow{font-size:17px;font-weight:700;letter-spacing:2.3px}
+      .heading{font-size:24px;font-weight:700}
+      .body{font-size:20px;fill:#C1C1C1}
+      .small{font-size:18px;fill:#C1C1C1}
+      .line{stroke:#303030;stroke-width:1.5}
+      .icon{fill:none;stroke:#FFFFFF;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+  <rect width="1440" height="1180" rx="24" fill="#0A0A0A"/>
+  <rect x="56" y="53" width="36" height="36" rx="8" fill="#0000FE"/>
+  <path d="M66 78V65h12a5 5 0 0 1 0 10H66m9 0 7 6" class="icon"/>
+  <text x="108" y="79" class="eyebrow">MIDNIGHT REVIEWLAB</text>
+  <text x="56" y="157" font-size="49" font-weight="700" letter-spacing="-1.4">Expert feedback. Private credentials.</text>
+  <text x="56" y="199" font-size="24" fill="#C1C1C1">Real Compact rules. Off-chain feedback. Receipts you can inspect.</text>
+
+  <!-- The five state transitions: no invented blockchain or payment claim. -->
+  <g transform="translate(56 246)">
+    <rect width="240" height="268" rx="16" fill="#101010" class="line"/>
+    <rect x="20" y="20" width="42" height="42" rx="10" fill="#0000FE"/>
+    <text x="41" y="49" text-anchor="middle" font-size="24" font-weight="700">1</text>
+    <path d="M184 26h25v30h-25zM190 34h13m-13 7h13m-13 7h8" class="icon"/>
+    <text x="20" y="105" class="heading">AI team posts</text>
+    <text x="20" y="147" class="body"><tspan x="20">Prompt + AI answer</tspan><tspan x="20" dy="31">Required expertise</tspan><tspan x="20" dy="31">Deadline + review limit</tspan></text>
+    <text x="20" y="244" class="small">Task content committed</text>
+  </g>
+  <path d="M302 376h19" stroke="#C1C1C1" stroke-width="2" marker-end="url(#arrow)"/>
+  <g transform="translate(328 246)">
+    <rect width="240" height="268" rx="16" fill="#101010" class="line"/>
+    <rect x="20" y="20" width="42" height="42" rx="10" fill="#0000FE"/>
+    <text x="41" y="49" text-anchor="middle" font-size="24" font-weight="700">2</text>
+    <path d="M186 34v-6a9 9 0 0 1 18 0v6m-23 0h28v22h-28zm14 8v6" class="icon"/>
+    <text x="20" y="105" class="heading">Expert qualifies</text>
+    <text x="20" y="147" class="body"><tspan x="20">Credential secret</tspan><tspan x="20" dy="31">Registry membership</tspan><tspan x="20" dy="31">Expertise + expiry</tspan></text>
+    <text x="20" y="244" class="small">Issuer establishes trust</text>
+  </g>
+  <path d="M574 376h19" stroke="#C1C1C1" stroke-width="2" marker-end="url(#arrow)"/>
+  <g transform="translate(600 246)">
+    <rect width="240" height="268" rx="16" fill="#101010" stroke="#0000FE" stroke-width="2"/>
+    <rect x="20" y="20" width="42" height="42" rx="10" fill="#0000FE"/>
+    <text x="41" y="49" text-anchor="middle" font-size="24" font-weight="700">3</text>
+    <path d="m195 21 14 6v12c0 8-7 14-14 18-7-4-14-10-14-18V27zm-7 17 5 5 9-11" class="icon"/>
+    <text x="20" y="105" class="heading">Check ZK rules</text>
+    <text x="20" y="147" class="body"><tspan x="20">Eligible for this task</tspan><tspan x="20" dy="31">One review per task</tspan><tspan x="20" dy="31">Feedback committed</tspan></text>
+    <text x="20" y="244" class="small">No secret made public</text>
+  </g>
+  <path d="M846 376h19" stroke="#C1C1C1" stroke-width="2" marker-end="url(#arrow)"/>
+  <g transform="translate(872 246)">
+    <rect width="240" height="268" rx="16" fill="#101010" class="line"/>
+    <rect x="20" y="20" width="42" height="42" rx="10" fill="#0000FE"/>
+    <text x="41" y="49" text-anchor="middle" font-size="24" font-weight="700">4</text>
+    <path d="M183 23h25v34l-6-4-6 4-6-4-7 4zm6 9h13m-13 8h13m-13 8h7" class="icon"/>
+    <text x="20" y="105" class="heading">Public receipt</text>
+    <text x="20" y="147" class="body"><tspan x="20">Task content digest</tspan><tspan x="20" dy="31">Scores + nullifier</tspan><tspan x="20" dy="31">Salted commitment</tspan></text>
+    <text x="20" y="244" class="small">Feedback stays off-chain</text>
+  </g>
+  <path d="M1118 376h19" stroke="#C1C1C1" stroke-width="2" marker-end="url(#arrow)"/>
+  <g transform="translate(1144 246)">
+    <rect width="240" height="268" rx="16" fill="#101010" class="line"/>
+    <rect x="20" y="20" width="42" height="42" rx="10" fill="#0000FE"/>
+    <text x="41" y="49" text-anchor="middle" font-size="24" font-weight="700">5</text>
+    <circle cx="196" cy="39" r="17" class="icon"/><path d="m188 39 6 6 10-12" class="icon"/>
+    <text x="20" y="105" class="heading">Approve &amp; claim</text>
+    <text x="20" y="147" class="body"><tspan x="20">Task owner approves</tspan><tspan x="20" dy="31">Only the author claims</tspan><tspan x="20" dy="31">Each claim used once</tspan></text>
+    <text x="20" y="244" class="small">Entitlement, not a payout</text>
+  </g>
+
+  <g transform="translate(56 552)">
+    <rect width="1328" height="118" rx="16" fill="#101010" class="line"/>
+    <path d="M649 24v70" class="line"/>
+    <text x="24" y="39" class="eyebrow">PRIVATE · OFF-CHAIN</text>
+    <text x="24" y="76" font-size="22" fill="#C1C1C1">Credential secret · membership path · written feedback</text>
+    <text x="678" y="39" class="eyebrow">PUBLIC · DELIBERATE DISCLOSURE</text>
+    <text x="678" y="76" font-size="22" fill="#C1C1C1">Task digest · scores · nullifier · salted commitment</text>
+  </g>
+
+  <g transform="translate(56 704)">
+    <rect width="1328" height="162" rx="16" fill="#101010" class="line"/>
+    <rect width="7" height="162" rx="3.5" fill="#0000FE"/>
+    <text x="28" y="43" class="eyebrow">THE NETWORK RESOURCE MODEL</text>
+    <text x="28" y="101" font-size="37" font-weight="700">NIGHT → DUST → fees</text>
+    <text x="565" y="48" font-size="23"><tspan x="565">Registered NIGHT generates DUST toward a cap.</tspan><tspan x="565" dy="34">DUST is nontransferable and pays network transaction fees.</tspan><tspan x="565" dy="34" fill="#C1C1C1">Reviewer rewards, AI compute and hosting need separate funding.</tspan></text>
+  </g>
+
+  <text x="56" y="918" class="eyebrow">TWO WAYS TO EXPLORE THE SAME CONTRACT</text>
+  <g transform="translate(56 940)">
+    <rect width="644" height="114" rx="14" fill="#101010" class="line"/>
+    <text x="24" y="41" class="heading">Browser lab</text>
+    <text x="24" y="78" font-size="22" fill="#C1C1C1">Local execution. No proofs, wallet or DUST spent.</text>
+  </g>
+  <g transform="translate(740 940)">
+    <rect width="644" height="114" rx="14" fill="#101010" class="line"/>
+    <text x="24" y="41" class="heading">Testnet client</text>
+    <text x="24" y="78" font-size="22" fill="#C1C1C1">Test wallet + local prover + network services.</text>
+  </g>
+  <text x="56" y="1103" font-size="19" font-weight="700">SEPARATE PRODUCTION WORK</text>
+  <text x="56" y="1137" font-size="21" fill="#C1C1C1">Independent issuers · shared encrypted feedback · sponsored fees · real reward transfers</text>
+  <text x="1384" y="1137" text-anchor="end" font-size="16" fill="#A0A0A0">IBKR-BouncyBot</text>
+</svg>

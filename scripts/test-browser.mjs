@@ -11,6 +11,7 @@ await mkdir(output, { recursive: true });
 const server = createStaticServer({ port: 0, prefix: '/Midnight-ReviewLab' });
 await once(server, 'listening');
 const base = `http://127.0.0.1:${server.address().port}/Midnight-ReviewLab/`;
+const browserBase = `${base}browser.html`;
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 1050 }, acceptDownloads: true });
 const page = await context.newPage();
@@ -32,7 +33,31 @@ async function upload(kind, value) {
 let report;
 try {
   await page.goto(base);
-  await page.reload();
+  await page.getByRole('heading', { name: 'Choose your demo.', exact: true }).waitFor();
+  assert.equal(await page.locator('.landing-demo-card').count(), 2);
+  assert.equal(await page.locator('[data-demo="browser"]').getAttribute('href'), './browser.html');
+  assert.equal(await page.locator('[data-demo="testnet"]').getAttribute('href'), './network.html');
+  assert.equal(await page.locator('script').count(), 0, 'Landing remains a static choice screen');
+  await page.evaluate(() => document.fonts.ready);
+  const palette = await page.evaluate(() => ({
+    blue: getComputedStyle(document.documentElement).getPropertyValue('--blue').trim(),
+    background: getComputedStyle(document.body).backgroundColor,
+    font: getComputedStyle(document.body).fontFamily,
+  }));
+  assert.equal(palette.blue, '#0000fe');
+  assert.equal(palette.background, 'rgb(10, 10, 10)');
+  assert.match(palette.font, /Outfit/);
+  await page.screenshot({ path: resolve(output, 'landing-desktop.png'), fullPage: true });
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1), false, `Landing must fit ${width}px`);
+    if (width === 390) await page.screenshot({ path: resolve(output, 'landing-mobile.png'), fullPage: true });
+  }
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  await page.locator('[data-demo="browser"]').click();
+  assert.equal(page.url(), browserBase);
+  cases.push('Static landing, separate browser/testnet links, Midnight palette, local Outfit and 320px/390px layouts');
+
   await page.getByText('6 open tasks', { exact: true }).waitFor();
   assert.equal(await page.locator('.task-card').count(), 6);
   await page.getByLabel('Search evaluations').fill('code review');
@@ -138,22 +163,23 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of ['marketplace','workspace','credentials','sponsorship','privacy','network']) {
-    await page.goto(base + '#' + route);
+    await page.goto(browserBase + '#' + route);
     await page.getByText('Midnight runtime ready', { exact: false }).waitFor({ state: 'attached' });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
     assert.equal(overflow, false, `${route} must fit mobile width`);
   }
-  await page.goto(base);
+  await page.goto(browserBase);
   await page.getByText('6 open tasks', { exact: true }).waitFor();
   await page.screenshot({ path: resolve(output, 'marketplace-mobile.png'), fullPage: true });
   await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
   await page.getByRole('link', { name: 'Credentials', exact: true }).click();
   await page.getByRole('heading', { name: 'Your expertise. Your identity.', exact: true }).waitFor();
+  await page.screenshot({ path: resolve(output, 'credentials-mobile.png'), fullPage: true });
   cases.push('All six screens fit 390px and mobile navigation works');
 
   assert.deepEqual(errors, [], 'No browser runtime errors');
   assert.deepEqual(remoteRequests, [], 'No automatic third-party requests');
-  const evidence = { status: 'passed', testedAt: new Date().toISOString(), browser: await browser.version(), cases, errors: 0, remoteRequests: 0, networkSubmission: false };
+  const evidence = { status: 'passed', testedAt: new Date().toISOString(), browser: await browser.version(), cases, errors: 0, remoteRequests: 0, testedPages: ['index.html', 'browser.html'], networkSubmission: false };
   await writeFile(resolve(output, 'results.json'), JSON.stringify(evidence, null, 2));
   console.log(JSON.stringify(evidence, null, 2));
 } catch(error) {

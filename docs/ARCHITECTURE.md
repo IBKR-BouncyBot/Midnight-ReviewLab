@@ -11,7 +11,13 @@ ReviewLab separates the evaluation workflow from the rules that make a review ac
 | Expert | Keeps a credential secret, evaluates an answer and submits a review tied to a task. |
 | Sponsor | Pays transaction fees using DUST without obtaining the expert's authorization secret. |
 
-The local demonstration puts these roles in one browser. That makes the complete journey explorable, but it does not establish independence between parties.
+The browser lab puts the issuer, task owner and expert in one browser. That makes their complete journey explorable, but it does not establish independence between parties. Sponsorship is a design scenario, not an implemented payer. The separate testnet client connects the same contract logic to real wallet authorization, proving and network submission.
+
+## Two entry points
+
+`index.html` is a two-choice landing page. `browser.html` opens the local lab; `network.html` opens the testnet client. Navigation between them does not turn local records into network state.
+
+The network client uses Midnight.js 4.1.1 providers and DApp Connector API 4. It defaults to Preview and blocks mainnet. The connected wallet pays its own DUST fees. Its account, selected network and reported loopback prover configuration are checked again before proving, balancing and submitting.
 
 ## Native execution
 
@@ -38,7 +44,9 @@ None of these alone proves that the expert is honest, that the credential issuer
 
 Public application records may be stored in browser storage for convenience. Private credential material belongs in memory or an explicit private download. Users must keep private credential files separate from shareable receipts.
 
-GitHub Pages serves static files. It does not provide a shared task database, receive confidential feedback, run a sponsor wallet or host a prover. Publishing this frontend does not make separate browsers share the same application state.
+The network client's SDK creates a scoped witness-input object for each call and releases it afterward. The page still retains role-key fields, the loaded expert credential and feedback openings in session memory so the user can continue the workflow or recover an uncertain submission. Disconnecting clears those application inputs; explicit private downloads remain the user's responsibility. Witnesses leave the contract's persisted private state empty. The SDK's encrypted browser store may retain maintenance/signing keys; its password is separate from a wallet password. Connecting the same wallet in another browser does not automatically restore application role keys.
+
+GitHub Pages serves static files and compiled public proof material. It does not provide a shared task database, receive confidential feedback, run a sponsor wallet or host a prover. Network participants can join the same deployed contract and manually exchange a public marketplace JSON file containing the task's prompt and AI answer; the page checks their content commitment. Written feedback stays in the submitting tab and can be downloaded with its private opening. Automatic confidential feedback delivery to the buyer needs a separate storage and access layer.
 
 ## Production components
 

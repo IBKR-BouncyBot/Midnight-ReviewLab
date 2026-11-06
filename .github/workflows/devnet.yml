@@ -1,0 +1,73 @@
+name: Prove and accept ReviewLab transactions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  accept:
+    name: Complete marketplace on an isolated Midnight chain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install the pinned Compact compiler
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/ci-install-midnight.sh
+      - name: Install committed dependency graphs
+        run: |
+          npm ci --ignore-scripts
+          npm ci --prefix devnet --ignore-scripts
+      - name: Compile all circuits and generate real proof keys
+        run: npm run compile
+      - name: Test generated contract constraints
+        run: npm test
+      - name: Build the actual browser client
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start isolated node, indexer and prover
+        run: bash devnet/services.sh up
+      - name: Check public local service readiness
+        run: node devnet/probe.mjs
+      - name: Prove and submit the real marketplace lifecycle
+        # The genesis test fixture exists only on this throwaway local chain.
+        # Private witnesses, wallet seeds and verbose service logs are not retained.
+        run: npm run test:devnet
+      - name: Exercise the browser with a funded test wallet
+        # Official testkit API4 adapter; actual proofs/fees/transactions, not Lace.
+        run: npm run test:devnet:browser
+      - name: Stop only this workflow's labeled services
+        if: always()
+        run: |
+          for name in midnight-reviewlab-devnet-prover midnight-reviewlab-devnet-indexer midnight-reviewlab-devnet-node; do
+            if docker container inspect "$name" >/dev/null 2>&1; then
+              owner=$(docker inspect --format '{{index .Config.Labels "org.midnight-reviewlab.devnet"}}' "$name")
+              if [ "$owner" = true ]; then docker stop "$name" >/dev/null; fi
+            fi
+          done
+      - name: Retain sanitized network evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewlab-local-devnet-evidence
+          path: |
+            artifacts/local-devnet/network-evidence.json
+            artifacts/local-devnet-readiness.json
+            artifacts/local-devnet-browser/browser-network-evidence.json
+          if-no-files-found: warn
+          retention-days: 30

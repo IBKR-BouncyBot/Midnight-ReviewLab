@@ -1,0 +1,98 @@
+{
+  "executedAt": "2026-11-06T16:49:55.688Z",
+  "status": "passed",
+  "networkId": "undeployed",
+  "browser": "Chromium",
+  "wallet": "official-testkit-DAppConnectorWalletAdapter",
+  "realLaceWalletTested": false,
+  "publicPreviewTransactionsTested": false,
+  "independentChainInclusionVerified": false,
+  "acceptedTransactions": [
+    {
+      "operation": "browser-deploy",
+      "txId": "0029b7f8499d22a3de023686ab84782fa709e4b1059ad1a672b14996e6745e5d3f",
+      "blockHeight": "84",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-create-task",
+      "txId": "007e509c2fcd3f5b2b67d55f7a49bdebb688aea4f4f80b74cf2f9b00530bcbf0ac",
+      "blockHeight": "89",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-enroll",
+      "txId": "0079a0963e723037e05ea728b84c157af7d05aed8b079b352b2186ae8e39e83a21",
+      "blockHeight": "94",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-submit-review",
+      "txId": "00da900365a6420de362e2216a8ff4464d9094042d391499266fba355547a7f589",
+      "blockHeight": "104",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-approve",
+      "txId": "007940ab7573cbdd5855b2f70885e49943ec377ea81b5b36ba1cffb7f98d83728f",
+      "blockHeight": "109",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-claim",
+      "txId": "0003e44038b4beafa6c179adec05c51a2573dbc46c33a88ad722830b972a0a17b5",
+      "blockHeight": "114",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "browser-close-task",
+      "txId": "0086ba09364a4d8cdac54d42ac03ef7dac42d3d5244f9c50c53a6db3e765c554e8",
+      "blockHeight": "119",
+      "status": "SucceedEntirely"
+    }
+  ],
+  "proofRequests": 6,
+  "checkRequests": 6,
+  "balanceRequests": 7,
+  "submittedTransactions": 7,
+  "assetFiles": [
+    "network-contract/keys/approveReview.prover",
+    "network-contract/keys/approveReview.verifier",
+    "network-contract/keys/claimReward.prover",
+    "network-contract/keys/claimReward.verifier",
+    "network-contract/keys/closeTask.prover",
+    "network-contract/keys/closeTask.verifier",
+    "network-contract/keys/createTask.prover",
+    "network-contract/keys/createTask.verifier",
+    "network-contract/keys/enroll.prover",
+    "network-contract/keys/enroll.verifier",
+    "network-contract/keys/submitReview.prover",
+    "network-contract/keys/submitReview.verifier",
+    "network-contract/zkir/approveReview.bzkir",
+    "network-contract/zkir/claimReward.bzkir",
+    "network-contract/zkir/closeTask.bzkir",
+    "network-contract/zkir/createTask.bzkir",
+    "network-contract/zkir/enroll.bzkir",
+    "network-contract/zkir/submitReview.bzkir"
+  ],
+  "pageErrors": 0,
+  "sourceHashes": {
+    "dist/network.html": "4b333d95b45d685809a7b7ddd6d54998e5d70608180f2719d496b63006b5d228",
+    "dist/network-bundle.mjs": "ddcde95a26fd378a90ffa27f7a699fe046522b72a33c6070f23afcf683e37725",
+    "dist/network.css": "e1e9e5196499ede5052a9e51c54b8934f5538a1109ec5ccd454acea674d349b6",
+    "dist/midnight.css": "a162f7538bbd29c99288b8439f661a4be754037ac7842d60ffbee2251e08abe5",
+    "contracts/reviewlab.compact": "b027c55cbe0266879acc753d96674b457799fbf810171568dcfae4195e14cad1",
+    "lib/network/sdk-client.mjs": "f2c406b284257821e5ebb1c1d1ab9d90b099d3e681215cca95a64d5069ead2db",
+    "lib/network/browser-providers.mjs": "192d6d856e2d5e335861ae6c3a08307557d28c4f3ade2dfa3bbf2b1a592b0de5",
+    "lib/network/config.mjs": "f252007fafe51403bf75b9e7ce8e56dd5575c0d35af0fd9fef78317f06a4903d"
+  },
+  "finalState": {
+    "credentials": 1,
+    "tasks": 1,
+    "reviews": 1,
+    "claims": 1,
+    "closed": true
+  },
+  "contractAddress": "87e3e7c436169bffc8fef8d4b0ff7d9d217082c2c327f64895c3a422397eb0f2",
+  "completedAt": "2026-11-06T16:53:50.245Z"
+}

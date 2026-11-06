@@ -1,0 +1,159 @@
+{
+  "executedAt": "2026-11-06T15:27:54.122Z",
+  "networkId": "undeployed",
+  "environment": "isolated-local-development-chain",
+  "confirmationSource": "configured-local-indexer",
+  "independentlyVerifiedChainInclusion": false,
+  "browserWalletTested": false,
+  "publicPreviewTransactionsTested": false,
+  "acceptedTransactions": [
+    {
+      "operation": "deploy",
+      "txId": "0021d0651f728b377911291fe49f6124be87e1d9c752feff20c32bf3b263e36aaa",
+      "blockHeight": "34",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "enroll-expert",
+      "txId": "0083b089d4bd0b0e64d9b059a948f6d47657192adc507f6390176e15b4e20ec08a",
+      "blockHeight": "37",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "create-task",
+      "txId": "00bb59a0c9f470acb3ee105caa7a6678080452f959a6184275af246b17a30eb049",
+      "blockHeight": "40",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "submit-review",
+      "txId": "009aedac7ccc533ea96b14cd51e2494cb9c228c7a11fa8ef194f7b21f002f019de",
+      "blockHeight": "44",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "approve-review",
+      "txId": "0045b2b903ddccc0c339fd15222ab1b79096775ddb0440bda909b94e82705536e0",
+      "blockHeight": "47",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "claim-entitlement",
+      "txId": "006bfb2623e631fa4c81d2c55dcf0cee87c8a9367d4e5bb524becec039f7c191b1",
+      "blockHeight": "50",
+      "status": "SucceedEntirely"
+    },
+    {
+      "operation": "close-task",
+      "txId": "00cc178a8cf148c8cfe1aca1765ba57c5eb8a4b5c4783ccad6272921e251b69fdf",
+      "blockHeight": "53",
+      "status": "SucceedEntirely"
+    }
+  ],
+  "rejectedBeforeSubmission": [
+    {
+      "operation": "reject-prover-before-submission",
+      "rejected": true,
+      "proofGenerated": false,
+      "submitted": false
+    },
+    {
+      "operation": "reject-duplicate-review",
+      "rejected": true,
+      "proofGenerated": false,
+      "submitted": false
+    },
+    {
+      "operation": "reject-wrong-owner",
+      "rejected": true,
+      "proofGenerated": false,
+      "submitted": false
+    },
+    {
+      "operation": "reject-duplicate-claim",
+      "rejected": true,
+      "proofGenerated": false,
+      "submitted": false
+    },
+    {
+      "operation": "reject-wrong-marketplace-identity",
+      "rejected": true,
+      "proofGenerated": false,
+      "submitted": false
+    }
+  ],
+  "networkSubmission": true,
+  "status": "passed",
+  "sourceHashes": {
+    "lib/network/sdk-client.mjs": "f2c406b284257821e5ebb1c1d1ab9d90b099d3e681215cca95a64d5069ead2db",
+    "lib/network/config.mjs": "a3ba58baf0856cc36a30a5e0f059ad6cb70190499e390ef199ec93407baafb32",
+    "lib/network/public-testnet.mjs": "1b52d93ed0a1cb21ff8c6f7cbee0ca781fe37d407e18efc40affbb154dc42c1b",
+    "lib/native-engine.mjs": "725de5404c074890ffb5386c0396cbe8e33e839682205f7e116a76ca967d1daa",
+    "contracts/managed/reviewlab/contract/index.js": "db34e6d150d1c8350d9c3d9818536fd6e6ea922bb9ed69ef53a3dd7e556fd1c8",
+    "contracts/reviewlab.compact": "b027c55cbe0266879acc753d96674b457799fbf810171568dcfae4195e14cad1"
+  },
+  "runnerSourceSha256": "89d473fe46a6671074a2e3d055355eecdae2848bdc17e016bb637bc4c09276a7",
+  "lockfileSha256": "483d80b9ba15333c58fbc38c405546d00c94ddca059d7f51ba275748221e37ff",
+  "versions": {
+    "compact-runtime": "0.16.0",
+    "midnight-js-contracts": "4.1.1",
+    "testkit-js": "4.1.1",
+    "wallet-sdk": "1.2.0",
+    "ledger-v8": "8.1.2",
+    "onchain-runtime-v3": "3.1.1",
+    "zkir-v2": "2.1.1"
+  },
+  "suppressedLibraryConsoleCalls": 2,
+  "proofTransactionsCompleted": 6,
+  "contractAddress": "752e8cfac187caf1425767ab798b6d721ac2a3508fd40946d5b8c0c0fa454b65",
+  "marketplaceId": "6f9692e93b33030ea7e079185cd2ccebdfbc9d2643dc9597b2d62f26d3da8770",
+  "issuerIdentity": "0757c7b52f627115ee235acdcae413154052880a740957ed456017d94f142e3f",
+  "uncertainSubmissionRecovery": {
+    "tested": true,
+    "submittedOnce": true,
+    "receiptRecovered": true,
+    "transactionReferenceFabricated": false
+  },
+  "finalState": {
+    "expertsEnrolled": 1,
+    "tasks": 1,
+    "reviews": 1,
+    "claims": 1,
+    "taskClosed": true
+  },
+  "receipt": {
+    "version": 1,
+    "mode": "network",
+    "networkId": "undeployed",
+    "contractAddress": "752e8cfac187caf1425767ab798b6d721ac2a3508fd40946d5b8c0c0fa454b65",
+    "marketplaceId": "6f9692e93b33030ea7e079185cd2ccebdfbc9d2643dc9597b2d62f26d3da8770",
+    "taskId": "e2f03165a2cfd78a60ad72096b23f14d1950b18f1b600a2bf6a774d838eb1ac2",
+    "taskContentDigest": "dc78ed758de1074dfef00f17b638473134d6eec9b10e610fef3f32595aaf00d7",
+    "receiptId": "45bc350935de0ea7bce003edf6481087f466e53c4791700817c4bcbeb6cbefd2",
+    "nullifier": "ffc3aab2a54bd3f1c8293588394cc9f75c9de3555ec2cd3ec5b798c637094242",
+    "feedbackCommitment": "7f141b163b2230a8cba08f1b00cb5d11dd4f48c7cae590507a17def7c4050e6d",
+    "scores": [
+      3,
+      2,
+      5
+    ],
+    "status": "submitted",
+    "receiptMatchesIndexedState": true,
+    "recoveredFromIndexedState": true,
+    "submissionOutcomeKnown": false,
+    "transactionReferenceVerified": false
+  },
+  "receiptCheck": {
+    "receiptId": "45bc350935de0ea7bce003edf6481087f466e53c4791700817c4bcbeb6cbefd2",
+    "receiptMatchesIndexedState": true,
+    "currentStatus": "claimed",
+    "networkId": "undeployed",
+    "contractAddress": "752e8cfac187caf1425767ab798b6d721ac2a3508fd40946d5b8c0c0fa454b65",
+    "confirmationSource": "configured-indexer",
+    "ledgerInclusionIndependentlyVerified": false,
+    "transactionReferenceVerified": false
+  },
+  "rewardPaymentExecuted": false,
+  "sponsorServiceUsed": false,
+  "completedAt": "2026-11-06T15:30:08.896Z"
+}

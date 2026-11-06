@@ -3,6 +3,7 @@ import { resolve, relative, join } from 'node:path';
 import { build } from 'esbuild';
 import { nativeWasmPlugin } from './native-wasm-plugin.mjs';
 import { collectNotices } from './collect-notices.mjs';
+import { buildNetwork } from './build-network.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const dist = resolve(root, 'dist');
@@ -21,7 +22,8 @@ const result = await build({
 if (!assets.size) throw new Error('Build must include actual Midnight WASM');
 if (!Object.keys(result.metafile.inputs).some(name => name.includes('managed/') && name.endsWith('contract/index.js'))) throw new Error('Build must contain generated Compact code');
 if (Object.values(result.metafile.outputs).flatMap(value => value.imports).some(item => item.external)) throw new Error('Unexpected external native dependency');
-await collectNotices(root, dist, Object.keys(result.metafile.inputs));
+const network = await buildNetwork(root, dist);
+await collectNotices(root, dist, [...Object.keys(result.metafile.inputs), ...network.inputs]);
 for (const [path, bytes] of assets) {
   await mkdir(resolve(dist, path, '..'), { recursive: true });
   await writeFile(join(dist, path), bytes);

@@ -4,6 +4,8 @@ NIGHT is the resource-generating asset. Registered NIGHT generates DUST over tim
 
 A marketplace can hold registered NIGHT and use a sponsor wallet to cover transaction fees for contributors. The expert still authorizes the review with their own private inputs. A correctly finalized sponsored transaction lets the sponsor add its fee contribution without changing the authorized action.
 
+ReviewLab's current testnet client uses the connected wallet's own DUST. The browser-lab calculator explains a possible sponsor model; a running fee-sponsorship service remains separate production work.
+
 ## ReviewLab's planning screen
 
 The calculator illustrates possible fee capacity from user-supplied assumptions. It does not query live network parameters or establish the amount of NIGHT a business should purchase. Estimates are not price quotes or guaranteed throughput.

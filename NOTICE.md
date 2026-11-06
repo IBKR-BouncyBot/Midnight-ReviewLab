@@ -8,6 +8,8 @@ This is source-available software with a noncommercial restriction. The license 
 
 The deployment pattern and pinned Compact installer were adapted from [Midnight BallotLab](https://github.com/IBKR-BouncyBot/Midnight-BallotLab), also by IBKR-BouncyBot. The native WebAssembly bundling plugin (`scripts/native-wasm-plugin.mjs`) is reused from that project under its existing PolyForm Noncommercial 1.0.0 license. Third-party components retain their own copyrights and licenses; their dependency packages include those notices.
 
+The browser wallet provider, network configuration boundaries and SDK witness-scoping approach are adapted from BallotLab under the same license. The locally hosted Outfit typeface is licensed under the SIL Open Font License 1.1, retained in `src/fonts/OFL-Outfit.txt` and the published `fonts/` directory. The visual palette follows Midnight; this independent research app does not imply endorsement.
+
 ## Runtime license texts
 
 The Midnight runtime's Apache License text is preserved in `docs/licenses/Apache-2.0.txt`. The production build includes `THIRD_PARTY_NOTICES.txt` with the names, versions and available installed-package license texts of bundled dependencies. Third-party licenses remain in force independently of this project's license.

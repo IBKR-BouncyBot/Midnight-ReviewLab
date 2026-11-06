@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "testedAt": "2026-11-06T15:31:02.997Z",
+  "browser": "156.0.8078.4",
+  "cases": [
+    "Real SDK/contract bundle, two native WASM assets, 18 generated proof assets, no automatic remote calls or enabled transactions",
+    "Preview defaults and explicit loopback development endpoints; switching networks sends no request",
+    "Tabs preserve private inputs and forms; issuer key stays masked/in memory and downloads only on explicit request",
+    "Marketplace JSON parsing, content commitments, duplicate/foreign-network/extra-field rejection and inert HTML payloads",
+    "Expired, malformed and zero-secret credentials rejected before any wallet or network interaction",
+    "Rejecting-only API4 fixture: weak passwords stop before connection; wallet denial stays disconnected and raw error payloads are hidden",
+    "All four testnet screens fit 390px and preserve navigation without starting a transaction"
+  ],
+  "errors": 0,
+  "remoteRequests": 0,
+  "nativeWasmAssetsLoaded": 2,
+  "fixture": "Negative-only API4 connector always rejects; no success mocks",
+  "walletConnected": false,
+  "proofGenerated": false,
+  "transactionSubmitted": false,
+  "networkAcceptance": false,
+  "limitations": [
+    "Joined-marketplace credential identity checks require real state and are covered by SDK/native tests, not a fabricated browser connection."
+  ]
+}

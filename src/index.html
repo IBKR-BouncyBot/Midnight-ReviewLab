@@ -3,18 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a111b">
-  <meta name="description" content="Midnight ReviewLab — a private expert-feedback marketplace for AI, built with Midnight Compact.">
-  <title>Midnight ReviewLab · Expert feedback for better AI</title>
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="description" content="Explore private expert feedback for AI with Midnight ReviewLab. Try the browser demo or connect Lace to the public Preview testnet.">
+  <title>Midnight ReviewLab · Private expertise. Better AI.</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.mjs"></script>
+  <link rel="stylesheet" href="./midnight.css">
+  <link rel="stylesheet" href="./landing.css">
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <div id="app"><div class="boot"><div class="boot-mark">R<span>↗</span></div><p>Opening ReviewLab…</p></div></div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <dialog id="modal" aria-labelledby="modal-title"></dialog>
-  <input id="file-input" type="file" accept="application/json,.json" hidden>
+<body class="landing-page">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="landing-masthead">
+    <a class="landing-brand" href="./" aria-label="ReviewLab home"><span class="landing-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>review<span class="brand-light">lab</span><small>MIDNIGHT AI RESEARCH</small></span></a>
+    <nav class="landing-nav" aria-label="Overview navigation"><a href="#how-it-works">How it works <span aria-hidden="true">↘</span></a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></nav>
+  </header>
+  <main id="main" class="landing-main">
+    <section class="landing-hero" aria-labelledby="landing-title">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> EXPLORE PRIVATE EXPERT FEEDBACK</p>
+      <h1 id="landing-title">Your expertise, shared.<br>Your identity, private.</h1>
+      <p class="landing-lead">Help improve AI with qualified human feedback. Review an answer, prove your eligibility and keep a receipt—without putting your credential secret in the public record.</p>
+      <p class="landing-byline">Built with real Midnight contracts and cryptography.</p>
+    </section>
+    <section id="demo-options" class="landing-demos" aria-labelledby="demo-heading">
+      <div class="landing-section-heading"><div><p class="eyebrow">TWO WAYS TO TRY IT</p><h2 id="demo-heading">Choose your demo.</h2></div><p>Start in your browser, or bring your wallet to the testnet.</p></div>
+      <div class="landing-demo-grid">
+        <a class="landing-demo-card" data-demo="browser" href="./browser.html" aria-labelledby="browser-demo-heading browser-demo-action" aria-describedby="browser-demo-description">
+          <div class="landing-card-top"><span class="landing-card-number" aria-hidden="true">01</span><span class="landing-card-label">ON YOUR DEVICE</span></div>
+          <h3 id="browser-demo-heading">Browser demo</h3>
+          <p id="browser-demo-description" class="landing-card-description">Try the whole feedback marketplace in one tab. Create a campaign, issue a demo credential, submit a review and inspect its receipt.</p>
+          <ul class="landing-requirements"><li>No wallet or tokens needed</li><li>Real Compact code and Midnight cryptography</li><li>You control the demo issuer, buyer and reviewer</li></ul>
+          <p class="landing-card-note">Runs locally. No cryptographic proofs or blockchain transactions are generated in this mode. Refreshing starts a new marketplace.</p>
+          <span id="browser-demo-action" class="landing-card-action">Open browser demo <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="landing-demo-card" data-demo="testnet" href="./network.html" aria-labelledby="testnet-demo-heading testnet-demo-action" aria-describedby="testnet-demo-description">
+          <div class="landing-card-top"><span class="landing-card-number" aria-hidden="true">02</span><span class="landing-card-label">MIDNIGHT PREVIEW</span></div>
+          <h3 id="testnet-demo-heading">Public testnet demo</h3>
+          <p id="testnet-demo-description" class="landing-card-description">Connect Lace to the shared Preview network. Create or join a test marketplace, then approve real contract transactions with your wallet.</p>
+          <ul class="landing-requirements"><li>Lace configured for Midnight Preview</li><li>Test DUST for transaction fees</li><li>A local proof server running on your device</li></ul>
+          <p class="landing-card-note">Uses the public Preview node and indexer. Use test tokens only. Credential issuance is synthetic; reward claims do not send payments.</p>
+          <span id="testnet-demo-action" class="landing-card-action">Open public testnet demo <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </section>
+    <section id="how-it-works" class="landing-how" aria-labelledby="how-heading">
+      <div class="landing-section-heading"><div><p class="eyebrow">FROM AI ANSWER TO EXPERT FEEDBACK</p><h2 id="how-heading">Follow the whole review.</h2></div><a class="landing-guide-link" href="./browser.html#privacy">Explore the privacy model <span aria-hidden="true">→</span></a></div>
+      <ol class="landing-steps">
+        <li><span class="landing-step-number" aria-hidden="true">1</span><h3>Post the task.</h3><p>Commit to the AI answer, required expertise, review limit and deadline.</p></li>
+        <li><span class="landing-step-number" aria-hidden="true">2</span><h3>Prove eligibility.</h3><p>Use an enrolled credential with the right expertise. The same credential cannot review a task twice.</p></li>
+        <li><span class="landing-step-number" aria-hidden="true">3</span><h3>Review and save.</h3><p>Score accuracy, reasoning and safety. Keep a receipt bound to the task and your feedback commitment.</p></li>
+        <li><span class="landing-step-number" aria-hidden="true">4</span><h3>Check the record.</h3><p>Inspect receipts and approvals. A recorded reward entitlement is separate from a payment.</p></li>
+      </ol>
+    </section>
+    <section class="landing-midnight" aria-labelledby="midnight-heading">
+      <div class="landing-section-heading"><div><p class="eyebrow">WHY MIDNIGHT</p><h2 id="midnight-heading">Private inputs.<br>Publicly verifiable rules.</h2></div></div>
+      <div class="landing-feature-grid">
+        <article><span class="feature-label">ZERO-KNOWLEDGE PROOFS</span><h3>Show that the rules hold.</h3><p>The contract checks credential membership, expertise, validity and duplicate prevention. Private secrets stay outside the public review receipt. On testnet, a real prover supplies the cryptographic proof.</p></article>
+        <article><span class="feature-label">NIGHT → DUST</span><h3>Plan for repeat participation.</h3><p>Registered NIGHT generates DUST, the resource consumed by Midnight transaction fees. A future sponsor can cover reviewers’ network fees. This testnet client uses your wallet’s test DUST.</p></article>
+        <article><span class="feature-label">CLEAR BOUNDARIES</span><h3>Keep three budgets separate.</h3><p>DUST covers blockchain fees. Expert compensation and AI computing need their own funding. The demo records review approvals and entitlements; it does not hold or distribute real rewards.</p></article>
+      </div>
+      <a class="landing-guide-link" href="./browser.html#sponsorship">Explore the DUST scenario calculator <span aria-hidden="true">→</span></a>
+    </section>
+    <section class="landing-limits" aria-labelledby="limits-heading">
+      <div><p class="eyebrow">KNOW WHAT YOU ARE TESTING</p><h2 id="limits-heading">A research prototype.</h2></div>
+      <div><p>Demo credentials do not establish real professional qualifications. A production marketplace needs trusted issuers, independent review-quality checks and a payment service. A valid review transaction does not prove that the feedback is correct.</p><p>Local contract execution, proof generation and accepted network transactions are separate milestones. A saved receipt can be internally consistent without establishing authentic credentials, a complete history or blockchain acceptance.</p><div class="landing-resources"><a href="./browser.html#privacy">Privacy & limitations →</a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">Source & setup guides ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div>
+    </section>
+    <footer class="landing-footer"><p>Midnight ReviewLab <span>·</span> Private expert feedback for AI</p><div><a href="./browser.html">Browser demo</a><a href="./network.html">Public testnet</a><a href="https://github.com/IBKR-BouncyBot/Midnight-ReviewLab" target="_blank" rel="noopener noreferrer">View source ↗<span class="sr-only"> (opens in a new tab)</span></a></div><p class="footer-note">Independent Midnight research. For learning and testing. No real payments.</p></footer>
+  </main>
 </body>
 </html>
